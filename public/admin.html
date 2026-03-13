@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Admin – Lulling Games</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ── Admin-specific styles ── */
+    .admin-badge {
+      display: inline-block;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      background: rgba(212, 175, 55, 0.15);
+      border: 1px solid var(--gold-dim);
+      color: var(--gold-dim);
+      border-radius: 4px;
+      padding: 0.15rem 0.4rem;
+      vertical-align: middle;
+      margin-left: 0.4rem;
+    }
+
+    .logout-btn {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.3rem 0.6rem;
+      cursor: pointer;
+      letter-spacing: 0.05em;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .logout-btn:hover {
+      color: var(--accent-glow);
+      border-color: var(--accent-dim);
+    }
+
+    .header-inner {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .add-rule-toggle {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0;
+    }
+
+    .add-rule-toggle .section-title {
+      margin: 0;
+      border: none;
+      padding: 0;
+    }
+
+    .collapse-icon {
+      font-size: 1.2rem;
+      color: var(--text-dim);
+      transition: transform 0.2s;
+    }
+
+    .collapse-icon.open {
+      transform: rotate(45deg);
+    }
+
+    .add-form-wrapper {
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.3s ease;
+    }
+
+    .add-form-wrapper.open {
+      max-height: 600px;
+    }
+
+    .rule-card.admin-card .rule-header {
+      padding-right: 0;
+    }
+
+    .stats-row {
+      display: flex;
+      gap: 0.7rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .stat-box {
+      flex: 1;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.8rem 0.6rem;
+      text-align: center;
+    }
+
+    .stat-box .stat-value {
+      font-family: 'Georgia', serif;
+      font-size: 1.6rem;
+      color: var(--gold);
+      line-height: 1;
+    }
+
+    .stat-box .stat-label {
+      font-size: 0.68rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-top: 0.2rem;
+    }
+
+    .edit-inline-form {
+      display: none;
+      margin-top: 0.8rem;
+      padding-top: 0.8rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .edit-inline-form.open {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LOGIN SCREEN -->
+  <div id="login-screen">
+    <header class="site-header">
+      <div class="logo-text">Lulling Games</div>
+      <div class="logo-sub">Das Trinkspiel</div>
+      <nav class="nav-links">
+        <a href="index.html">Regeln</a>
+        <a href="admin.html" class="active">Admin</a>
+      </nav>
+    </header>
+
+    <main>
+      <div class="login-section">
+        <div class="login-icon">🔐</div>
+        <div class="form-card">
+          <h2>Admin-Bereich</h2>
+          <div class="form-group">
+            <label for="login-password">Passwort</label>
+            <input
+              type="password"
+              id="login-password"
+              placeholder="Admin-Passwort eingeben"
+              autocomplete="current-password"
+              autocapitalize="none"
+            />
+          </div>
+          <button class="btn btn-primary btn-full" onclick="login()">Einloggen</button>
+          <div id="login-error" style="display:none; margin-top:0.8rem; color:var(--accent-glow); font-size:0.85rem; text-align:center;"></div>
+        </div>
+        <p style="text-align:center; margin-top:1rem; font-size:0.75rem; color:var(--text-dim);">
+          <a href="index.html" style="color:var(--text-dim);">← Zurück zu den Regeln</a>
+        </p>
+      </div>
+    </main>
+  </div>
+
+  <!-- ADMIN DASHBOARD -->
+  <div id="admin-screen" style="display:none;">
+    <header class="site-header">
+      <div class="header-inner">
+        <div class="logo-text">
+          Lulling Games
+          <span class="admin-badge">Admin</span>
+        </div>
+        <div class="logo-sub">Regelverwaltung</div>
+        <nav class="nav-links">
+          <a href="index.html">Regeln</a>
+          <a href="admin.html" class="active">Admin</a>
+        </nav>
+        <button class="logout-btn" onclick="logout()">Abmelden</button>
+      </div>
+    </header>
+
+    <main>
+      <!-- Stats -->
+      <div class="stats-row" style="margin-top:1rem;">
+        <div class="stat-box">
+          <div class="stat-value" id="stat-rules">—</div>
+          <div class="stat-label">Regeln</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" id="stat-max-pts">—</div>
+          <div class="stat-label">Max Punkte</div>
+        </div>
+      </div>
+
+      <!-- Neue Regel hinzufügen -->
+      <div class="form-card">
+        <button class="add-rule-toggle" onclick="toggleAddForm()" style="background:none;border:none;cursor:pointer;padding:0;width:100%;text-align:left;">
+          <h2 class="section-title" style="margin:0;border:none;padding:0;">Neue Regel</h2>
+          <span class="collapse-icon" id="collapse-icon">+</span>
+        </button>
+
+        <div class="add-form-wrapper" id="add-form-wrapper">
+          <div style="height:1rem;"></div>
+          <div class="form-group">
+            <label for="new-title">Titel der Regel</label>
+            <input type="text" id="new-title" placeholder="z.B. Erste Regel – Der Eintritt" autocapitalize="sentences" />
+          </div>
+          <div class="form-group">
+            <label for="new-desc">Beschreibung</label>
+            <textarea id="new-desc" placeholder="Was passiert bei dieser Regel? Was muss getrunken werden?"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="new-points">Punktwert</label>
+            <input type="number" id="new-points" placeholder="100" min="0" max="9999" value="100" />
+          </div>
+          <button class="btn btn-primary btn-full" onclick="addRule()">⚔ Regel hinzufügen</button>
+        </div>
+      </div>
+
+      <!-- Regeln-Liste -->
+      <h2 class="section-title">Alle Regeln</h2>
+      <div id="admin-rules-list" class="rules-list">
+        <div class="loading">Lade Regeln</div>
+      </div>
+    </main>
+  </div>
+
+  <!-- EDIT MODAL -->
+  <div class="modal-overlay" id="edit-modal">
+    <div class="modal">
+      <h3>✏️ Regel bearbeiten</h3>
+      <input type="hidden" id="edit-id" />
+      <div class="form-group">
+        <label for="edit-title">Titel</label>
+        <input type="text" id="edit-title" autocapitalize="sentences" />
+      </div>
+      <div class="form-group">
+        <label for="edit-desc">Beschreibung</label>
+        <textarea id="edit-desc"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="edit-points">Punkte</label>
+        <input type="number" id="edit-points" min="0" max="9999" />
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" style="flex:1;" onclick="closeModal()">Abbrechen</button>
+        <button class="btn btn-primary" style="flex:2;" onclick="saveEdit()">Speichern</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DELETE CONFIRM MODAL -->
+  <div class="modal-overlay" id="delete-modal">
+    <div class="modal">
+      <h3>🗑 Regel löschen?</h3>
+      <p style="color:var(--text-dim);font-size:0.9rem;margin-bottom:1.2rem;">Diese Aktion kann nicht rückgängig gemacht werden.</p>
+      <input type="hidden" id="delete-id" />
+      <div class="modal-actions">
+        <button class="btn btn-secondary" style="flex:1;" onclick="closeDeleteModal()">Abbrechen</button>
+        <button class="btn btn-danger" style="flex:1; padding:0.65rem;" onclick="confirmDelete()">Löschen</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+    let adminPassword = '';
+    let rules = [];
+    let addFormOpen = false;
+
+    // ── Auth ──
+
+    async function login() {
+      const pw = document.getElementById('login-password').value;
+      const errEl = document.getElementById('login-error');
+      if (!pw) { showError('Bitte Passwort eingeben.'); return; }
+      try {
+        const res = await fetch('/api/auth', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: pw })
+        });
+        if (res.ok) {
+          adminPassword = pw;
+          document.getElementById('login-screen').style.display = 'none';
+          document.getElementById('admin-screen').style.display = 'block';
+          errEl.style.display = 'none';
+          loadAdminRules();
+        } else {
+          showError('Falsches Passwort.');
+        }
+      } catch (e) {
+        showError('Verbindungsfehler.');
+      }
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('login-error');
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+
+    function logout() {
+      adminPassword = '';
+      document.getElementById('admin-screen').style.display = 'none';
+      document.getElementById('login-screen').style.display = 'block';
+      document.getElementById('login-password').value = '';
+    }
+
+    // Allow Enter key on login
+    document.getElementById('login-password').addEventListener('keydown', e => {
+      if (e.key === 'Enter') login();
+    });
+
+    // ── Rules ──
+
+    async function loadAdminRules() {
+      const list = document.getElementById('admin-rules-list');
+      try {
+        const res = await fetch('/api/rules');
+        rules = await res.json();
+        updateStats();
+        renderAdminRules();
+      } catch (e) {
+        list.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><p>Fehler beim Laden.</p></div>`;
+      }
+    }
+
+    function updateStats() {
+      document.getElementById('stat-rules').textContent = rules.length;
+      const maxPts = rules.length ? Math.max(...rules.map(r => r.points)) : 0;
+      document.getElementById('stat-max-pts').textContent = maxPts || '—';
+    }
+
+    function renderAdminRules() {
+      const list = document.getElementById('admin-rules-list');
+      if (rules.length === 0) {
+        list.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">📜</div>
+            <p>Noch keine Regeln. Füge oben eine neue Regel hinzu.</p>
+          </div>`;
+        return;
+      }
+      list.innerHTML = rules.map(rule => `
+        <div class="rule-card admin-card">
+          <div class="rule-header">
+            <span class="rule-points">${rule.points} Pts</span>
+            <span class="rule-title">${escHtml(rule.title)}</span>
+          </div>
+          <p class="rule-description">${escHtml(rule.description)}</p>
+          <div class="rule-actions">
+            <button class="btn btn-edit" onclick="openEdit(${rule.id})">✏️ Bearbeiten</button>
+            <button class="btn btn-danger" onclick="openDelete(${rule.id})">🗑 Löschen</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function addRule() {
+      const title = document.getElementById('new-title').value.trim();
+      const description = document.getElementById('new-desc').value.trim();
+      const points = parseInt(document.getElementById('new-points').value) || 100;
+
+      if (!title || !description) {
+        showToast('Bitte Titel und Beschreibung ausfüllen.', 'error');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/rules', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: adminPassword, title, description, points })
+        });
+        if (res.ok) {
+          document.getElementById('new-title').value = '';
+          document.getElementById('new-desc').value = '';
+          document.getElementById('new-points').value = '100';
+          showToast('Regel hinzugefügt!', 'success');
+          toggleAddForm(false);
+          loadAdminRules();
+        } else {
+          const err = await res.json();
+          showToast(err.error || 'Fehler', 'error');
+        }
+      } catch (e) {
+        showToast('Verbindungsfehler', 'error');
+      }
+    }
+
+    // ── Edit Modal ──
+
+    function openEdit(id) {
+      const rule = rules.find(r => r.id === id);
+      if (!rule) return;
+      document.getElementById('edit-id').value = id;
+      document.getElementById('edit-title').value = rule.title;
+      document.getElementById('edit-desc').value = rule.description;
+      document.getElementById('edit-points').value = rule.points;
+      document.getElementById('edit-modal').classList.add('open');
+    }
+
+    function closeModal() {
+      document.getElementById('edit-modal').classList.remove('open');
+    }
+
+    async function saveEdit() {
+      const id = parseInt(document.getElementById('edit-id').value);
+      const title = document.getElementById('edit-title').value.trim();
+      const description = document.getElementById('edit-desc').value.trim();
+      const points = parseInt(document.getElementById('edit-points').value) || 100;
+
+      if (!title || !description) {
+        showToast('Bitte alle Felder ausfüllen.', 'error');
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/rules/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: adminPassword, title, description, points })
+        });
+        if (res.ok) {
+          closeModal();
+          showToast('Regel aktualisiert!', 'success');
+          loadAdminRules();
+        } else {
+          const err = await res.json();
+          showToast(err.error || 'Fehler', 'error');
+        }
+      } catch (e) {
+        showToast('Verbindungsfehler', 'error');
+      }
+    }
+
+    // ── Delete Modal ──
+
+    function openDelete(id) {
+      document.getElementById('delete-id').value = id;
+      document.getElementById('delete-modal').classList.add('open');
+    }
+
+    function closeDeleteModal() {
+      document.getElementById('delete-modal').classList.remove('open');
+    }
+
+    async function confirmDelete() {
+      const id = parseInt(document.getElementById('delete-id').value);
+      try {
+        const res = await fetch(`/api/rules/${id}`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: adminPassword })
+        });
+        if (res.ok) {
+          closeDeleteModal();
+          showToast('Regel gelöscht.', 'success');
+          loadAdminRules();
+        } else {
+          const err = await res.json();
+          showToast(err.error || 'Fehler', 'error');
+        }
+      } catch (e) {
+        showToast('Verbindungsfehler', 'error');
+      }
+    }
+
+    // Close modals when clicking backdrop
+    document.getElementById('edit-modal').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+    document.getElementById('delete-modal').addEventListener('click', function(e) {
+      if (e.target === this) closeDeleteModal();
+    });
+
+    // ── Toggle Add Form ──
+
+    function toggleAddForm(forceClose) {
+      addFormOpen = forceClose === false ? false : !addFormOpen;
+      const wrapper = document.getElementById('add-form-wrapper');
+      const icon = document.getElementById('collapse-icon');
+      if (addFormOpen) {
+        wrapper.classList.add('open');
+        icon.classList.add('open');
+      } else {
+        wrapper.classList.remove('open');
+        icon.classList.remove('open');
+      }
+    }
+
+    // ── Toast ──
+
+    function showToast(msg, type = '') {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.className = type;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2800);
+    }
+
+    // ── Utils ──
+
+    function escHtml(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+{
+  "rules": [
+    {
+      "id": 1,
+      "points": 100,
+      "title": "Erste Regel – Der Eintritt",
+      "description": "Jeder Spieler trinkt zu Beginn 2 Schlucke, um das Ritual zu besiegeln. Kein Ausstieg mehr möglich."
+    },
+    {
+      "id": 2,
+      "points": 200,
+      "title": "Zweite Regel – Punkte & Schlucke",
+      "description": "Wer Punkte verliert, trinkt entsprechend viele Schlucke. 100 Punkte = 1 Schluck."
+    },
+    {
+      "id": 3,
+      "points": 300,
+      "title": "Dritte Regel – Ausscheiden",
+      "description": "Wer auf 0 Punkte fällt, ist ausgeschieden und muss ein Strafglas leeren."
+    },
+    {
+      "id": 4,
+      "points": 400,
+      "title": "Vierte Regel – Challenges",
+      "description": "Jeder Spieler kann einen anderen zu einer Challenge fordern. Der Verlierer trinkt 3 Schlucke."
+    },
+    {
+      "id": 5,
+      "points": 500,
+      "title": "Fünfte Regel – Bündnisse",
+      "description": "Bündnisse sind erlaubt. Scheitert ein Bündnis, trinken beide Partner 2 Schlucke extra."
+    }
+  ],
+  "nextId": 6
+}

@@ -1,0 +1,558 @@
+/* ===== LULLING GAMES – GLOBAL STYLES ===== */
+
+:root {
+  --bg-dark: #0a0a0f;
+  --bg-card: #11111a;
+  --bg-card2: #1a1a2a;
+  --accent: #c0392b;
+  --accent-glow: #e74c3c;
+  --accent-dim: #7d1f1f;
+  --gold: #d4af37;
+  --gold-dim: #a07c20;
+  --text: #e8e8f0;
+  --text-dim: #8888aa;
+  --border: #2a2a40;
+  --success: #27ae60;
+  --danger: #c0392b;
+  --font-title: 'Georgia', 'Times New Roman', serif;
+  --font-body: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--text);
+  font-family: var(--font-body);
+  min-height: 100vh;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ===== HEADER ===== */
+
+.site-header {
+  background: linear-gradient(180deg, #0d0d18 0%, #0a0a0f 100%);
+  border-bottom: 2px solid var(--accent);
+  padding: 1.2rem 1rem 1rem;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 4px 20px rgba(192, 57, 43, 0.4);
+}
+
+.site-header .logo-text {
+  font-family: var(--font-title);
+  font-size: 1.6rem;
+  font-weight: bold;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  text-shadow: 0 0 20px rgba(212, 175, 55, 0.5),
+               0 0 40px rgba(212, 175, 55, 0.2);
+}
+
+.site-header .logo-sub {
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-top: 0.1rem;
+}
+
+.nav-links {
+  margin-top: 0.7rem;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.nav-links a {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  color: var(--accent-glow);
+  border-color: var(--accent);
+  background: rgba(192, 57, 43, 0.1);
+}
+
+/* ===== MAIN CONTENT ===== */
+
+main {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 1.2rem 1rem 3rem;
+}
+
+/* ===== SECTION TITLES ===== */
+
+.section-title {
+  font-family: var(--font-title);
+  font-size: 1.1rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent-glow);
+  margin: 1.8rem 0 1rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--accent-dim);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.section-title::before {
+  content: '//';
+  color: var(--gold-dim);
+  font-size: 0.9em;
+}
+
+/* ===== INTRO CARD ===== */
+
+.intro-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: 8px;
+  padding: 1.2rem 1rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+}
+
+.intro-card p {
+  color: var(--text-dim);
+  font-size: 0.92rem;
+  margin-bottom: 0.5rem;
+}
+
+.intro-card p:last-child {
+  margin-bottom: 0;
+}
+
+.intro-card strong {
+  color: var(--gold);
+}
+
+/* ===== RULE CARDS ===== */
+
+.rules-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.rule-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem 1rem 1rem 1.1rem;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.rule-card:hover {
+  border-color: var(--accent-dim);
+  box-shadow: 0 4px 16px rgba(192, 57, 43, 0.2);
+}
+
+.rule-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--accent) 0%, var(--accent-dim) 100%);
+}
+
+.rule-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin-bottom: 0.4rem;
+}
+
+.rule-points {
+  font-family: var(--font-title);
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: var(--gold);
+  background: rgba(212, 175, 55, 0.1);
+  border: 1px solid var(--gold-dim);
+  border-radius: 4px;
+  padding: 0.15rem 0.4rem;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.rule-title {
+  font-family: var(--font-title);
+  font-size: 1rem;
+  color: var(--text);
+  font-weight: bold;
+}
+
+.rule-description {
+  font-size: 0.88rem;
+  color: var(--text-dim);
+  line-height: 1.55;
+}
+
+/* ===== ADMIN RULE CARD EXTRAS ===== */
+
+.rule-card.admin-card {
+  padding-bottom: 0.8rem;
+}
+
+.rule-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+  justify-content: flex-end;
+}
+
+/* ===== BUTTONS ===== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  padding: 0.65rem 1.2rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.88rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: var(--accent-glow);
+  box-shadow: 0 0 16px rgba(231, 76, 60, 0.4);
+}
+
+.btn-secondary {
+  background: var(--bg-card2);
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+  color: var(--text);
+  border-color: var(--text-dim);
+}
+
+.btn-danger {
+  background: rgba(192, 57, 43, 0.15);
+  color: var(--danger);
+  border: 1px solid var(--accent-dim);
+  font-size: 0.8rem;
+  padding: 0.4rem 0.7rem;
+}
+
+.btn-danger:hover {
+  background: rgba(192, 57, 43, 0.3);
+}
+
+.btn-edit {
+  background: rgba(212, 175, 55, 0.1);
+  color: var(--gold-dim);
+  border: 1px solid var(--gold-dim);
+  font-size: 0.8rem;
+  padding: 0.4rem 0.7rem;
+}
+
+.btn-edit:hover {
+  background: rgba(212, 175, 55, 0.2);
+  color: var(--gold);
+}
+
+.btn-full {
+  width: 100%;
+  padding: 0.8rem;
+  font-size: 0.95rem;
+}
+
+/* ===== FORMS ===== */
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 0.35rem;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  background: var(--bg-card2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  padding: 0.65rem 0.85rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  -webkit-appearance: none;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.2);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 90px;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: var(--text-dim);
+  opacity: 0.6;
+}
+
+/* ===== FORM CARD ===== */
+
+.form-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.2rem 1rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+}
+
+/* ===== LOGIN SECTION ===== */
+
+.login-section {
+  max-width: 360px;
+  margin: 3rem auto 0;
+}
+
+.login-icon {
+  text-align: center;
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  filter: drop-shadow(0 0 12px rgba(192, 57, 43, 0.5));
+}
+
+.login-section .form-card {
+  text-align: left;
+}
+
+.login-section h2 {
+  font-family: var(--font-title);
+  font-size: 1.2rem;
+  color: var(--gold);
+  text-align: center;
+  margin-bottom: 1.2rem;
+  letter-spacing: 0.1em;
+}
+
+/* ===== TOAST MESSAGES ===== */
+
+#toast {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(6rem);
+  background: var(--bg-card2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1.2rem;
+  font-size: 0.88rem;
+  color: var(--text);
+  z-index: 999;
+  transition: transform 0.3s ease;
+  white-space: nowrap;
+  max-width: 90vw;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+}
+
+#toast.show {
+  transform: translateX(-50%) translateY(0);
+}
+
+#toast.success {
+  border-color: var(--success);
+  color: var(--success);
+}
+
+#toast.error {
+  border-color: var(--danger);
+  color: var(--accent-glow);
+}
+
+/* ===== MODAL ===== */
+
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  z-index: 200;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.modal-overlay.open {
+  display: flex;
+}
+
+.modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--accent);
+  border-radius: 16px 16px 0 0;
+  width: 100%;
+  max-width: 600px;
+  padding: 1.5rem 1rem 2rem;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal h3 {
+  font-family: var(--font-title);
+  font-size: 1.1rem;
+  color: var(--gold);
+  margin-bottom: 1.2rem;
+  letter-spacing: 0.08em;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 0.7rem;
+  margin-top: 1rem;
+}
+
+/* ===== LOADING STATE ===== */
+
+.loading {
+  text-align: center;
+  color: var(--text-dim);
+  padding: 2rem;
+  font-size: 0.9rem;
+  letter-spacing: 0.1em;
+}
+
+.loading::after {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-left: 6px;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+/* ===== EMPTY STATE ===== */
+
+.empty-state {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+.empty-state .empty-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.7rem;
+  opacity: 0.5;
+}
+
+/* ===== DECORATIVE DIVIDER ===== */
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1.5rem 0;
+}
+
+/* ===== SCROLLBAR ===== */
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--accent-dim);
+  border-radius: 2px;
+}
+
+/* ===== RESPONSIVE TWEAKS ===== */
+
+@media (max-width: 380px) {
+  .site-header .logo-text {
+    font-size: 1.3rem;
+  }
+  .rule-title {
+    font-size: 0.93rem;
+  }
+}
+
+@media (min-width: 601px) {
+  .modal-overlay {
+    align-items: center;
+  }
+  .modal {
+    border-radius: 16px;
+    margin: 1rem;
+    max-height: 85vh;
+  }
+}

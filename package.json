@@ -1,0 +1,13 @@
+{
+  "name": "lulling-games",
+  "version": "1.0.0",
+  "description": "Lulling Games - Trinkspiel inspiriert von JJK Culling Games",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Lulling Games</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ── Page-specific styles ── */
+    .hero {
+      text-align: center;
+      padding: 2rem 0 1rem;
+    }
+
+    .hero-symbol {
+      font-size: 4rem;
+      line-height: 1;
+      margin-bottom: 0.6rem;
+      filter: drop-shadow(0 0 20px rgba(192, 57, 43, 0.7));
+      animation: flicker 4s infinite;
+    }
+
+    @keyframes flicker {
+      0%, 95%, 100% { opacity: 1; }
+      96% { opacity: 0.7; }
+      97% { opacity: 1; }
+      98% { opacity: 0.5; }
+      99% { opacity: 1; }
+    }
+
+    .hero-title {
+      font-family: 'Georgia', 'Times New Roman', serif;
+      font-size: 2rem;
+      font-weight: bold;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold);
+      text-shadow: 0 0 30px rgba(212, 175, 55, 0.5);
+      line-height: 1.1;
+    }
+
+    .hero-subtitle {
+      font-size: 0.72rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-top: 0.4rem;
+    }
+
+    .hero-tagline {
+      margin-top: 0.8rem;
+      font-size: 0.88rem;
+      color: var(--accent-glow);
+      font-style: italic;
+    }
+
+    .rules-count {
+      text-align: right;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.05em;
+    }
+
+    .rules-count span {
+      color: var(--gold-dim);
+      font-weight: bold;
+    }
+
+    .important-note {
+      background: rgba(192, 57, 43, 0.08);
+      border: 1px solid var(--accent-dim);
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+      margin-top: 1.5rem;
+      font-size: 0.85rem;
+      color: var(--text-dim);
+    }
+
+    .important-note strong {
+      color: var(--accent-glow);
+      display: block;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 0.3rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="logo-text">Lulling Games</div>
+    <div class="logo-sub">Das Trinkspiel</div>
+    <nav class="nav-links">
+      <a href="index.html" class="active">Regeln</a>
+      <a href="admin.html">Admin</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="hero">
+      <div class="hero-symbol">⚔️</div>
+      <h1 class="hero-title">Lulling<br>Games</h1>
+      <div class="hero-subtitle">Das Culling Spiel beginnt</div>
+      <p class="hero-tagline">"Wer nicht trinkt, verliert Punkte."</p>
+    </div>
+
+    <div class="intro-card">
+      <p>Willkommen bei den <strong>Lulling Games</strong> — dem Trinkspiel, das sich am legendären <strong>Culling Game</strong> aus Jujutsu Kaisen orientiert.</p>
+      <p>Jeder Spieler startet mit <strong>100 Punkten</strong>. Regeln müssen befolgt werden. Wer scheitert, trinkt. Wer auf 0 fällt, ist raus.</p>
+    </div>
+
+    <h2 class="section-title">Regeln des Spiels</h2>
+
+    <div class="rules-count">Aktive Regeln: <span id="rules-count">—</span></div>
+
+    <div id="rules-list" class="rules-list">
+      <div class="loading">Lade Regeln</div>
+    </div>
+
+    <div class="important-note">
+      <strong>⚠ Wichtiger Hinweis</strong>
+      Trinkt verantwortungsbewusst. Dieses Spiel ist für volljährige Personen. Wer nicht mehr kann, darf jederzeit aufhören.
+    </div>
+  </main>
+
+  <div id="toast"></div>
+
+  <script>
+    async function loadRules() {
+      const list = document.getElementById('rules-list');
+      const countEl = document.getElementById('rules-count');
+      try {
+        const res = await fetch('/api/rules');
+        const rules = await res.json();
+        countEl.textContent = rules.length;
+        if (rules.length === 0) {
+          list.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-icon">📜</div>
+              <p>Noch keine Regeln festgelegt.<br>Der Admin kann Regeln hinzufügen.</p>
+            </div>`;
+          return;
+        }
+        list.innerHTML = rules.map(rule => `
+          <div class="rule-card">
+            <div class="rule-header">
+              <span class="rule-points">${rule.points} Pts</span>
+              <span class="rule-title">${escHtml(rule.title)}</span>
+            </div>
+            <p class="rule-description">${escHtml(rule.description)}</p>
+          </div>
+        `).join('');
+      } catch (e) {
+        list.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><p>Fehler beim Laden der Regeln.</p></div>`;
+      }
+    }
+
+    function escHtml(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    loadRules();
+  </script>
+</body>
+</html>
