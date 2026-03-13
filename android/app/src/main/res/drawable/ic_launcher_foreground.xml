@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Sword / cross icon representing the culling game -->
+    <!-- Vertical blade -->
+    <rect
+        android:fillColor="#D4AF37"
+        android:width="8"
+        android:height="60"
+        android:translateX="50"
+        android:translateY="18" />
+    <!-- Horizontal guard -->
+    <rect
+        android:fillColor="#D4AF37"
+        android:width="36"
+        android:height="7"
+        android:translateX="36"
+        android:translateY="55" />
+    <!-- Handle -->
+    <rect
+        android:fillColor="#C0392B"
+        android:width="8"
+        android:height="20"
+        android:translateX="50"
+        android:translateY="68" />
+    <!-- Pommel -->
+    <rect
+        android:fillColor="#D4AF37"
+        android:width="14"
+        android:height="6"
+        android:translateX="47"
+        android:translateY="83" />
+</vector>
