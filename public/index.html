@@ -322,8 +322,8 @@
       </button>
       <div class="buy-rule-body" id="buy-rule-body" style="display:none">
         <div class="form-group">
-          <label for="buy-player">Dein Name</label>
-          <select id="buy-player"><option value="">— Spieler wählen —</option></select>
+          <label for="buy-player">Wer bist du?</label>
+          <select id="buy-player"><option value="">— Ich bin… —</option></select>
         </div>
         <div class="buy-player-pts" id="buy-player-pts"></div>
         <div class="form-group">
@@ -405,7 +405,7 @@
         const res = await fetch('/api/players');
         allPlayers = await res.json();
         const sel = document.getElementById('buy-player');
-        sel.innerHTML = '<option value="">— Spieler wählen —</option>' +
+        sel.innerHTML = '<option value="">— Ich bin… —</option>' +
           allPlayers.map(p => `<option value="${p.id}">${escHtml(p.name)} (${p.points} Pts)</option>`).join('');
       } catch {}
     }
