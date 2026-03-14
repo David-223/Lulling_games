@@ -1040,15 +1040,6 @@
           activePlayers.map(p => `<option value="${p.id}">${escHtml(p.name)} (${p.chips} Pts)</option>`).join('');
         if (prevVal) sel.value = prevVal;
 
-      } else if (g.toAct.length === 0 && g.currentPlayerIdx === -1
-          && ['preflop','flop','turn','river'].includes(g.phase) && isAdmin()) {
-        const nextPhaseLabel = PHASE_LABEL[PHASE_ORDER[PHASE_ORDER.indexOf(g.phase) + 1]] || '';
-        controlPanel.style.display = '';
-        document.getElementById('control-label').textContent = 'Bettingrunde beendet';
-        advanceBtn.style.display = '';
-        advanceBtn.textContent = g.phase === 'river'
-          ? 'Weiter → Showdown'
-          : `Weiter → ${nextPhaseLabel} aufdecken`;
       }
     }
 
@@ -1195,7 +1186,17 @@
         if (res.status === 404) { stopPolling(); showNoGame(); return; }
         const data = await res.json();
         if (!data || data.phase === 'setup') { stopPolling(); showNoGame(); return; }
-        if (data.phase !== 'ended') render(data);
+        if (data.phase === 'ended') return;
+        render(data);
+        // Auto-advance when a betting round is finished
+        if (data.toAct.length === 0 && data.currentPlayerIdx === -1
+            && ['preflop','flop','turn','river'].includes(data.phase)) {
+          const ar = await fetch('/api/poker/advance', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({})
+          });
+          if (ar.ok) render(await ar.json());
+        }
       } catch {}
     }
     function startPolling() { stopPolling(); pollTimer = setInterval(poll, 1500); }

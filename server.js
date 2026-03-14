@@ -352,7 +352,6 @@ app.post('/api/poker/action', (req, res) => {
 });
 
 app.post('/api/poker/advance', (req, res) => {
-  if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
   if (!pokerGame) return res.status(400).json({ error: 'Kein Spiel' });
   if (pokerGame.toAct.length > 0) return res.status(400).json({ error: 'Bettingrunde noch nicht beendet' });
   pokerAdvancePhase(pokerGame);
