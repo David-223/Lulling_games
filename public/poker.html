@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Poker Regeln – Lalling Games</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .intro-note {
+      background: var(--p-bg2);
+      border: 1px solid var(--p-dim);
+      border-left: 3px solid var(--p);
+      border-radius: 0 4px 4px 0;
+      padding: 0.85rem 1rem 0.85rem 1.2rem;
+      font-size: 0.88rem;
+      color: var(--text-mid);
+      font-family: var(--font-ui);
+      margin-bottom: 1.5rem;
+      transition: background 0.5s, border-color 0.5s;
+    }
+
+    /* ── Hand card ── */
+    .hand-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-mid);
+      border-top: 2px solid var(--p-dim);
+      border-radius: 3px;
+      overflow: hidden;
+      transition: border-color 0.3s, box-shadow 0.3s, background 0.5s;
+      box-shadow: 0 0 4px var(--p-glow), 0 4px 14px rgba(0,0,0,0.55);
+      position: relative;
+    }
+
+    .hand-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0; width: 3px;
+      background: linear-gradient(180deg, var(--p-glow), var(--p), var(--p-dim));
+      transition: background 0.5s;
+    }
+
+    .hand-card:hover {
+      border-top-color: var(--p-glow);
+      box-shadow: 0 0 8px var(--p-hover-glow), 0 0 18px var(--p-hover-glow), 0 6px 20px rgba(0,0,0,0.45);
+    }
+
+    /* Header bar of the hand card */
+    .hand-header {
+      background: linear-gradient(90deg, var(--p-bg) 0%, transparent 65%);
+      border-bottom: 1px solid var(--border-mid);
+      padding: 0.4rem 1rem 0.4rem 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background 0.5s;
+    }
+
+    .hand-rank {
+      font-family: var(--font-title);
+      font-size: 0.62rem;
+      letter-spacing: 0.35em;
+      color: var(--p-glow);
+      opacity: 0.85;
+      text-transform: uppercase;
+    }
+
+    .hand-tier {
+      font-size: 0.62rem;
+      font-family: var(--font-ui);
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      padding: 0.1rem 0.45rem;
+      border-radius: 2px;
+      border: 1px solid;
+    }
+
+    .tier-s  { color: #ff4444; border-color: #550000; background: rgba(255,68,68,0.1); }
+    .tier-a  { color: var(--gold); border-color: var(--border-gold); background: rgba(201,162,39,0.1); }
+    .tier-b  { color: var(--p-glow); border-color: var(--p-dim); background: var(--p-bg2); }
+    .tier-c  { color: var(--text-dim); border-color: var(--border-mid); background: transparent; }
+
+    /* Body */
+    .hand-body {
+      padding: 0.9rem 1rem 0.9rem 1.2rem;
+    }
+
+    .hand-name {
+      font-family: var(--font-title);
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 0.04em;
+      margin-bottom: 0.25rem;
+    }
+
+    .hand-name-en {
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      font-family: var(--font-ui);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Visual card representation */
+    .hand-cards-display {
+      display: flex;
+      gap: 0.3rem;
+      margin-bottom: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    .card-chip {
+      font-size: 0.75rem;
+      font-family: var(--font-ui);
+      font-weight: 700;
+      padding: 0.15rem 0.35rem;
+      border-radius: 3px;
+      border: 1px solid var(--border-mid);
+      background: var(--bg-card2);
+      letter-spacing: 0.03em;
+      line-height: 1.4;
+    }
+
+    .card-chip.red  { color: #dd4444; border-color: #3a1010; }
+    .card-chip.black { color: var(--text); border-color: var(--border-mid); }
+
+    .hand-desc {
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      font-family: var(--font-ui);
+      margin-bottom: 0.9rem;
+      line-height: 1.5;
+    }
+
+    /* Rule input area */
+    .hand-rule-label {
+      font-size: 0.62rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--p-glow);
+      opacity: 0.8;
+      font-family: var(--font-ui);
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+      transition: color 0.5s;
+    }
+
+    .hand-rule-input {
+      width: 100%;
+      background: var(--bg-card2);
+      border: 1px solid var(--border-mid);
+      border-radius: 3px;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 0.93rem;
+      padding: 0.55rem 0.8rem;
+      outline: none;
+      resize: none;
+      min-height: 60px;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.5s;
+    }
+
+    .hand-rule-input:focus {
+      border-color: var(--p);
+      box-shadow: 0 0 0 3px var(--p-bg);
+    }
+
+    .hand-rule-input::placeholder {
+      color: var(--text-dim);
+      opacity: 0.5;
+    }
+
+    /* Save indicator */
+    .save-indicator {
+      font-size: 0.62rem;
+      font-family: var(--font-ui);
+      letter-spacing: 0.1em;
+      margin-top: 0.3rem;
+      text-align: right;
+      height: 1em;
+      transition: color 0.3s;
+    }
+
+    .save-indicator.saved  { color: #4caf82; }
+    .save-indicator.unsaved { color: var(--text-dim); opacity: 0.5; }
+
+    /* Hands list */
+    .hands-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    /* Reset button */
+    .reset-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="logo-text">Lalling Games</div>
+    <div class="logo-sub">Das Culling Spiel · Das Trinkspiel</div>
+    <nav class="nav-links">
+      <a href="index.html">Regeln</a>
+      <a href="spieler.html">Spieler</a>
+      <a href="gluecksrad.html">Idle Death Gamble</a>
+      <a href="poker.html" class="active">Poker</a>
+      <a href="admin.html">Admin</a>
+    </nav>
+    <div class="theme-switcher" id="theme-switcher">
+      <button class="theme-btn" data-scheme="ao"    title="蒼 – Gojo Blue"></button>
+      <button class="theme-btn" data-scheme="shuku" title="赫 – Sukuna Crimson"></button>
+      <button class="theme-btn" data-scheme="yami"  title="闇 – Hollow Purple"></button>
+      <button class="theme-btn" data-scheme="kin"   title="金 – Special Grade"></button>
+    </div>
+  </header>
+
+  <main>
+    <h2 class="section-title">Poker Regeln</h2>
+
+    <div class="intro-note">
+      Weise jeder Pokerhand eine Trinkrege zu. Die Regeln werden automatisch gespeichert.
+    </div>
+
+    <div class="reset-row">
+      <button class="btn btn-secondary" style="font-size:0.72rem; padding:0.35rem 0.8rem;" onclick="resetDefaults()">
+        ↺ Standard wiederherstellen
+      </button>
+    </div>
+
+    <div class="hands-list" id="hands-list"></div>
+  </main>
+
+  <div id="toast"></div>
+
+  <script>
+    const HANDS = [
+      {
+        id:    'royal_flush',
+        rank:  'Rang I',
+        tier:  'S',
+        name:  'Royaler Flush',
+        en:    'Royal Flush',
+        cards: [
+          { v: 'A♠', r: false }, { v: 'K♠', r: false },
+          { v: 'Q♠', r: false }, { v: 'J♠', r: false }, { v: '10♠', r: false }
+        ],
+        desc:  'Ass, König, Dame, Bube, Zehn – alle in derselben Farbe.',
+        def:   'Alle anderen trinken 5 Schlucke. Du bist unantastbar.',
+      },
+      {
+        id:    'straight_flush',
+        rank:  'Rang II',
+        tier:  'S',
+        name:  'Straight Flush',
+        en:    'Straight Flush',
+        cards: [
+          { v: '9♥', r: true }, { v: '8♥', r: true },
+          { v: '7♥', r: true }, { v: '6♥', r: true }, { v: '5♥', r: true }
+        ],
+        desc:  'Fünf aufeinanderfolgende Karten in derselben Farbe.',
+        def:   'Verteile 8 Schlucke frei auf beliebige Spieler.',
+      },
+      {
+        id:    'four_of_a_kind',
+        rank:  'Rang III',
+        tier:  'A',
+        name:  'Vierling',
+        en:    'Four of a Kind',
+        cards: [
+          { v: 'A♠', r: false }, { v: 'A♥', r: true },
+          { v: 'A♦', r: true  }, { v: 'A♣', r: false }, { v: 'K♠', r: false }
+        ],
+        desc:  'Vier Karten desselben Wertes.',
+        def:   'Verteile 6 Schlucke frei. Du darfst eine Regel für diese Runde bestimmen.',
+      },
+      {
+        id:    'full_house',
+        rank:  'Rang IV',
+        tier:  'A',
+        name:  'Full House',
+        en:    'Full House',
+        cards: [
+          { v: 'K♠', r: false }, { v: 'K♥', r: true },
+          { v: 'K♦', r: true  }, { v: 'J♠', r: false }, { v: 'J♥', r: true }
+        ],
+        desc:  'Drei gleiche Karten und ein Paar.',
+        def:   'Verteile 4 Schlucke und trink selbst 1 Schluck.',
+      },
+      {
+        id:    'flush',
+        rank:  'Rang V',
+        tier:  'A',
+        name:  'Flush',
+        en:    'Flush',
+        cards: [
+          { v: 'A♣', r: false }, { v: 'J♣', r: false },
+          { v: '8♣', r: false }, { v: '6♣', r: false }, { v: '3♣', r: false }
+        ],
+        desc:  'Fünf beliebige Karten in derselben Farbe.',
+        def:   'Verteile 3 Schlucke frei.',
+      },
+      {
+        id:    'straight',
+        rank:  'Rang VI',
+        tier:  'B',
+        name:  'Straße',
+        en:    'Straight',
+        cards: [
+          { v: '9♠', r: false }, { v: '8♥', r: true },
+          { v: '7♦', r: true  }, { v: '6♣', r: false }, { v: '5♠', r: false }
+        ],
+        desc:  'Fünf aufeinanderfolgende Karten in verschiedenen Farben.',
+        def:   'Spieler links und rechts trinken je 2 Schlucke.',
+      },
+      {
+        id:    'three_of_a_kind',
+        rank:  'Rang VII',
+        tier:  'B',
+        name:  'Drilling',
+        en:    'Three of a Kind',
+        cards: [
+          { v: 'Q♠', r: false }, { v: 'Q♥', r: true },
+          { v: 'Q♦', r: true  }, { v: '9♠', r: false }, { v: '4♥', r: true }
+        ],
+        desc:  'Drei Karten desselben Wertes.',
+        def:   'Wähle einen Spieler aus – dieser trinkt 3 Schlucke.',
+      },
+      {
+        id:    'two_pair',
+        rank:  'Rang VIII',
+        tier:  'B',
+        name:  'Zwei Paare',
+        en:    'Two Pair',
+        cards: [
+          { v: 'J♠', r: false }, { v: 'J♥', r: true },
+          { v: '8♦', r: true  }, { v: '8♣', r: false }, { v: 'A♠', r: false }
+        ],
+        desc:  'Zwei verschiedene Paare.',
+        def:   'Du trinkst 2 Schlucke.',
+      },
+      {
+        id:    'one_pair',
+        rank:  'Rang IX',
+        tier:  'C',
+        name:  'Ein Paar',
+        en:    'One Pair',
+        cards: [
+          { v: '10♠', r: false }, { v: '10♥', r: true },
+          { v: 'A♦',  r: true  }, { v: 'K♣',  r: false }, { v: 'Q♠', r: false }
+        ],
+        desc:  'Zwei Karten desselben Wertes.',
+        def:   'Du trinkst 1 Schluck.',
+      },
+      {
+        id:    'high_card',
+        rank:  'Rang X',
+        tier:  'C',
+        name:  'Höchste Karte',
+        en:    'High Card',
+        cards: [
+          { v: 'A♠', r: false }, { v: 'J♦', r: true },
+          { v: '9♣', r: false }, { v: '7♥', r: true }, { v: '3♠', r: false }
+        ],
+        desc:  'Keine Kombination – die höchste Karte zählt.',
+        def:   'Du trinkst 2 Schlucke. Pech gehabt.',
+      },
+    ];
+
+    // ── Storage ──
+    function loadRules() {
+      return JSON.parse(localStorage.getItem('poker-hand-rules') || '{}');
+    }
+
+    function saveRule(id, value) {
+      const rules = loadRules();
+      rules[id] = value;
+      localStorage.setItem('poker-hand-rules', JSON.stringify(rules));
+    }
+
+    function resetDefaults() {
+      if (!confirm('Alle Regeln auf Standard zurücksetzen?')) return;
+      localStorage.removeItem('poker-hand-rules');
+      render();
+      showToast('Standardregeln wiederhergestellt.', 'success');
+    }
+
+    // ── Render ──
+    function render() {
+      const saved = loadRules();
+      const list  = document.getElementById('hands-list');
+
+      list.innerHTML = HANDS.map(h => {
+        const value = saved[h.id] !== undefined ? saved[h.id] : h.def;
+        const cards = h.cards.map(c =>
+          `<span class="card-chip ${c.r ? 'red' : 'black'}">${c.v}</span>`
+        ).join('');
+
+        return `
+          <div class="hand-card">
+            <div class="hand-header">
+              <span class="hand-rank">${h.rank}</span>
+              <span class="hand-tier tier-${h.tier.toLowerCase()}">${h.tier}-Tier</span>
+            </div>
+            <div class="hand-body">
+              <div class="hand-name">${h.name}</div>
+              <div class="hand-name-en">${h.en}</div>
+              <div class="hand-cards-display">${cards}</div>
+              <div class="hand-desc">${h.desc}</div>
+              <div class="hand-rule-label">⚔ Trinkrege</div>
+              <textarea
+                class="hand-rule-input"
+                id="rule-${h.id}"
+                placeholder="Regel für diese Hand eingeben…"
+                oninput="onRuleInput('${h.id}')"
+              >${escHtml(value)}</textarea>
+              <div class="save-indicator saved" id="ind-${h.id}">✓ Gespeichert</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ── Auto-save with debounce ──
+    const debounceTimers = {};
+
+    function onRuleInput(id) {
+      const ind = document.getElementById(`ind-${id}`);
+      ind.className = 'save-indicator unsaved';
+      ind.textContent = '…';
+
+      clearTimeout(debounceTimers[id]);
+      debounceTimers[id] = setTimeout(() => {
+        const val = document.getElementById(`rule-${id}`).value;
+        saveRule(id, val);
+        ind.className = 'save-indicator saved';
+        ind.textContent = '✓ Gespeichert';
+      }, 600);
+    }
+
+    // ── Theme Switcher ──
+    const THEMES = ['ao', 'shuku', 'yami', 'kin'];
+
+    function applyTheme(scheme) {
+      if (!THEMES.includes(scheme)) scheme = 'ao';
+      document.documentElement.setAttribute('data-theme', scheme);
+      document.querySelectorAll('.theme-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.scheme === scheme);
+      });
+      localStorage.setItem('lalling-theme', scheme);
+    }
+
+    document.getElementById('theme-switcher').addEventListener('click', e => {
+      const btn = e.target.closest('.theme-btn');
+      if (btn) applyTheme(btn.dataset.scheme);
+    });
+
+    // ── Toast ──
+    function showToast(msg, type = '') {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.className = type;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2800);
+    }
+
+    function escHtml(str) {
+      return String(str)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // ── Init ──
+    applyTheme(localStorage.getItem('lalling-theme') || 'ao');
+    render();
+  </script>
+</body>
+</html>
