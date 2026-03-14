@@ -6,39 +6,38 @@
   <title>Spieler – Lalling Games</title>
   <link rel="stylesheet" href="style.css" />
   <style>
+    .player-card-wrap {
+      filter: drop-shadow(0 0 2px var(--p-dim)) drop-shadow(0 4px 14px rgba(0,0,0,0.55));
+      transition: filter 0.3s;
+    }
+    .player-card-wrap:hover {
+      filter: drop-shadow(0 0 5px var(--p-glow)) drop-shadow(0 6px 20px rgba(0,0,0,0.45));
+    }
+
     .player-card {
       background: var(--bg-card);
-      border: 1px solid var(--border-mid);
-      border-top: 2px solid var(--p-dim);
-      border-radius: 3px;
+      clip-path: polygon(
+        24px 0%,
+        calc(100% - 24px) 0%,
+        100% 50%,
+        calc(100% - 24px) 100%,
+        24px 100%,
+        0% 50%
+      );
       padding: 0;
       position: relative;
       overflow: hidden;
-      transition: border-color 0.3s, box-shadow 0.3s, background 0.5s;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.5);
-    }
-
-    .player-card:hover {
-      border-top-color: var(--p-glow);
-      border-color: var(--p-dim);
-      box-shadow: 0 6px 28px rgba(0,0,0,0.4), 0 0 40px var(--p-bg2);
-    }
-
-    .player-card::before {
-      content: '';
-      position: absolute;
-      left: 0; top: 0; bottom: 0; width: 3px;
-      background: linear-gradient(180deg, var(--p-glow), var(--p), var(--p-dim));
       transition: background 0.5s;
     }
 
     .player-header {
-      background: linear-gradient(90deg, rgba(0,40,160,0.18) 0%, transparent 70%);
+      background: linear-gradient(90deg, var(--p-bg) 0%, transparent 65%);
       border-bottom: 1px solid var(--border-mid);
-      padding: 0.4rem 1rem 0.4rem 1.2rem;
+      padding: 0.45rem 2rem 0.45rem 2rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      transition: background 0.5s;
     }
 
     .player-rank {
@@ -73,7 +72,7 @@
     }
 
     .player-body {
-      padding: 0.85rem 1rem 1rem 1.2rem;
+      padding: 0.85rem 2rem 1rem 2rem;
     }
 
     .player-name {
@@ -242,6 +241,7 @@
           const pct = Math.min(100, p.points);
           const isElim = p.points === 0;
           return `
+            <div class="player-card-wrap">
             <div class="player-card">
               <div class="player-header">
                 <span class="player-rank ${rankClass(rank)}">${rankLabel(rank)}</span>
@@ -255,6 +255,7 @@
                 </div>
                 ${isElim ? '<div class="eliminated-tag">✕ Ausgeschieden</div>' : ''}
               </div>
+            </div>
             </div>
           `;
         }).join('');

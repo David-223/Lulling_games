@@ -484,17 +484,19 @@
         return;
       }
       list.innerHTML = rules.map((rule, idx) => `
-        <div class="rule-card admin-card">
-          <div class="rule-number-bar">
-            <span class="rule-numeral">Regel ${toRoman(idx + 1)}</span>
-            ${rule.points != null ? `<span class="rule-points">${rule.points} Pts</span>` : ''}
-          </div>
-          <div class="rule-body">
-            <div class="rule-title">${escHtml(rule.title)}</div>
-            <p class="rule-description">${escHtml(rule.description)}</p>
-            <div class="rule-actions">
-              <button class="btn btn-edit" onclick="openEdit(${rule.id})">✏️ Bearbeiten</button>
-              <button class="btn btn-danger" onclick="openDelete(${rule.id})">🗑 Löschen</button>
+        <div class="rule-card-wrap">
+          <div class="rule-card admin-card">
+            <div class="rule-number-bar">
+              <span class="rule-numeral">Regel ${toRoman(idx + 1)}</span>
+              ${rule.points != null ? `<span class="rule-points">${rule.points} Pts</span>` : ''}
+            </div>
+            <div class="rule-body">
+              <div class="rule-title">${escHtml(rule.title)}</div>
+              <p class="rule-description">${escHtml(rule.description)}</p>
+              <div class="rule-actions">
+                <button class="btn btn-edit" onclick="openEdit(${rule.id})">✏️ Bearbeiten</button>
+                <button class="btn btn-danger" onclick="openDelete(${rule.id})">🗑 Löschen</button>
+              </div>
             </div>
           </div>
         </div>
