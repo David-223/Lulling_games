@@ -129,15 +129,15 @@
     .player-admin-card {
       background: var(--bg-card);
       border: 1px solid var(--border-mid);
-      border-top: 2px solid var(--curse-blue-dim);
+      border-top: 2px solid var(--p-dim);
       border-radius: 3px;
       overflow: hidden;
       box-shadow: 0 4px 16px rgba(0,0,0,0.4);
     }
 
     .player-admin-card:hover {
-      border-top-color: var(--curse-blue-glow);
-      border-color: var(--curse-blue-dim);
+      border-top-color: var(--p-glow);
+      border-color: var(--p-dim);
     }
 
     .player-admin-header {
@@ -180,7 +180,7 @@
     .pts-display {
       font-family: var(--font-title);
       font-size: 1rem;
-      color: var(--curse-blue-glow);
+      color: var(--p-glow);
       min-width: 3rem;
       text-align: center;
     }
@@ -262,6 +262,12 @@
           <a href="spieler.html">Spieler</a>
           <a href="admin.html" class="active">Admin</a>
         </nav>
+        <div class="theme-switcher" id="theme-switcher">
+          <button class="theme-btn" data-scheme="ao"    title="蒼 – Gojo Blue"></button>
+          <button class="theme-btn" data-scheme="shuku" title="赫 – Sukuna Crimson"></button>
+          <button class="theme-btn" data-scheme="yami"  title="闇 – Hollow Purple"></button>
+          <button class="theme-btn" data-scheme="kin"   title="金 – Special Grade"></button>
+        </div>
         <button class="logout-btn" onclick="logout()">Abmelden</button>
       </div>
     </header>
@@ -478,17 +484,19 @@
         return;
       }
       list.innerHTML = rules.map((rule, idx) => `
-        <div class="rule-card admin-card">
-          <div class="rule-number-bar">
-            <span class="rule-numeral">Regel ${toRoman(idx + 1)}</span>
-            ${rule.points != null ? `<span class="rule-points">${rule.points} Pts</span>` : ''}
-          </div>
-          <div class="rule-body">
-            <div class="rule-title">${escHtml(rule.title)}</div>
-            <p class="rule-description">${escHtml(rule.description)}</p>
-            <div class="rule-actions">
-              <button class="btn btn-edit" onclick="openEdit(${rule.id})">✏️ Bearbeiten</button>
-              <button class="btn btn-danger" onclick="openDelete(${rule.id})">🗑 Löschen</button>
+        <div class="rule-card-wrap">
+          <div class="rule-card admin-card">
+            <div class="rule-number-bar">
+              <span class="rule-numeral">Regel ${toRoman(idx + 1)}</span>
+              ${rule.points != null ? `<span class="rule-points">${rule.points} Pts</span>` : ''}
+            </div>
+            <div class="rule-body">
+              <div class="rule-title">${escHtml(rule.title)}</div>
+              <p class="rule-description">${escHtml(rule.description)}</p>
+              <div class="rule-actions">
+                <button class="btn btn-edit" onclick="openEdit(${rule.id})">✏️ Bearbeiten</button>
+                <button class="btn btn-danger" onclick="openDelete(${rule.id})">🗑 Löschen</button>
+              </div>
             </div>
           </div>
         </div>
@@ -747,6 +755,25 @@
         icon.classList.remove('open');
       }
     }
+
+    // ── Theme Switcher ──
+    const THEMES = ['ao', 'shuku', 'yami', 'kin'];
+
+    function applyTheme(scheme) {
+      if (!THEMES.includes(scheme)) scheme = 'ao';
+      document.documentElement.setAttribute('data-theme', scheme);
+      document.querySelectorAll('.theme-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.scheme === scheme);
+      });
+      localStorage.setItem('lalling-theme', scheme);
+    }
+
+    document.getElementById('theme-switcher').addEventListener('click', e => {
+      const btn = e.target.closest('.theme-btn');
+      if (btn) applyTheme(btn.dataset.scheme);
+    });
+
+    applyTheme(localStorage.getItem('lalling-theme') || 'ao');
 
     // ── Utils ──
 
