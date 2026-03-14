@@ -7,11 +7,16 @@
   <link rel="stylesheet" href="style.css" />
   <style>
     .player-card-wrap {
-      filter: drop-shadow(0 0 2px var(--p-dim)) drop-shadow(0 4px 14px rgba(0,0,0,0.55));
-      transition: filter 0.3s;
+      filter:
+        drop-shadow(0 0 4px var(--p-glow))
+        drop-shadow(0 4px 14px rgba(0,0,0,0.55));
+      transition: filter 0.35s;
     }
     .player-card-wrap:hover {
-      filter: drop-shadow(0 0 5px var(--p-glow)) drop-shadow(0 6px 20px rgba(0,0,0,0.45));
+      filter:
+        drop-shadow(0 0 8px var(--p-hover-glow))
+        drop-shadow(0 0 18px var(--p-hover-glow))
+        drop-shadow(0 6px 20px rgba(0,0,0,0.45));
     }
 
     .player-card {

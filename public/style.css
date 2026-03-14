@@ -42,11 +42,12 @@
   --font-ui:    'Rajdhani', 'Segoe UI', system-ui, sans-serif;
 
   /* ── Theme primary – defaults to Gojo Blue ── */
-  --p:      #0033bb;
-  --p-glow: #2266ff;
-  --p-dim:  #001155;
-  --p-bg:   rgba(0, 51, 187, 0.12);
-  --p-bg2:  rgba(0, 51, 187, 0.06);
+  --p:            #0033bb;
+  --p-glow:       #2266ff;
+  --p-dim:        #001155;
+  --p-bg:         rgba(0, 51, 187, 0.12);
+  --p-bg2:        rgba(0, 51, 187, 0.06);
+  --p-hover-glow: #c9a227;
 }
 
 /* ──────────────────────────────────────────────
@@ -55,50 +56,54 @@
 
 /* 蒼  – Gojo Blue (default – explicit for completeness) */
 [data-theme="ao"] {
-  --p:      #0033bb;
-  --p-glow: #2266ff;
-  --p-dim:  #001155;
-  --p-bg:   rgba(0, 51, 187, 0.12);
-  --p-bg2:  rgba(0, 51, 187, 0.06);
+  --p:           #0033bb;
+  --p-glow:      #2266ff;
+  --p-dim:       #001155;
+  --p-bg:        rgba(0, 51, 187, 0.12);
+  --p-bg2:       rgba(0, 51, 187, 0.06);
+  --p-hover-glow: #c9a227; /* gold */
 }
 
 /* 赫  – Sukuna Crimson */
 [data-theme="shuku"] {
-  --bg-dark:  #07010a;
-  --bg-card:  #0e0208;
-  --bg-card2: #160310;
-  --p:        #880000;
-  --p-glow:   #dd1111;
-  --p-dim:    #440000;
-  --p-bg:     rgba(136, 0, 0, 0.15);
-  --p-bg2:    rgba(136, 0, 0, 0.07);
-  --border-mid: #2a0a12;
+  --bg-dark:     #07010a;
+  --bg-card:     #0e0208;
+  --bg-card2:    #160310;
+  --p:           #880000;
+  --p-glow:      #dd1111;
+  --p-dim:       #440000;
+  --p-bg:        rgba(136, 0, 0, 0.15);
+  --p-bg2:       rgba(136, 0, 0, 0.07);
+  --border-mid:  #2a0a12;
+  --p-hover-glow: #c9a227; /* gold */
 }
 
 /* 闇  – Hollow Purple Void */
 [data-theme="yami"] {
-  --bg-dark:  #030008;
-  --bg-card:  #0a0012;
-  --bg-card2: #12001e;
-  --p:        #5500aa;
-  --p-glow:   #aa44ff;
-  --p-dim:    #2d0066;
-  --p-bg:     rgba(85, 0, 170, 0.15);
-  --p-bg2:    rgba(85, 0, 170, 0.07);
-  --border-mid: #1a0a30;
+  --bg-dark:     #030008;
+  --bg-card:     #0a0012;
+  --bg-card2:    #12001e;
+  --p:           #5500aa;
+  --p-glow:      #aa44ff;
+  --p-dim:       #2d0066;
+  --p-bg:        rgba(85, 0, 170, 0.15);
+  --p-bg2:       rgba(85, 0, 170, 0.07);
+  --border-mid:  #1a0a30;
+  --p-hover-glow: #2266ff; /* blue synergizes with purple */
 }
 
 /* 金  – Special Grade Gold */
 [data-theme="kin"] {
-  --bg-dark:  #030200;
-  --bg-card:  #0a0800;
-  --bg-card2: #120f00;
-  --p:        #7a5c00;
-  --p-glow:   #c9a227;
-  --p-dim:    #3d2d00;
-  --p-bg:     rgba(122, 92, 0, 0.15);
-  --p-bg2:    rgba(122, 92, 0, 0.07);
-  --border-mid: #201800;
+  --bg-dark:     #030200;
+  --bg-card:     #0a0800;
+  --bg-card2:    #120f00;
+  --p:           #7a5c00;
+  --p-glow:      #c9a227;
+  --p-dim:       #3d2d00;
+  --p-bg:        rgba(122, 92, 0, 0.15);
+  --p-bg2:       rgba(122, 92, 0, 0.07);
+  --border-mid:  #201800;
+  --p-hover-glow: #e01111; /* red contrasts with gold */
 }
 
 /* ──────────────────────────────────────────────
@@ -360,12 +365,17 @@ main {
 
 /* Wrapper carries the glow; filter follows child's clip-path */
 .rule-card-wrap {
-  filter: drop-shadow(0 0 2px var(--p-dim)) drop-shadow(0 4px 14px rgba(0,0,0,0.55));
-  transition: filter 0.3s, transform 0.2s;
+  filter:
+    drop-shadow(0 0 4px var(--p-glow))
+    drop-shadow(0 4px 14px rgba(0,0,0,0.55));
+  transition: filter 0.35s, transform 0.2s;
 }
 
 .rule-card-wrap:hover {
-  filter: drop-shadow(0 0 5px var(--p-glow)) drop-shadow(0 6px 20px rgba(0,0,0,0.45));
+  filter:
+    drop-shadow(0 0 8px var(--p-hover-glow))
+    drop-shadow(0 0 18px var(--p-hover-glow))
+    drop-shadow(0 6px 20px rgba(0,0,0,0.45));
   transform: translateY(-1px);
 }
 
