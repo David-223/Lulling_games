@@ -11,19 +11,19 @@
       display: flex;
       justify-content: center;
       gap: 0;
-      margin: 1.2rem 0 1rem;
+      margin: 0.8rem 0 0.5rem;
       border: 1px solid var(--border-mid);
       border-radius: 4px;
       overflow: hidden;
     }
     .phase-step {
       flex: 1;
-      padding: 0.4rem 0.2rem;
+      padding: 0.35rem 0.15rem;
       text-align: center;
       font-family: var(--font-ui);
-      font-size: 0.62rem;
+      font-size: 0.58rem;
       font-weight: 700;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
       color: var(--text-dim);
       background: var(--bg-card);
@@ -32,146 +32,287 @@
     }
     .phase-step:last-child { border-right: none; }
     .phase-step.active { background: var(--p-bg); color: var(--p-glow); }
-    .phase-step.done   { background: transparent; color: var(--text-dim); opacity: 0.4; }
+    .phase-step.done   { background: transparent; color: var(--text-dim); opacity: 0.35; }
 
-    /* ── Pot display ── */
-    .pot-display {
-      text-align: center;
-      margin-bottom: 1rem;
+    /* ══════════════════════════════════════
+       POKER TABLE SCENE
+    ══════════════════════════════════════ */
+
+    .table-scene {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      margin: 0.4rem 0 0.6rem;
+      user-select: none;
     }
-    .pot-label {
-      font-size: 0.62rem;
-      letter-spacing: 0.3em;
+
+    .ts-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      width: 100%;
+    }
+
+    /* Side and corner seat slots */
+    .ts-slot {
+      width: 78px;
+      min-width: 78px;
+      flex-shrink: 0;
+      min-height: 4px; /* keeps row height stable when empty */
+    }
+
+    /* The oval takes up remaining space in the middle row */
+    .ts-mid .poker-oval-wrap {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── Oval table ── */
+    .poker-oval {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background:
+        radial-gradient(ellipse 55% 50% at 50% 42%,
+          #38864a 0%, #22643a 45%, #153f25 100%);
+      border-radius: 50%;
+      border: 7px solid #3a1c06;
+      box-shadow:
+        0 0 0 3px #5c2e0a,
+        inset 0 2px 14px rgba(0,0,0,0.45),
+        0 8px 28px rgba(0,0,0,0.65);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .table-inner {
+      text-align: center;
+      pointer-events: none;
+      padding: 0 0.5rem;
+    }
+
+    .table-pot-lbl {
+      font-size: 0.5rem;
+      letter-spacing: 0.35em;
       text-transform: uppercase;
-      color: var(--text-dim);
+      color: rgba(255,255,255,0.45);
       font-family: var(--font-ui);
       font-weight: 700;
     }
-    .pot-value {
+
+    .table-pot-val {
       font-family: var(--font-title);
-      font-size: 2.2rem;
+      font-size: 1.65rem;
       font-weight: 900;
       color: var(--gold);
-      letter-spacing: 0.05em;
-      line-height: 1.1;
+      line-height: 1.05;
     }
-    .pot-value span { font-size: 1rem; color: var(--gold-dim); }
 
-    /* ── Player rows ── */
-    .player-rows { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; }
+    .table-pot-pts {
+      font-size: 0.6rem;
+      color: rgba(201,162,39,0.55);
+    }
 
-    .player-row {
+    .table-cur-bet {
+      font-size: 0.55rem;
+      color: rgba(255,255,255,0.35);
+      font-family: var(--font-ui);
+      margin-top: 0.15rem;
+    }
+
+    .table-status-txt {
+      font-size: 0.6rem;
+      font-family: var(--font-ui);
+      color: rgba(255,255,255,0.5);
+      margin-top: 0.2rem;
+    }
+
+    .table-status-txt.is-turn {
+      color: #88ee88;
+    }
+
+    /* ── Seat cards ── */
+    .seat-card {
       background: var(--bg-card);
       border: 1px solid var(--border-mid);
       border-radius: 5px;
-      display: flex;
-      align-items: center;
-      padding: 0.6rem 0.8rem;
-      gap: 0.6rem;
+      padding: 0.35rem 0.4rem;
+      width: 100%;
+      box-sizing: border-box;
+      font-family: var(--font-ui);
       transition: border-color 0.2s, box-shadow 0.2s;
     }
-    .player-row.active-turn {
-      border-color: var(--p);
-      box-shadow: 0 0 10px var(--p-bg);
-    }
-    .player-row.folded-row { opacity: 0.35; }
 
-    .player-row .pr-avatar {
-      width: 32px; height: 32px;
+    .seat-card.is-turn {
+      border-color: var(--p);
+      box-shadow: 0 0 8px var(--p-bg);
+    }
+
+    .seat-card.is-folded {
+      opacity: 0.28;
+    }
+
+    .seat-card.is-me {
+      border-color: var(--p-dim);
+      background: linear-gradient(135deg, var(--bg-card), var(--p-bg));
+    }
+
+    .seat-header {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .seat-av {
+      width: 22px;
+      height: 22px;
       border-radius: 50%;
       background: var(--p-bg);
       border: 1px solid var(--p-dim);
-      display: flex; align-items: center; justify-content: center;
-      font-family: var(--font-title);
-      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.6rem;
       font-weight: 700;
       color: var(--p-glow);
+      font-family: var(--font-title);
       flex-shrink: 0;
     }
-    .player-row .pr-name {
+
+    .seat-av.is-turn { border-color: var(--p); background: var(--p-bg2); }
+
+    .seat-info {
+      min-width: 0;
       flex: 1;
-      font-family: var(--font-ui);
-      font-size: 0.9rem;
+    }
+
+    .seat-name {
+      font-size: 0.68rem;
       font-weight: 700;
       color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 52px;
+      line-height: 1.2;
     }
-    .player-row.active-turn .pr-name { color: var(--p-glow); }
 
-    .player-row .pr-chips {
-      font-family: var(--font-ui);
-      font-size: 0.82rem;
+    .seat-name.is-me { color: var(--p-glow); }
+
+    .seat-chips {
+      font-size: 0.6rem;
       font-weight: 700;
       color: var(--gold);
-      min-width: 50px;
-      text-align: right;
-    }
-    .player-row .pr-bet {
-      font-family: var(--font-ui);
-      font-size: 0.72rem;
-      color: var(--text-dim);
-      min-width: 36px;
-      text-align: right;
+      line-height: 1.2;
     }
 
-    .pr-badges { display: flex; gap: 0.3rem; flex-wrap: wrap; justify-content: flex-end; }
-    .pr-badge {
-      font-size: 0.58rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      padding: 0.1rem 0.4rem;
+    .seat-bet {
+      display: inline-block;
+      font-size: 0.56rem;
+      font-weight: 700;
+      color: #7ddd7d;
+      background: rgba(80,200,80,0.1);
+      border: 1px solid rgba(80,200,80,0.18);
+      border-radius: 2px;
+      padding: 0 3px;
+      margin-top: 2px;
+    }
+
+    .seat-badges {
+      display: flex;
+      gap: 2px;
+      margin-top: 3px;
+      flex-wrap: wrap;
+    }
+
+    .sb {
+      font-size: 0.5rem;
+      letter-spacing: 0.06em;
+      padding: 1px 3px;
       border-radius: 2px;
       font-weight: 700;
       border: 1px solid;
       white-space: nowrap;
+      font-family: var(--font-ui);
     }
-    .badge-dealer { color: var(--gold); border-color: var(--border-gold); background: rgba(201,162,39,0.08); }
-    .badge-sb     { color: #6cf; border-color: #1a4466; background: rgba(100,200,255,0.07); }
-    .badge-bb     { color: #adf; border-color: #1a2a44; background: rgba(150,200,255,0.07); }
-    .badge-folded { color: var(--text-dim); border-color: var(--border-mid); background: transparent; }
-    .badge-allin  { color: #f84; border-color: #663300; background: rgba(255,130,60,0.1); }
-    .badge-you    { color: var(--p-glow); border-color: var(--p-dim); background: var(--p-bg); }
-    .badge-turn   { color: #4f4; border-color: #1a441a; background: rgba(80,220,80,0.1); animation: blink 1s infinite; }
 
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .sb-d    { color: var(--gold);  border-color: var(--gold-dim);  background: rgba(201,162,39,0.1); }
+    .sb-sb   { color: #7cf;         border-color: #1a4466;          background: rgba(100,200,255,0.07); }
+    .sb-bb   { color: #adf;         border-color: #1a2a44;          background: rgba(150,200,255,0.07); }
+    .sb-ai   { color: #f84;         border-color: #663300;          background: rgba(255,130,60,0.1); }
+    .sb-fold { color: var(--text-dim); border-color: var(--border-mid); background: transparent; }
 
-    /* ── Action panel ── */
+    /* blinking "am Zug" indicator on avatar ring */
+    @keyframes ring-pulse { 0%,100%{box-shadow:0 0 0 2px var(--p)} 50%{box-shadow:0 0 0 3px var(--p-glow)} }
+    .seat-card.is-turn .seat-av { animation: ring-pulse 1.2s infinite; }
+
+    /* ══════════════════════════════════════
+       ACTION PANEL
+    ══════════════════════════════════════ */
     .action-panel {
       background: var(--bg-card);
       border: 1px solid var(--p);
       border-radius: 6px;
-      padding: 1rem;
-      margin-bottom: 1rem;
-      box-shadow: 0 0 12px var(--p-bg);
+      padding: 0.8rem 0.9rem;
+      margin-bottom: 0.7rem;
+      box-shadow: 0 0 14px var(--p-bg);
     }
+
+    .action-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.7rem;
+    }
+
     .action-title {
       font-family: var(--font-ui);
-      font-size: 0.68rem;
-      letter-spacing: 0.2em;
+      font-size: 0.65rem;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
       color: var(--p-glow);
       font-weight: 700;
-      margin-bottom: 0.8rem;
     }
+
+    .action-to-call {
+      font-family: var(--font-ui);
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-dim);
+    }
+
     .action-btns {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.5rem;
-      margin-bottom: 0.7rem;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0.45rem;
+      margin-bottom: 0.6rem;
     }
-    .action-btns .btn { font-size: 0.82rem; padding: 0.55rem 0.5rem; }
-    .btn-fold   { background: rgba(180,30,30,0.15); border-color: #551010; color: #f66; }
+
+    .action-btns .btn {
+      font-size: 0.78rem;
+      padding: 0.6rem 0.3rem;
+      letter-spacing: 0.05em;
+    }
+
+    .btn-fold  { background: rgba(180,30,30,0.15); border-color: #551010; color: #f66; }
     .btn-fold:hover { background: rgba(180,30,30,0.3); }
-    .btn-check  { }
-    .btn-call   { background: var(--p-bg); border-color: var(--p-dim); color: var(--p-glow); }
+    .btn-check { }
+    .btn-call  { background: var(--p-bg); border-color: var(--p-dim); color: var(--p-glow); }
     .btn-call:hover { background: var(--p-bg2); border-color: var(--p); color: var(--text); }
-    .btn-allin  { background: rgba(255,130,60,0.12); border-color: #663300; color: #f84; grid-column: 1 / -1; }
-    .btn-allin:hover { background: rgba(255,130,60,0.25); }
 
     .raise-row {
       display: flex;
       gap: 0.4rem;
       align-items: center;
+      margin-bottom: 0.4rem;
     }
+
     .raise-input {
       flex: 1;
       background: var(--bg-card2);
@@ -185,12 +326,14 @@
       min-width: 0;
     }
     .raise-input:focus { border-color: var(--p); }
+
     .raise-presets {
       display: flex;
       gap: 0.3rem;
-      margin-top: 0.4rem;
       flex-wrap: wrap;
+      margin-bottom: 0.5rem;
     }
+
     .raise-preset {
       background: var(--bg-card2);
       border: 1px solid var(--border-mid);
@@ -198,33 +341,43 @@
       color: var(--text-dim);
       cursor: pointer;
       font-family: var(--font-ui);
-      font-size: 0.68rem;
+      font-size: 0.65rem;
       font-weight: 700;
       padding: 0.2rem 0.5rem;
     }
     .raise-preset:hover { border-color: var(--p); color: var(--p-glow); }
 
-    /* ── Control panel (advance + winner) ── */
+    .btn-allin {
+      width: 100%;
+      background: rgba(255,130,60,0.12);
+      border-color: #663300;
+      color: #f84;
+      font-size: 0.78rem;
+      padding: 0.6rem;
+    }
+    .btn-allin:hover { background: rgba(255,130,60,0.25); }
+
+    /* ── Control panel ── */
     .control-panel {
       background: var(--bg-card);
       border: 1px solid var(--border-mid);
       border-radius: 6px;
-      padding: 0.9rem 1rem;
-      margin-bottom: 1rem;
+      padding: 0.8rem 0.9rem;
+      margin-bottom: 0.7rem;
       display: flex;
       flex-direction: column;
-      gap: 0.6rem;
+      gap: 0.55rem;
     }
+
     .control-label {
       font-family: var(--font-ui);
-      font-size: 0.65rem;
-      letter-spacing: 0.18em;
+      font-size: 0.63rem;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
       color: var(--text-dim);
       font-weight: 700;
     }
 
-    /* ── Winner select ── */
     .winner-select {
       background: var(--bg-card2);
       border: 1px solid var(--border-mid);
@@ -237,6 +390,31 @@
       width: 100%;
     }
     .winner-select:focus { border-color: var(--gold); }
+
+    /* ── Hand result ── */
+    .hand-result {
+      background: rgba(26,107,58,0.1);
+      border: 1px solid #1a6b3a;
+      border-radius: 6px;
+      padding: 1rem;
+      text-align: center;
+      margin-bottom: 0.7rem;
+    }
+
+    .hand-result .winner-name {
+      font-family: var(--font-title);
+      font-size: 1.3rem;
+      font-weight: 900;
+      color: var(--gold);
+      letter-spacing: 0.05em;
+    }
+
+    .hand-result p {
+      font-family: var(--font-ui);
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      margin-top: 0.3rem;
+    }
 
     /* ── Setup card ── */
     .setup-card {
@@ -287,7 +465,6 @@
       box-sizing: border-box;
     }
     .blind-group input:focus { border-color: var(--p); }
-
     .setup-players {
       display: flex;
       flex-direction: column;
@@ -309,42 +486,6 @@
     }
     .setup-player-chips { color: var(--gold); font-weight: 700; font-size: 0.78rem; }
 
-    /* ── Hand result banner ── */
-    .hand-result {
-      background: rgba(26,107,58,0.1);
-      border: 1px solid #1a6b3a;
-      border-radius: 6px;
-      padding: 1rem;
-      text-align: center;
-      margin-bottom: 1rem;
-    }
-    .hand-result .winner-name {
-      font-family: var(--font-title);
-      font-size: 1.4rem;
-      font-weight: 900;
-      color: var(--gold);
-      letter-spacing: 0.05em;
-    }
-    .hand-result p { font-family: var(--font-ui); font-size: 0.82rem; color: var(--text-dim); margin-top: 0.3rem; }
-
-    /* ── Status line ── */
-    .status-line {
-      text-align: center;
-      padding: 0.5rem;
-      font-family: var(--font-ui);
-      font-size: 0.8rem;
-      color: var(--text-dim);
-      margin-bottom: 0.5rem;
-    }
-    .status-line .dot {
-      display: inline-block;
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: var(--p-glow);
-      margin-right: 0.4rem;
-      animation: pulse 1.5s infinite;
-    }
-
     /* ── No game screen ── */
     .no-game {
       text-align: center;
@@ -358,7 +499,7 @@
     .section-sep {
       height: 1px;
       background: var(--border-mid);
-      margin: 1rem 0;
+      margin: 0.8rem 0;
     }
   </style>
 </head>
@@ -413,6 +554,7 @@
     </div>
 
     <div id="view-game" style="display:none">
+
       <!-- Phase bar -->
       <div class="phase-bar" id="phase-bar">
         <div class="phase-step" data-phase="preflop">Pre-Flop</div>
@@ -422,38 +564,68 @@
         <div class="phase-step" data-phase="showdown">Showdown</div>
       </div>
 
-      <!-- Pot -->
-      <div class="pot-display">
-        <div class="pot-label">Pot</div>
-        <div class="pot-value" id="pot-value">0 <span>Pts</span></div>
+      <!-- ═══ Poker table scene ═══
+           Seat layout (8 slots, clockwise from bottom-center = slot 0):
+
+             [5]  [4]  [3]
+             [6] TABLE [2]
+             [7]  [0]  [1]
+      -->
+      <div class="table-scene">
+
+        <!-- Top row: seats 5, 4, 3 -->
+        <div class="ts-row ts-top">
+          <div class="ts-slot" id="seat-5"></div>
+          <div class="ts-slot" id="seat-4"></div>
+          <div class="ts-slot" id="seat-3"></div>
+        </div>
+
+        <!-- Middle row: seats 6, oval, 2 -->
+        <div class="ts-row ts-mid">
+          <div class="ts-slot" id="seat-6"></div>
+          <div class="poker-oval-wrap">
+            <div class="poker-oval">
+              <div class="table-inner">
+                <div class="table-pot-lbl">Pot</div>
+                <div class="table-pot-val" id="pot-value">0</div>
+                <div class="table-cur-bet" id="table-cur-bet"></div>
+                <div class="table-status-txt" id="status-line"></div>
+              </div>
+            </div>
+          </div>
+          <div class="ts-slot" id="seat-2"></div>
+        </div>
+
+        <!-- Bottom row: seats 7, 0 (me), 1 -->
+        <div class="ts-row ts-bot">
+          <div class="ts-slot" id="seat-7"></div>
+          <div class="ts-slot" id="seat-0"></div>
+          <div class="ts-slot" id="seat-1"></div>
+        </div>
+
       </div>
-
-      <!-- Status -->
-      <div class="status-line" id="status-line"></div>
-
-      <!-- Players -->
-      <div class="player-rows" id="player-rows"></div>
+      <!-- end .table-scene -->
 
       <!-- My action panel -->
       <div class="action-panel" id="action-panel" style="display:none">
-        <div class="action-title">⚡ Dein Zug</div>
+        <div class="action-header">
+          <div class="action-title">⚡ Dein Zug</div>
+          <div class="action-to-call" id="action-to-call"></div>
+        </div>
         <div class="action-btns">
           <button class="btn btn-fold"  id="act-fold">Fold</button>
           <button class="btn btn-check" id="act-check">Check</button>
           <button class="btn btn-call"  id="act-call">Call</button>
-          <button class="btn btn-secondary" id="act-raise-btn">Raise</button>
         </div>
         <div class="raise-row">
           <input class="raise-input" id="raise-amount" type="number" min="1" placeholder="Raise auf…" />
           <button class="btn btn-secondary" id="act-raise-confirm">↑ Raise</button>
         </div>
         <div class="raise-presets" id="raise-presets"></div>
-        <div class="action-btns" style="margin-top:0.5rem">
-          <button class="btn btn-allin" id="act-allin">All-In</button>
-        </div>
+        <button class="btn btn-allin" id="act-allin">All-In</button>
       </div>
 
-      <!-- Control panel -->
+      <!-- Control panel (admin: advance / winner) -->
       <div class="control-panel" id="control-panel" style="display:none">
         <div class="control-label" id="control-label"></div>
         <button class="btn btn-primary btn-full" id="advance-btn" style="display:none">
@@ -479,11 +651,11 @@
         </div>
       </div>
 
-      <!-- Setup new game while in game -->
       <div class="section-sep"></div>
       <button class="btn btn-danger btn-full" id="end-game-btn2" style="margin-bottom:1rem">
         Spiel beenden &amp; Chips speichern
       </button>
+
     </div>
   </main>
 
@@ -530,92 +702,141 @@
       });
 
       // Pot
-      document.getElementById('pot-value').innerHTML = `${g.pot} <span>Pts</span>`;
+      document.getElementById('pot-value').textContent = g.pot;
 
-      // Status
+      // Current bet info inside table
+      const curBetEl = document.getElementById('table-cur-bet');
+      curBetEl.textContent = g.currentBet > 0 ? `Einsatz: ${g.currentBet}` : '';
+
+      // Status inside table oval
       const statusEl = document.getElementById('status-line');
       if (g.currentPlayerIdx >= 0 && g.players[g.currentPlayerIdx]) {
         const cp = g.players[g.currentPlayerIdx];
-        statusEl.innerHTML = `<span class="dot"></span>Zug: <strong>${escHtml(cp.name)}</strong>`;
+        statusEl.textContent = `Zug: ${cp.name}`;
+        statusEl.className = 'table-status-txt is-turn';
       } else if (g.phase === 'showdown' || g.phase === 'ended') {
-        statusEl.innerHTML = `<span class="dot" style="background:var(--gold)"></span>${PHASE_LABEL[g.phase]}`;
+        statusEl.textContent = PHASE_LABEL[g.phase];
+        statusEl.className = 'table-status-txt';
       } else if (g.toAct.length === 0 && ['preflop','flop','turn','river'].includes(g.phase)) {
-        statusEl.innerHTML = `<span class="dot" style="background:#4f4"></span>Bettingrunde beendet — Karten aufdecken`;
+        statusEl.textContent = 'Runde beendet';
+        statusEl.className = 'table-status-txt';
       } else {
-        statusEl.innerHTML = '';
+        statusEl.textContent = '';
+        statusEl.className = 'table-status-txt';
       }
 
-      // Players
-      const rowsEl = document.getElementById('player-rows');
+      // ── Seat rendering ──
       const me = getMe();
-      rowsEl.innerHTML = g.players.map((p, i) => {
-        const isMe = me && p.id === me.id;
-        const isTurn = i === g.currentPlayerIdx;
-        const badges = [];
-        if (i === g.dealerIdx && !['ended','setup'].includes(g.phase)) badges.push('<span class="pr-badge badge-dealer">D</span>');
-        if (i === g.sbIdx && g.phase !== 'ended') badges.push('<span class="pr-badge badge-sb">SB</span>');
-        if (i === g.bbIdx && g.phase !== 'ended') badges.push('<span class="pr-badge badge-bb">BB</span>');
-        if (isMe) badges.push('<span class="pr-badge badge-you">Du</span>');
-        if (isTurn) badges.push('<span class="pr-badge badge-turn">am Zug</span>');
-        if (p.folded) badges.push('<span class="pr-badge badge-folded">Fold</span>');
-        if (p.allIn) badges.push('<span class="pr-badge badge-allin">All-In</span>');
-
-        return `<div class="player-row${isTurn ? ' active-turn' : ''}${p.folded ? ' folded-row' : ''}">
-          <div class="pr-avatar">${escHtml(p.name.charAt(0).toUpperCase())}</div>
-          <div class="pr-name">${escHtml(p.name)}</div>
-          <div class="pr-bet">${p.roundBet > 0 ? '+' + p.roundBet : ''}</div>
-          <div class="pr-chips">${p.chips} Pts</div>
-          <div class="pr-badges">${badges.join('')}</div>
-        </div>`;
-      }).join('');
-
-      // Action panel (only show if it's my turn)
-      const actionPanel = document.getElementById('action-panel');
       const myIdx = me ? g.players.findIndex(p => p.id === me.id) : -1;
-      const isMyTurn = myIdx >= 0 && g.currentPlayerIdx === myIdx && ['preflop','flop','turn','river'].includes(g.phase);
+
+      // Reorder so "me" is at index 0, others follow clockwise
+      const ordered = myIdx >= 0
+        ? [...g.players.slice(myIdx), ...g.players.slice(0, myIdx)]
+        : [...g.players];
+
+      // Clear all 8 seat slots
+      for (let s = 0; s < 8; s++) {
+        const slot = document.getElementById(`seat-${s}`);
+        if (slot) slot.innerHTML = '';
+      }
+
+      // Render each player into their seat slot
+      ordered.forEach((p, seatIdx) => {
+        if (seatIdx >= 8) return;
+        const slot = document.getElementById(`seat-${seatIdx}`);
+        if (!slot) return;
+
+        const origIdx = g.players.indexOf(p);
+        const isMe    = me && p.id === me.id;
+        const isTurn  = origIdx === g.currentPlayerIdx;
+
+        const badges = [];
+        if (origIdx === g.dealerIdx && !['ended','setup'].includes(g.phase))
+          badges.push('<span class="sb sb-d">D</span>');
+        if (origIdx === g.sbIdx && g.phase !== 'ended')
+          badges.push('<span class="sb sb-sb">SB</span>');
+        if (origIdx === g.bbIdx && g.phase !== 'ended')
+          badges.push('<span class="sb sb-bb">BB</span>');
+        if (p.allIn)
+          badges.push('<span class="sb sb-ai">AI</span>');
+        if (p.folded)
+          badges.push('<span class="sb sb-fold">Fold</span>');
+
+        const badgesHtml = badges.length
+          ? `<div class="seat-badges">${badges.join('')}</div>`
+          : '';
+
+        const betHtml = p.roundBet > 0
+          ? `<div class="seat-bet">+${p.roundBet}</div>`
+          : '';
+
+        slot.innerHTML = `
+          <div class="seat-card${isTurn ? ' is-turn' : ''}${p.folded ? ' is-folded' : ''}${isMe ? ' is-me' : ''}">
+            <div class="seat-header">
+              <div class="seat-av${isTurn ? ' is-turn' : ''}">${escHtml(p.name.charAt(0).toUpperCase())}</div>
+              <div class="seat-info">
+                <div class="seat-name${isMe ? ' is-me' : ''}">${escHtml(p.name)}</div>
+                <div class="seat-chips">${p.chips}</div>
+              </div>
+            </div>
+            ${badgesHtml}
+            ${betHtml}
+          </div>`;
+      });
+
+      // ── Action panel (my turn) ──
+      const actionPanel = document.getElementById('action-panel');
+      const isMyTurn = myIdx >= 0 && g.currentPlayerIdx === myIdx
+        && ['preflop','flop','turn','river'].includes(g.phase);
       actionPanel.style.display = isMyTurn ? '' : 'none';
 
       if (isMyTurn) {
         const me_p = g.players[myIdx];
         const toCall = g.currentBet - me_p.roundBet;
         const canCheck = toCall === 0;
+
+        document.getElementById('action-to-call').textContent =
+          canCheck ? '' : `Call: ${toCall} Pts`;
+
         const checkBtn = document.getElementById('act-check');
         const callBtn  = document.getElementById('act-call');
         checkBtn.style.display = canCheck ? '' : 'none';
         callBtn.style.display  = canCheck ? 'none' : '';
         if (!canCheck) callBtn.textContent = `Call ${toCall}`;
 
-        // Raise input & presets
         document.getElementById('raise-amount').min = g.currentBet + 1;
-        document.getElementById('raise-amount').placeholder = `Raise auf (min. ${g.currentBet + 1})`;
+        document.getElementById('raise-amount').placeholder = `min. ${g.currentBet + 1}`;
 
         const bb = g.blindBig;
-        const presets = [bb * 2, bb * 3, bb * 5, bb * 10].filter(v => v > g.currentBet && v <= me_p.chips + me_p.roundBet);
-        document.getElementById('raise-presets').innerHTML = presets.map(v =>
-          `<button class="raise-preset" onclick="setRaise(${v})">${v}</button>`
-        ).join('') + `<button class="raise-preset" onclick="setRaise(${me_p.chips + me_p.roundBet})">All-In (${me_p.chips + me_p.roundBet})</button>`;
+        const presets = [bb * 2, bb * 3, bb * 5, bb * 10].filter(
+          v => v > g.currentBet && v <= me_p.chips + me_p.roundBet
+        );
+        document.getElementById('raise-presets').innerHTML =
+          presets.map(v => `<button class="raise-preset" onclick="setRaise(${v})">${v}</button>`).join('') +
+          `<button class="raise-preset" onclick="setRaise(${me_p.chips + me_p.roundBet})">All-In (${me_p.chips + me_p.roundBet})</button>`;
       }
 
-      // Control panel
+      // ── Control panel ──
       const controlPanel = document.getElementById('control-panel');
       const advanceBtn    = document.getElementById('advance-btn');
       const winnerSection = document.getElementById('winner-section');
       const handResult    = document.getElementById('hand-result');
 
-      handResult.style.display = 'none';
-      controlPanel.style.display = 'none';
-      advanceBtn.style.display = 'none';
+      handResult.style.display    = 'none';
+      controlPanel.style.display  = 'none';
+      advanceBtn.style.display    = 'none';
       winnerSection.style.display = 'none';
 
       // End game buttons — admin only
       const endDisplay = isAdmin() ? '' : 'none';
-      document.getElementById('end-game-btn').style.display = endDisplay;
+      document.getElementById('end-game-btn').style.display  = endDisplay;
       document.getElementById('end-game-btn2').style.display = endDisplay;
 
       if (g.phase === 'ended') {
         handResult.style.display = '';
         document.getElementById('result-name').textContent = g.winner || '?';
-        document.getElementById('result-text').textContent = `Hat den Pot gewonnen!`;
+        document.getElementById('result-text').textContent = 'Hat den Pot gewonnen!';
+
       } else if (g.phase === 'showdown' && isAdmin()) {
         controlPanel.style.display = '';
         winnerSection.style.display = '';
@@ -626,10 +847,12 @@
         sel.innerHTML = '<option value="">— Gewinner wählen —</option>' +
           activePlayers.map(p => `<option value="${p.id}">${escHtml(p.name)} (${p.chips} Pts)</option>`).join('');
         if (prevVal) sel.value = prevVal;
-      } else if (g.toAct.length === 0 && g.currentPlayerIdx === -1 && ['preflop','flop','turn','river'].includes(g.phase) && isAdmin()) {
+
+      } else if (g.toAct.length === 0 && g.currentPlayerIdx === -1
+          && ['preflop','flop','turn','river'].includes(g.phase) && isAdmin()) {
         const nextPhaseLabel = PHASE_LABEL[PHASE_ORDER[PHASE_ORDER.indexOf(g.phase) + 1]] || '';
         controlPanel.style.display = '';
-        document.getElementById('control-label').textContent = `Bettingrunde beendet`;
+        document.getElementById('control-label').textContent = 'Bettingrunde beendet';
         advanceBtn.style.display = '';
         advanceBtn.textContent = g.phase === 'river'
           ? 'Weiter → Showdown'
@@ -653,7 +876,10 @@
       try {
         const res = await fetch('/api/players');
         const players = await res.json();
-        if (!players.length) { el.innerHTML = '<p style="color:var(--text-dim);font-size:0.82rem;font-family:var(--font-ui)">Keine Spieler. Bitte zuerst unter Anmelden registrieren.</p>'; return; }
+        if (!players.length) {
+          el.innerHTML = '<p style="color:var(--text-dim);font-size:0.82rem;font-family:var(--font-ui)">Keine Spieler. Bitte zuerst unter Anmelden registrieren.</p>';
+          return;
+        }
         el.innerHTML = players.map(p =>
           `<div class="setup-player"><span>${escHtml(p.name)}</span><span class="setup-player-chips">${p.points} Pts</span></div>`
         ).join('');
@@ -671,7 +897,6 @@
         });
         const data = await res.json();
         if (!res.ok) { showToast(data.error || 'Fehler', 'error'); return; }
-        // Immediately deal first hand
         await dealHand();
       } catch { showToast('Verbindungsfehler', 'error'); }
     });
@@ -714,9 +939,7 @@
       if (e.key === 'Enter') document.getElementById('act-raise-confirm').click();
     });
 
-    function setRaise(v) {
-      document.getElementById('raise-amount').value = v;
-    }
+    function setRaise(v) { document.getElementById('raise-amount').value = v; }
 
     // ── Advance phase ──
     document.getElementById('advance-btn').addEventListener('click', async () => {
@@ -744,7 +967,6 @@
         if (!res.ok) { showToast(data.error || 'Fehler', 'error'); return; }
         stopPolling();
         render(data);
-        // Refresh lalling-me chips
         const me = getMe();
         if (me) {
           const winner = data.players.find(p => p.id === me.id);
@@ -789,7 +1011,6 @@
 
     // ── Init ──
     (async () => {
-      // Refresh identity from server (pick up isAdmin changes etc.)
       try {
         const me = getMe();
         if (me) {
@@ -801,7 +1022,6 @@
         }
       } catch {}
 
-      // Try to load existing game
       try {
         const res = await fetch('/api/poker/state');
         if (res.ok) {
