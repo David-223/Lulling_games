@@ -7,6 +7,7 @@ const PORT = process.env.PORT || 3000;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'lulling123';
 const DATA_FILE = path.join(__dirname, 'data', 'rules.json');
 const PLAYERS_FILE = path.join(__dirname, 'data', 'players.json');
+const LOBBIES_FILE = path.join(__dirname, 'data', 'lobbies.json');
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -150,7 +151,18 @@ app.post('/api/auth', (req, res) => {
 
 // ── Lobby System ──
 
-const lobbies = new Map();
+function readLobbies() {
+  if (!fs.existsSync(LOBBIES_FILE)) return {};
+  try { return JSON.parse(fs.readFileSync(LOBBIES_FILE, 'utf-8')); } catch { return {}; }
+}
+
+function writeLobbies() {
+  const obj = {};
+  for (const [code, lobby] of lobbies) obj[code] = lobby;
+  fs.writeFileSync(LOBBIES_FILE, JSON.stringify(obj, null, 2), 'utf-8');
+}
+
+const lobbies = new Map(Object.entries(readLobbies()));
 
 function generateCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -185,6 +197,7 @@ app.post('/api/lobby/create', (req, res) => {
     createdAt: Date.now()
   };
   lobbies.set(code, lobby);
+  writeLobbies();
   res.json({ code, playerId: hostId, lobby });
 });
 
@@ -197,6 +210,7 @@ app.post('/api/lobby/:code/join', (req, res) => {
   if (lobby.status !== 'waiting') return res.status(400).json({ error: 'Das Spiel hat bereits begonnen' });
   const playerId = generateId();
   lobby.players.push({ id: playerId, name: name.trim(), isHost: false, joinedAt: Date.now() });
+  writeLobbies();
   res.json({ code, playerId, lobby });
 });
 
@@ -214,6 +228,16 @@ app.post('/api/lobby/:code/start', (req, res) => {
   if (!lobby) return res.status(404).json({ error: 'Lobby nicht gefunden' });
   if (lobby.hostId !== playerId) return res.status(403).json({ error: 'Nur der Host kann das Spiel starten' });
   lobby.status = 'started';
+  writeLobbies();
+
+  // Alle Lobby-Spieler zu players.json hinzufügen (ersetzt vorherige Liste)
+  const playerData = { players: [], nextId: 1 };
+  for (const p of lobby.players) {
+    playerData.players.push({ id: playerData.nextId, name: p.name, role: 'Normaler Mensch', points: 100 });
+    playerData.nextId += 1;
+  }
+  writePlayers(playerData);
+
   res.json(lobby);
 });
 
@@ -229,6 +253,7 @@ app.post('/api/lobby/:code/leave', (req, res) => {
     lobby.hostId = lobby.players[0].id;
     lobby.players[0].isHost = true;
   }
+  writeLobbies();
   res.json({ success: true });
 });
 

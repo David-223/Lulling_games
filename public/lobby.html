@@ -486,6 +486,7 @@
         statusEl.style.color = '';
       } else if (lobby.status === 'started') {
         stopPolling();
+        clearSession();
         statusEl.style.display = 'none';
         document.getElementById('start-btn').style.display = 'none';
         document.getElementById('leave-btn').style.display = 'none';
@@ -538,6 +539,37 @@
       if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
     }
 
+    // ── Session persistence ──
+    function saveSession() {
+      localStorage.setItem('lalling-lobby', JSON.stringify({ code: myCode, playerId: myPlayerId, name: myName }));
+    }
+
+    function clearSession() {
+      localStorage.removeItem('lalling-lobby');
+    }
+
+    async function restoreSession() {
+      const raw = localStorage.getItem('lalling-lobby');
+      if (!raw) return;
+      let session;
+      try { session = JSON.parse(raw); } catch { clearSession(); return; }
+      if (!session.code || !session.playerId) { clearSession(); return; }
+      try {
+        const res = await fetch('/api/lobby/' + session.code);
+        if (!res.ok) { clearSession(); return; } // lobby gone
+        const lobby = await res.json();
+        // Check we're still in it
+        const me = lobby.players.find(p => p.id === session.playerId);
+        if (!me) { clearSession(); return; }
+        myCode = session.code;
+        myPlayerId = session.playerId;
+        myName = session.name;
+        showWaiting();
+        renderLobby(lobby);
+        if (lobby.status === 'waiting') startPolling();
+      } catch { clearSession(); }
+    }
+
     // ── Create ──
     document.getElementById('create-btn').addEventListener('click', async () => {
       const name = document.getElementById('create-name').value.trim();
@@ -554,6 +586,7 @@
         myPlayerId = data.playerId;
         myName = name;
         isHost = true;
+        saveSession();
         showWaiting();
         renderLobby(data.lobby);
         startPolling();
@@ -580,6 +613,7 @@
         myPlayerId = data.playerId;
         myName = name;
         isHost = false;
+        saveSession();
         showWaiting();
         renderLobby(data.lobby);
         startPolling();
@@ -625,10 +659,14 @@
     document.getElementById('leave-btn').addEventListener('click', async () => {
       stopPolling();
       if (myCode && myPlayerId) {
-        navigator.sendBeacon('/api/lobby/' + myCode + '/leave',
-          new Blob([JSON.stringify({ playerId: myPlayerId })], { type: 'application/json' }));
+        await fetch('/api/lobby/' + myCode + '/leave', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ playerId: myPlayerId })
+        }).catch(() => {});
       }
-      myCode = null; myPlayerId = null;
+      clearSession();
+      myCode = null; myPlayerId = null; myName = null;
       showLanding();
     });
 
@@ -643,13 +681,8 @@
       });
     });
 
-    // ── Leave on page close ──
-    window.addEventListener('beforeunload', () => {
-      if (myCode && myPlayerId) {
-        navigator.sendBeacon('/api/lobby/' + myCode + '/leave',
-          new Blob([JSON.stringify({ playerId: myPlayerId })], { type: 'application/json' }));
-      }
-    });
+    // ── Restore session on load ──
+    restoreSession();
 
     // ── Theme ──
     const THEMES = ['ao', 'shuku', 'yami', 'kin'];
