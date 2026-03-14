@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Lobby – Lalling Games</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ── Lobby Layout ── */
+    .lobby-landing {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .lobby-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-mid);
+      border-radius: 6px;
+      padding: 1.5rem 1.2rem;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    }
+
+    .lobby-card-title {
+      font-family: var(--font-title);
+      font-size: 0.8rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--p-glow);
+      margin-bottom: 1.2rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 1px solid var(--border-mid);
+    }
+
+    .lobby-card-title .card-icon {
+      margin-right: 0.5rem;
+      opacity: 0.7;
+    }
+
+    /* ── Waiting Room ── */
+    #waiting-room { display: none; }
+
+    .code-display {
+      text-align: center;
+      padding: 1.5rem 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-mid);
+      border-radius: 6px;
+      margin-bottom: 1.2rem;
+    }
+
+    .code-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      font-family: var(--font-ui);
+      font-weight: 600;
+      margin-bottom: 0.6rem;
+    }
+
+    .code-value {
+      font-family: var(--font-title);
+      font-size: 2.8rem;
+      font-weight: 900;
+      letter-spacing: 0.3em;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 0.8rem;
+      word-break: break-all;
+    }
+
+    .code-copy-btn {
+      background: none;
+      border: 1px solid var(--border-mid);
+      border-radius: 3px;
+      color: var(--text-dim);
+      font-size: 0.72rem;
+      font-family: var(--font-ui);
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      padding: 0.3rem 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-transform: uppercase;
+    }
+
+    .code-copy-btn:hover {
+      color: var(--text);
+      border-color: var(--text-dim);
+    }
+
+    .code-copy-btn.copied {
+      color: #4caf82;
+      border-color: #1a6b3a;
+    }
+
+    /* ── Player List ── */
+    .players-section {
+      margin-bottom: 1.2rem;
+    }
+
+    .players-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.8rem;
+    }
+
+    .players-title {
+      font-size: 0.7rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      font-family: var(--font-ui);
+      font-weight: 600;
+    }
+
+    .players-count {
+      font-size: 0.7rem;
+      color: var(--p-glow);
+      font-family: var(--font-ui);
+      font-weight: 700;
+    }
+
+    .player-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .player-item {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      padding: 0.6rem 0.8rem;
+      background: var(--bg-card2);
+      border: 1px solid var(--border-mid);
+      border-radius: 4px;
+      font-family: var(--font-ui);
+      font-size: 0.9rem;
+    }
+
+    .player-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--p-bg);
+      border: 1px solid var(--p-dim);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--p-glow);
+      flex-shrink: 0;
+      font-family: var(--font-title);
+    }
+
+    .player-name {
+      flex: 1;
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .player-name.is-you {
+      color: var(--gold);
+    }
+
+    .player-badge {
+      font-size: 0.6rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.15rem 0.5rem;
+      border-radius: 2px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .badge-host {
+      background: rgba(201,162,39,0.1);
+      border: 1px solid var(--border-gold);
+      color: var(--gold);
+    }
+
+    .badge-you {
+      background: var(--p-bg);
+      border: 1px solid var(--p-dim);
+      color: var(--p-glow);
+    }
+
+    /* ── Status ── */
+    .lobby-status {
+      text-align: center;
+      padding: 0.7rem;
+      font-size: 0.8rem;
+      font-family: var(--font-ui);
+      font-weight: 600;
+      color: var(--text-dim);
+      letter-spacing: 0.1em;
+    }
+
+    .lobby-status .dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--p-glow);
+      margin-right: 0.5rem;
+      animation: pulse 1.5s infinite;
+    }
+
+    /* ── Action area ── */
+    .lobby-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    /* ── Input with code formatting ── */
+    .code-input {
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      font-size: 1.1rem !important;
+      text-align: center;
+      font-family: var(--font-title) !important;
+    }
+
+    /* ── Page header ── */
+    .page-hero {
+      text-align: center;
+      padding: 2rem 0 0.5rem;
+    }
+
+    .page-hero h1 {
+      font-family: var(--font-title);
+      font-size: 1.8rem;
+      font-weight: 900;
+      letter-spacing: 0.1em;
+      color: var(--gold);
+      margin-bottom: 0.4rem;
+    }
+
+    .page-hero p {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      font-family: var(--font-ui);
+    }
+
+    /* ── Divider ── */
+    .section-divider {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      margin: 0.5rem 0;
+    }
+
+    .section-divider::before,
+    .section-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border-mid);
+    }
+
+    .section-divider span {
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      color: var(--text-dim);
+      font-family: var(--font-ui);
+      text-transform: uppercase;
+    }
+
+    /* ── Kicked/disbanded ── */
+    .lobby-disbanded {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--text-dim);
+      font-family: var(--font-ui);
+    }
+
+    .lobby-disbanded .icon { font-size: 2.5rem; margin-bottom: 0.7rem; opacity: 0.4; }
+
+    @media (min-width: 500px) {
+      .lobby-landing {
+        flex-direction: row;
+        align-items: flex-start;
+      }
+      .lobby-card { flex: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="logo-text">Lalling Games</div>
+    <div class="logo-sub">Das Culling Spiel · Das Trinkspiel</div>
+    <nav class="nav-links">
+      <a href="index.html">Regeln</a>
+      <a href="lobby.html" class="active">Lobby</a>
+      <a href="gluecksrad.html">Gamble</a>
+      <a href="poker.html">Hände</a>
+      <div class="nav-dropdown">
+        <button class="nav-dropdown-btn" id="nav-more-btn">Mehr ▾</button>
+        <div class="nav-dropdown-menu" id="nav-more-menu">
+          <a href="spieler.html">Spieler</a>
+          <a href="admin.html">Admin</a>
+        </div>
+      </div>
+    </nav>
+    <div class="theme-switcher" id="theme-switcher">
+      <button class="theme-btn" data-scheme="ao"    title="蒼 – Gojo Blue"></button>
+      <button class="theme-btn" data-scheme="shuku" title="赫 – Sukuna Crimson"></button>
+      <button class="theme-btn" data-scheme="yami"  title="闇 – Hollow Purple"></button>
+      <button class="theme-btn" data-scheme="kin"   title="金 – Special Grade"></button>
+    </div>
+  </header>
+
+  <main>
+    <!-- ── Landing: Create / Join ── -->
+    <div id="landing">
+      <div class="page-hero">
+        <h1>Lobby</h1>
+        <p>Erstelle eine Spielrunde oder tritt einer bei</p>
+      </div>
+
+      <div class="lobby-landing">
+        <!-- Create -->
+        <div class="lobby-card">
+          <div class="lobby-card-title"><span class="card-icon">⚔</span>Lobby erstellen</div>
+          <div class="form-group">
+            <label for="create-name">Dein Name</label>
+            <input id="create-name" type="text" placeholder="z.B. Gojo Satoru" maxlength="24" autocomplete="off" />
+          </div>
+          <button class="btn btn-primary btn-full" id="create-btn">Erstellen</button>
+        </div>
+
+        <div class="section-divider" style="display:none"><!-- tablet+ spacer --></div>
+
+        <!-- Join -->
+        <div class="lobby-card">
+          <div class="lobby-card-title"><span class="card-icon">🔑</span>Lobby beitreten</div>
+          <div class="form-group">
+            <label for="join-name">Dein Name</label>
+            <input id="join-name" type="text" placeholder="z.B. Sukuna" maxlength="24" autocomplete="off" />
+          </div>
+          <div class="form-group">
+            <label for="join-code">Lobby-Code</label>
+            <input id="join-code" type="text" placeholder="XXXXXX" maxlength="6" class="code-input" autocomplete="off" />
+          </div>
+          <button class="btn btn-primary btn-full" id="join-btn">Beitreten</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Waiting Room ── -->
+    <div id="waiting-room">
+      <div class="code-display">
+        <div class="code-label">Lobby-Code — Teile ihn mit deinen Freunden</div>
+        <div class="code-value" id="display-code">——</div>
+        <button class="code-copy-btn" id="copy-btn">Code kopieren</button>
+      </div>
+
+      <div class="players-section">
+        <div class="players-header">
+          <span class="players-title">Spieler in der Lobby</span>
+          <span class="players-count" id="player-count">0 / ∞</span>
+        </div>
+        <div class="player-list" id="player-list">
+          <div class="loading">Lade Spieler</div>
+        </div>
+      </div>
+
+      <div class="lobby-status" id="lobby-status">
+        <span class="dot"></span>Warte auf Spieler…
+      </div>
+
+      <div class="lobby-actions">
+        <button class="btn btn-primary btn-full" id="start-btn" style="display:none">Spiel starten</button>
+        <button class="btn btn-secondary btn-full" id="leave-btn">Lobby verlassen</button>
+      </div>
+    </div>
+  </main>
+
+  <div id="toast"></div>
+
+  <script>
+    // ── State ──
+    let myCode = null;
+    let myPlayerId = null;
+    let myName = null;
+    let isHost = false;
+    let pollTimer = null;
+
+    function escHtml(str) {
+      return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // ── Toast ──
+    function showToast(msg, type = '') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'show' + (type ? ' ' + type : '');
+      clearTimeout(t._timer);
+      t._timer = setTimeout(() => { t.className = ''; }, 2800);
+    }
+
+    // ── Views ──
+    function showLanding() {
+      document.getElementById('landing').style.display = '';
+      document.getElementById('waiting-room').style.display = 'none';
+    }
+
+    function showWaiting() {
+      document.getElementById('landing').style.display = 'none';
+      document.getElementById('waiting-room').style.display = '';
+    }
+
+    // ── Render lobby ──
+    function renderLobby(lobby) {
+      document.getElementById('display-code').textContent = lobby.code;
+      document.getElementById('player-count').textContent = lobby.players.length + ' Spieler';
+
+      const list = document.getElementById('player-list');
+      list.innerHTML = lobby.players.map(p => {
+        const initial = escHtml(p.name.charAt(0).toUpperCase());
+        const name = escHtml(p.name);
+        const isMe = p.id === myPlayerId;
+        const badges = [];
+        if (p.isHost) badges.push('<span class="player-badge badge-host">Host</span>');
+        if (isMe) badges.push('<span class="player-badge badge-you">Du</span>');
+        return `
+          <div class="player-item">
+            <div class="player-avatar">${initial}</div>
+            <span class="player-name${isMe ? ' is-you' : ''}">${name}</span>
+            ${badges.join('')}
+          </div>`;
+      }).join('');
+
+      // Host controls
+      const meIsHost = lobby.hostId === myPlayerId;
+      document.getElementById('start-btn').style.display = meIsHost ? '' : 'none';
+
+      // Status
+      const statusEl = document.getElementById('lobby-status');
+      if (lobby.status === 'waiting') {
+        statusEl.innerHTML = '<span class="dot"></span>Warte auf Spieler…';
+      } else if (lobby.status === 'started') {
+        statusEl.innerHTML = '✓ Das Spiel hat begonnen!';
+        statusEl.style.color = '#4caf82';
+        stopPolling();
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 1500);
+      }
+    }
+
+    // ── Polling ──
+    async function pollLobby() {
+      if (!myCode) return;
+      try {
+        const res = await fetch('/api/lobby/' + myCode);
+        if (res.status === 404) {
+          stopPolling();
+          document.getElementById('waiting-room').innerHTML = `
+            <div class="lobby-disbanded">
+              <div class="icon">🚪</div>
+              <p>Diese Lobby existiert nicht mehr.</p>
+              <button class="btn btn-secondary" style="margin-top:1rem" onclick="location.reload()">Zurück</button>
+            </div>`;
+          return;
+        }
+        const lobby = await res.json();
+        renderLobby(lobby);
+      } catch (e) { /* network error, retry next tick */ }
+    }
+
+    function startPolling() {
+      stopPolling();
+      pollTimer = setInterval(pollLobby, 2000);
+    }
+
+    function stopPolling() {
+      if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+    }
+
+    // ── Create ──
+    document.getElementById('create-btn').addEventListener('click', async () => {
+      const name = document.getElementById('create-name').value.trim();
+      if (!name) { showToast('Bitte gib deinen Namen ein', 'error'); return; }
+      try {
+        const res = await fetch('/api/lobby/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name })
+        });
+        const data = await res.json();
+        if (!res.ok) { showToast(data.error || 'Fehler', 'error'); return; }
+        myCode = data.code;
+        myPlayerId = data.playerId;
+        myName = name;
+        isHost = true;
+        showWaiting();
+        renderLobby(data.lobby);
+        startPolling();
+      } catch (e) {
+        showToast('Verbindungsfehler', 'error');
+      }
+    });
+
+    // ── Join ──
+    document.getElementById('join-btn').addEventListener('click', async () => {
+      const name = document.getElementById('join-name').value.trim();
+      const code = document.getElementById('join-code').value.trim().toUpperCase();
+      if (!name) { showToast('Bitte gib deinen Namen ein', 'error'); return; }
+      if (code.length !== 6) { showToast('Bitte gib den 6-stelligen Code ein', 'error'); return; }
+      try {
+        const res = await fetch('/api/lobby/' + code + '/join', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name })
+        });
+        const data = await res.json();
+        if (!res.ok) { showToast(data.error || 'Fehler', 'error'); return; }
+        myCode = data.code;
+        myPlayerId = data.playerId;
+        myName = name;
+        isHost = false;
+        showWaiting();
+        renderLobby(data.lobby);
+        startPolling();
+      } catch (e) {
+        showToast('Verbindungsfehler', 'error');
+      }
+    });
+
+    // Enter key on inputs
+    ['create-name'].forEach(id => {
+      document.getElementById(id).addEventListener('keydown', e => {
+        if (e.key === 'Enter') document.getElementById('create-btn').click();
+      });
+    });
+    ['join-name', 'join-code'].forEach(id => {
+      document.getElementById(id).addEventListener('keydown', e => {
+        if (e.key === 'Enter') document.getElementById('join-btn').click();
+      });
+    });
+
+    // Auto-uppercase code input
+    document.getElementById('join-code').addEventListener('input', e => {
+      e.target.value = e.target.value.toUpperCase();
+    });
+
+    // ── Start ──
+    document.getElementById('start-btn').addEventListener('click', async () => {
+      try {
+        const res = await fetch('/api/lobby/' + myCode + '/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ playerId: myPlayerId })
+        });
+        const data = await res.json();
+        if (!res.ok) { showToast(data.error || 'Fehler', 'error'); return; }
+        renderLobby(data);
+      } catch (e) {
+        showToast('Verbindungsfehler', 'error');
+      }
+    });
+
+    // ── Leave ──
+    document.getElementById('leave-btn').addEventListener('click', async () => {
+      stopPolling();
+      if (myCode && myPlayerId) {
+        navigator.sendBeacon('/api/lobby/' + myCode + '/leave',
+          new Blob([JSON.stringify({ playerId: myPlayerId })], { type: 'application/json' }));
+      }
+      myCode = null; myPlayerId = null;
+      showLanding();
+    });
+
+    // ── Copy code ──
+    document.getElementById('copy-btn').addEventListener('click', () => {
+      if (!myCode) return;
+      navigator.clipboard.writeText(myCode).then(() => {
+        const btn = document.getElementById('copy-btn');
+        btn.textContent = 'Kopiert!';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'Code kopieren'; btn.classList.remove('copied'); }, 2000);
+      });
+    });
+
+    // ── Leave on page close ──
+    window.addEventListener('beforeunload', () => {
+      if (myCode && myPlayerId) {
+        navigator.sendBeacon('/api/lobby/' + myCode + '/leave',
+          new Blob([JSON.stringify({ playerId: myPlayerId })], { type: 'application/json' }));
+      }
+    });
+
+    // ── Theme ──
+    const THEMES = ['ao', 'shuku', 'yami', 'kin'];
+    function applyTheme(scheme) {
+      if (!THEMES.includes(scheme)) scheme = 'ao';
+      document.documentElement.setAttribute('data-theme', scheme);
+      document.querySelectorAll('.theme-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.scheme === scheme);
+      });
+      localStorage.setItem('lalling-theme', scheme);
+    }
+    document.getElementById('theme-switcher').addEventListener('click', e => {
+      const btn = e.target.closest('.theme-btn');
+      if (btn) applyTheme(btn.dataset.scheme);
+    });
+    applyTheme(localStorage.getItem('lalling-theme') || 'ao');
+
+    // ── Dropdown ──
+    (function() {
+      const btn  = document.getElementById('nav-more-btn');
+      const menu = document.getElementById('nav-more-menu');
+      if (!btn) return;
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        menu.classList.toggle('open');
+      });
+      document.addEventListener('click', () => menu.classList.remove('open'));
+    })();
+  </script>
+</body>
+</html>

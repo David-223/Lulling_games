@@ -148,6 +148,90 @@ app.post('/api/auth', (req, res) => {
   }
 });
 
+// ── Lobby System ──
+
+const lobbies = new Map();
+
+function generateCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  return code;
+}
+
+function generateId() {
+  return Math.random().toString(36).slice(2, 10);
+}
+
+function cleanupOldLobbies() {
+  const cutoff = Date.now() - 4 * 60 * 60 * 1000;
+  for (const [code, lobby] of lobbies) {
+    if (lobby.createdAt < cutoff) lobbies.delete(code);
+  }
+}
+
+app.post('/api/lobby/create', (req, res) => {
+  const { name } = req.body;
+  if (!name || !name.trim()) return res.status(400).json({ error: 'Name erforderlich' });
+  cleanupOldLobbies();
+  let code;
+  do { code = generateCode(); } while (lobbies.has(code));
+  const hostId = generateId();
+  const lobby = {
+    code,
+    hostId,
+    players: [{ id: hostId, name: name.trim(), isHost: true, joinedAt: Date.now() }],
+    status: 'waiting',
+    createdAt: Date.now()
+  };
+  lobbies.set(code, lobby);
+  res.json({ code, playerId: hostId, lobby });
+});
+
+app.post('/api/lobby/:code/join', (req, res) => {
+  const code = req.params.code.toUpperCase();
+  const { name } = req.body;
+  if (!name || !name.trim()) return res.status(400).json({ error: 'Name erforderlich' });
+  const lobby = lobbies.get(code);
+  if (!lobby) return res.status(404).json({ error: 'Lobby nicht gefunden' });
+  if (lobby.status !== 'waiting') return res.status(400).json({ error: 'Das Spiel hat bereits begonnen' });
+  const playerId = generateId();
+  lobby.players.push({ id: playerId, name: name.trim(), isHost: false, joinedAt: Date.now() });
+  res.json({ code, playerId, lobby });
+});
+
+app.get('/api/lobby/:code', (req, res) => {
+  const code = req.params.code.toUpperCase();
+  const lobby = lobbies.get(code);
+  if (!lobby) return res.status(404).json({ error: 'Lobby nicht gefunden' });
+  res.json(lobby);
+});
+
+app.post('/api/lobby/:code/start', (req, res) => {
+  const code = req.params.code.toUpperCase();
+  const { playerId } = req.body;
+  const lobby = lobbies.get(code);
+  if (!lobby) return res.status(404).json({ error: 'Lobby nicht gefunden' });
+  if (lobby.hostId !== playerId) return res.status(403).json({ error: 'Nur der Host kann das Spiel starten' });
+  lobby.status = 'started';
+  res.json(lobby);
+});
+
+app.post('/api/lobby/:code/leave', (req, res) => {
+  const code = req.params.code.toUpperCase();
+  const { playerId } = req.body;
+  const lobby = lobbies.get(code);
+  if (!lobby) return res.json({ success: true });
+  lobby.players = lobby.players.filter(p => p.id !== playerId);
+  if (lobby.players.length === 0) {
+    lobbies.delete(code);
+  } else if (lobby.hostId === playerId) {
+    lobby.hostId = lobby.players[0].id;
+    lobby.players[0].isHost = true;
+  }
+  res.json({ success: true });
+});
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`\n⚔  Lalling Games läuft auf Port ${PORT}`);
   console.log(`   Lokal:   http://localhost:${PORT}`);

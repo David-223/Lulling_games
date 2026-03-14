@@ -6,48 +6,48 @@
    ROOT – STATIC COLOURS
 ────────────────────────────────────────────── */
 :root {
-  --bg-dark:   #01010a;
-  --bg-card:   #05050f;
-  --bg-card2:  #09091a;
+  --bg-dark:   #050509;
+  --bg-card:   #09090f;
+  --bg-card2:  #0e0e18;
 
-  --accent:      #9b0000;
-  --accent-glow: #e01111;
-  --accent-dim:  #550000;
+  --accent:      #7a1a1a;
+  --accent-glow: #c03030;
+  --accent-dim:  #3d0d0d;
 
-  --curse-blue:       #0033bb;
-  --curse-blue-glow:  #2266ff;
-  --curse-blue-dim:   #001155;
+  --curse-blue:       #1a3a99;
+  --curse-blue-glow:  #4d7aee;
+  --curse-blue-dim:   #0d1f55;
 
-  --curse-purple:      #6600cc;
-  --curse-purple-glow: #aa44ff;
-  --curse-purple-dim:  #2d0066;
+  --curse-purple:      #4d1a99;
+  --curse-purple-glow: #8855cc;
+  --curse-purple-dim:  #250d4d;
 
-  --gold:        #c9a227;
-  --gold-dim:    #8a6f1a;
-  --gold-bright: #f0d050;
+  --gold:        #b8921f;
+  --gold-dim:    #6b5412;
+  --gold-bright: #d4a830;
 
-  --text:     #eae6f8;
-  --text-dim: #6a6480;
-  --text-mid: #b0aabf;
+  --text:     #ddd9ee;
+  --text-dim: #5a5470;
+  --text-mid: #9a94ad;
 
-  --border:      #0d0d20;
-  --border-mid:  #191930;
-  --border-gold: #2a200a;
+  --border:      #111120;
+  --border-mid:  #1e1e30;
+  --border-gold: #251c08;
 
   --success: #1a6b3a;
-  --danger:  #9b0000;
+  --danger:  #7a1a1a;
 
   --font-title: 'Cinzel', 'Palatino Linotype', 'Book Antiqua', serif;
   --font-body:  'Rajdhani', 'Segoe UI', system-ui, sans-serif;
   --font-ui:    'Rajdhani', 'Segoe UI', system-ui, sans-serif;
 
   /* ── Theme primary – defaults to Gojo Blue ── */
-  --p:            #0033bb;
-  --p-glow:       #2266ff;
-  --p-dim:        #001155;
-  --p-bg:         rgba(0, 51, 187, 0.12);
-  --p-bg2:        rgba(0, 51, 187, 0.06);
-  --p-hover-glow: #c9a227;
+  --p:            #1a3a99;
+  --p-glow:       #4d7aee;
+  --p-dim:        #0d1f55;
+  --p-bg:         rgba(26, 58, 153, 0.1);
+  --p-bg2:        rgba(26, 58, 153, 0.05);
+  --p-hover-glow: #b8921f;
 }
 
 /* ──────────────────────────────────────────────
@@ -56,54 +56,54 @@
 
 /* 蒼  – Gojo Blue (default – explicit for completeness) */
 [data-theme="ao"] {
-  --p:           #0033bb;
-  --p-glow:      #2266ff;
-  --p-dim:       #001155;
-  --p-bg:        rgba(0, 51, 187, 0.12);
-  --p-bg2:       rgba(0, 51, 187, 0.06);
-  --p-hover-glow: #c9a227; /* gold */
+  --p:           #1a3a99;
+  --p-glow:      #4d7aee;
+  --p-dim:       #0d1f55;
+  --p-bg:        rgba(26, 58, 153, 0.1);
+  --p-bg2:       rgba(26, 58, 153, 0.05);
+  --p-hover-glow: #b8921f;
 }
 
 /* 赫  – Sukuna Crimson */
 [data-theme="shuku"] {
-  --bg-dark:     #07010a;
-  --bg-card:     #0e0208;
-  --bg-card2:    #160310;
-  --p:           #880000;
-  --p-glow:      #dd1111;
-  --p-dim:       #440000;
-  --p-bg:        rgba(136, 0, 0, 0.15);
-  --p-bg2:       rgba(136, 0, 0, 0.07);
-  --border-mid:  #2a0a12;
-  --p-hover-glow: #c9a227; /* gold */
+  --bg-dark:     #060108;
+  --bg-card:     #0c0209;
+  --bg-card2:    #12020e;
+  --p:           #7a1a1a;
+  --p-glow:      #c03030;
+  --p-dim:       #3d0d0d;
+  --p-bg:        rgba(122, 26, 26, 0.12);
+  --p-bg2:       rgba(122, 26, 26, 0.06);
+  --border-mid:  #22080e;
+  --p-hover-glow: #b8921f;
 }
 
 /* 闇  – Hollow Purple Void */
 [data-theme="yami"] {
-  --bg-dark:     #030008;
-  --bg-card:     #0a0012;
-  --bg-card2:    #12001e;
-  --p:           #5500aa;
-  --p-glow:      #aa44ff;
-  --p-dim:       #2d0066;
-  --p-bg:        rgba(85, 0, 170, 0.15);
-  --p-bg2:       rgba(85, 0, 170, 0.07);
-  --border-mid:  #1a0a30;
-  --p-hover-glow: #2266ff; /* blue synergizes with purple */
+  --bg-dark:     #040007;
+  --bg-card:     #09000f;
+  --bg-card2:    #100018;
+  --p:           #4d1a99;
+  --p-glow:      #8855cc;
+  --p-dim:       #250d4d;
+  --p-bg:        rgba(77, 26, 153, 0.12);
+  --p-bg2:       rgba(77, 26, 153, 0.06);
+  --border-mid:  #160828;
+  --p-hover-glow: #4d7aee;
 }
 
 /* 金  – Special Grade Gold */
 [data-theme="kin"] {
-  --bg-dark:     #030200;
-  --bg-card:     #0a0800;
-  --bg-card2:    #120f00;
-  --p:           #7a5c00;
-  --p-glow:      #c9a227;
-  --p-dim:       #3d2d00;
-  --p-bg:        rgba(122, 92, 0, 0.15);
-  --p-bg2:       rgba(122, 92, 0, 0.07);
-  --border-mid:  #201800;
-  --p-hover-glow: #e01111; /* red contrasts with gold */
+  --bg-dark:     #060500;
+  --bg-card:     #0d0a00;
+  --bg-card2:    #140f00;
+  --p:           #6b5412;
+  --p-glow:      #b8921f;
+  --p-dim:       #352a09;
+  --p-bg:        rgba(107, 84, 18, 0.12);
+  --p-bg2:       rgba(107, 84, 18, 0.06);
+  --border-mid:  #1c1400;
+  --p-hover-glow: #c03030;
 }
 
 /* ──────────────────────────────────────────────
@@ -130,27 +130,11 @@ body::before {
   position: fixed;
   inset: 0;
   background-image:
-    radial-gradient(ellipse at 15% 60%, rgba(0,40,180,0.07)  0%, transparent 55%),
-    radial-gradient(ellipse at 85% 25%, rgba(100,0,200,0.05)  0%, transparent 50%),
-    radial-gradient(ellipse at 50% 90%, rgba(140,0,0,0.06)    0%, transparent 55%),
-    linear-gradient(60deg,  rgba(0,20,100,0.025) 25%, transparent 25%),
-    linear-gradient(-60deg, rgba(0,20,100,0.025) 25%, transparent 25%),
-    linear-gradient(60deg,  transparent 75%, rgba(0,20,100,0.025) 75%),
-    linear-gradient(-60deg, transparent 75%, rgba(0,20,100,0.025) 75%);
-  background-size:
-    100% 100%, 100% 100%, 100% 100%,
-    40px 70px, 40px 70px, 40px 70px, 40px 70px;
-  background-position:
-    0 0, 0 0, 0 0,
-    0 0, 0 0, 20px 35px, 20px 35px;
+    radial-gradient(ellipse at 15% 60%, rgba(0,30,130,0.04)  0%, transparent 55%),
+    radial-gradient(ellipse at 85% 25%, rgba(70,0,150,0.03)  0%, transparent 50%),
+    radial-gradient(ellipse at 50% 90%, rgba(100,0,0,0.03)   0%, transparent 55%);
   pointer-events: none;
   z-index: 0;
-  animation: domain-breathe 8s ease-in-out infinite;
-}
-
-@keyframes domain-breathe {
-  0%,100% { opacity: 0.8; }
-  50%      { opacity: 1.0; }
 }
 
 body > * { position: relative; z-index: 1; }
@@ -159,16 +143,14 @@ body > * { position: relative; z-index: 1; }
    HEADER
 ────────────────────────────────────────────── */
 .site-header {
-  background: linear-gradient(180deg, #04040e 0%, var(--bg-dark) 100%);
-  border-bottom: 1px solid var(--p-dim);
+  background: linear-gradient(180deg, #06060e 0%, var(--bg-dark) 100%);
+  border-bottom: 1px solid var(--border-mid);
   padding: 1.2rem 1rem 0.8rem;
   text-align: center;
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow:
-    0 4px 30px rgba(0,40,200,0.15),
-    0 4px 30px rgba(139,0,0,0.12);
+  box-shadow: 0 2px 16px rgba(0,0,0,0.4);
   transition: border-color 0.5s, box-shadow 0.5s;
 }
 
@@ -179,16 +161,10 @@ body > * { position: relative; z-index: 1; }
   height: 1px;
   background: linear-gradient(
     90deg,
-    transparent, var(--p-glow), var(--curse-purple-glow),
-    var(--p-glow), transparent
+    transparent, var(--p-dim), transparent
   );
-  animation: header-glow 4s ease-in-out infinite;
+  opacity: 0.6;
   transition: background 0.5s;
-}
-
-@keyframes header-glow {
-  0%,100% { opacity: 0.25; }
-  50%      { opacity: 0.85; }
 }
 
 .site-header .logo-text {
@@ -198,7 +174,6 @@ body > * { position: relative; z-index: 1; }
   letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--gold);
-  text-shadow: 0 0 20px rgba(201,162,39,0.5), 0 0 60px rgba(34,102,255,0.15);
 }
 
 .site-header .logo-sub {
@@ -347,10 +322,10 @@ body > * { position: relative; z-index: 1; }
 .theme-btn:hover  { transform: scale(1.2); }
 .theme-btn.active { transform: scale(1.25); box-shadow: 0 0 8px currentColor; }
 
-.theme-btn[data-scheme="ao"]    { background: linear-gradient(135deg, #001155, #2266ff); color: #2266ff; }
-.theme-btn[data-scheme="shuku"] { background: linear-gradient(135deg, #440000, #dd1111); color: #dd1111; }
-.theme-btn[data-scheme="yami"]  { background: linear-gradient(135deg, #2d0066, #aa44ff); color: #aa44ff; }
-.theme-btn[data-scheme="kin"]   { background: linear-gradient(135deg, #3d2d00, #c9a227); color: #c9a227; }
+.theme-btn[data-scheme="ao"]    { background: linear-gradient(135deg, #0d1f55, #4d7aee); color: #4d7aee; }
+.theme-btn[data-scheme="shuku"] { background: linear-gradient(135deg, #3d0d0d, #c03030); color: #c03030; }
+.theme-btn[data-scheme="yami"]  { background: linear-gradient(135deg, #250d4d, #8855cc); color: #8855cc; }
+.theme-btn[data-scheme="kin"]   { background: linear-gradient(135deg, #352a09, #b8921f); color: #b8921f; }
 
 .theme-btn-label {
   font-size: 0.52rem;
@@ -439,19 +414,14 @@ main {
   gap: 1.2rem;
 }
 
-/* Wrapper carries the glow; filter follows child's clip-path */
+/* Wrapper carries the shadow; filter follows child's clip-path */
 .rule-card-wrap {
-  filter:
-    drop-shadow(0 0 4px var(--p-glow))
-    drop-shadow(0 4px 14px rgba(0,0,0,0.55));
-  transition: filter 0.35s, transform 0.2s;
+  filter: drop-shadow(0 3px 10px rgba(0,0,0,0.5));
+  transition: filter 0.25s, transform 0.2s;
 }
 
 .rule-card-wrap:hover {
-  filter:
-    drop-shadow(0 0 8px var(--p-hover-glow))
-    drop-shadow(0 0 18px var(--p-hover-glow))
-    drop-shadow(0 6px 20px rgba(0,0,0,0.45));
+  filter: drop-shadow(0 4px 14px rgba(0,0,0,0.6));
   transform: translateY(-1px);
 }
 
