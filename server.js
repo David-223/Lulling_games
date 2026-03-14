@@ -286,6 +286,191 @@ app.post('/api/lobby/:code/end', (req, res) => {
   res.json({ success: true });
 });
 
+// ── Poker ──
+
+let pokerGame = null;
+
+function pokerBuildToAct(game, startIdx) {
+  const n = game.players.length;
+  const result = [];
+  let i = startIdx % n;
+  for (let c = 0; c < n; c++) {
+    const p = game.players[i];
+    if (!p.folded && !p.allIn) result.push(i);
+    i = (i + 1) % n;
+  }
+  return result;
+}
+
+function pokerAdvancePhase(game) {
+  const phases = ['preflop', 'flop', 'turn', 'river', 'showdown'];
+  const idx = phases.indexOf(game.phase);
+  if (idx < 0 || idx >= phases.length - 1) return;
+  game.phase = phases[idx + 1];
+  if (game.phase !== 'showdown') {
+    game.currentBet = 0;
+    game.players.forEach(p => { p.roundBet = 0; });
+    const n = game.players.length;
+    const toAct = pokerBuildToAct(game, (game.dealerIdx + 1) % n);
+    if (toAct.length === 0) { pokerAdvancePhase(game); }
+    else { game.toAct = toAct; game.currentPlayerIdx = toAct[0]; }
+  } else {
+    game.toAct = [];
+    game.currentPlayerIdx = -1;
+  }
+}
+
+app.post('/api/poker/new', (req, res) => {
+  const { blindSmall, blindBig } = req.body;
+  const pdata = readPlayers();
+  if (pdata.players.length < 2) return res.status(400).json({ error: 'Mindestens 2 Spieler nötig' });
+  pokerGame = {
+    phase: 'setup',
+    pot: 0, currentBet: 0,
+    dealerIdx: 0, sbIdx: -1, bbIdx: -1, currentPlayerIdx: -1, toAct: [],
+    players: pdata.players.map(p => ({
+      id: p.id, name: p.name, chips: p.points,
+      roundBet: 0, totalBet: 0, folded: false, allIn: false
+    })),
+    blindSmall: Math.max(1, parseInt(blindSmall) || 5),
+    blindBig: Math.max(2, parseInt(blindBig) || 10),
+    handNum: 0, winner: null, winnerId: null,
+  };
+  res.json(pokerGame);
+});
+
+app.post('/api/poker/deal', (req, res) => {
+  if (!pokerGame) return res.status(400).json({ error: 'Kein Spiel' });
+  const g = pokerGame;
+  const n = g.players.length;
+  if (g.handNum > 0) {
+    let tries = 0;
+    do { g.dealerIdx = (g.dealerIdx + 1) % n; tries++; }
+    while (g.players[g.dealerIdx].chips <= 0 && tries < n);
+  }
+  g.handNum++;
+  g.pot = 0; g.currentBet = 0; g.winner = null; g.winnerId = null; g.phase = 'preflop';
+  g.players.forEach(p => { p.roundBet = 0; p.totalBet = 0; p.folded = p.chips <= 0; p.allIn = false; });
+
+  let sbIdx = (g.dealerIdx + 1) % n;
+  while (g.players[sbIdx].chips <= 0) sbIdx = (sbIdx + 1) % n;
+  let bbIdx = (sbIdx + 1) % n;
+  while (g.players[bbIdx].chips <= 0 || bbIdx === sbIdx) bbIdx = (bbIdx + 1) % n;
+
+  const postBlind = (idx, amt) => {
+    const actual = Math.min(amt, g.players[idx].chips);
+    g.players[idx].chips -= actual; g.players[idx].roundBet = actual;
+    g.players[idx].totalBet = actual; g.players[idx].allIn = g.players[idx].chips === 0;
+    g.pot += actual; return actual;
+  };
+  postBlind(sbIdx, g.blindSmall);
+  const bbPosted = postBlind(bbIdx, g.blindBig);
+  g.currentBet = bbPosted; g.sbIdx = sbIdx; g.bbIdx = bbIdx;
+
+  const utgIdx = (bbIdx + 1) % n;
+  const toAct = pokerBuildToAct(g, utgIdx);
+  if (!g.players[bbIdx].allIn) {
+    const bbPos = toAct.indexOf(bbIdx);
+    if (bbPos > 0) { toAct.splice(bbPos, 1); toAct.push(bbIdx); }
+  }
+  g.toAct = toAct;
+  g.currentPlayerIdx = toAct[0] ?? -1;
+  res.json(g);
+});
+
+app.get('/api/poker/state', (req, res) => {
+  if (!pokerGame) return res.status(404).json({ error: 'Kein Spiel' });
+  res.json(pokerGame);
+});
+
+app.post('/api/poker/action', (req, res) => {
+  if (!pokerGame) return res.status(400).json({ error: 'Kein Spiel' });
+  const g = pokerGame;
+  if (!['preflop', 'flop', 'turn', 'river'].includes(g.phase))
+    return res.status(400).json({ error: 'Keine Bettingrunde aktiv' });
+  const { playerId, action, amount } = req.body;
+  const pidx = g.players.findIndex(p => p.id === parseInt(playerId));
+  if (pidx === -1) return res.status(404).json({ error: 'Spieler nicht gefunden' });
+  if (g.currentPlayerIdx !== pidx) return res.status(400).json({ error: 'Nicht dein Zug' });
+
+  const p = g.players[pidx];
+  const n = g.players.length;
+  g.toAct.shift();
+
+  if (action === 'fold') {
+    p.folded = true;
+    g.toAct = g.toAct.filter(i => i !== pidx);
+  } else if (action === 'check') {
+    if (p.roundBet < g.currentBet)
+      return res.status(400).json({ error: `Calle ${g.currentBet - p.roundBet} oder raise` });
+  } else if (action === 'call') {
+    const toCall = Math.min(g.currentBet - p.roundBet, p.chips);
+    p.chips -= toCall; p.roundBet += toCall; p.totalBet += toCall; g.pot += toCall;
+    if (p.chips === 0) p.allIn = true;
+  } else if (action === 'raise') {
+    const raiseTo = parseInt(amount);
+    if (!raiseTo || raiseTo <= g.currentBet)
+      return res.status(400).json({ error: `Raise muss über ${g.currentBet} sein` });
+    const actual = Math.min(raiseTo - p.roundBet, p.chips);
+    p.chips -= actual; p.roundBet += actual; p.totalBet += actual; g.pot += actual;
+    if (p.chips === 0) p.allIn = true;
+    g.currentBet = p.roundBet;
+    g.toAct = pokerBuildToAct(g, (pidx + 1) % n).filter(i => i !== pidx);
+  } else if (action === 'allin') {
+    const allInAmt = p.chips;
+    p.chips = 0; p.roundBet += allInAmt; p.totalBet += allInAmt; g.pot += allInAmt; p.allIn = true;
+    if (p.roundBet > g.currentBet) {
+      g.currentBet = p.roundBet;
+      g.toAct = pokerBuildToAct(g, (pidx + 1) % n).filter(i => i !== pidx);
+    }
+  } else {
+    return res.status(400).json({ error: 'Unbekannte Aktion' });
+  }
+
+  const active = g.players.filter(p2 => !p2.folded);
+  if (active.length === 1) {
+    g.phase = 'showdown'; g.toAct = []; g.currentPlayerIdx = -1;
+  } else if (g.toAct.length === 0) {
+    g.currentPlayerIdx = -1; // betting done, wait for advance
+  } else {
+    g.currentPlayerIdx = g.toAct[0];
+  }
+  res.json(g);
+});
+
+app.post('/api/poker/advance', (req, res) => {
+  if (!pokerGame) return res.status(400).json({ error: 'Kein Spiel' });
+  if (pokerGame.toAct.length > 0) return res.status(400).json({ error: 'Bettingrunde noch nicht beendet' });
+  pokerAdvancePhase(pokerGame);
+  res.json(pokerGame);
+});
+
+app.post('/api/poker/winner', (req, res) => {
+  if (!pokerGame) return res.status(400).json({ error: 'Kein Spiel' });
+  const { winnerId } = req.body;
+  const g = pokerGame;
+  const widx = g.players.findIndex(p => p.id === parseInt(winnerId));
+  if (widx === -1) return res.status(404).json({ error: 'Spieler nicht gefunden' });
+  g.players[widx].chips += g.pot;
+  g.winner = g.players[widx].name;
+  g.winnerId = parseInt(winnerId);
+  g.pot = 0; g.phase = 'ended';
+  const pdata = readPlayers();
+  g.players.forEach(gp => { const pp = pdata.players.find(p => p.id === gp.id); if (pp) pp.points = gp.chips; });
+  writePlayers(pdata);
+  res.json(g);
+});
+
+app.post('/api/poker/end', (req, res) => {
+  if (pokerGame) {
+    const pdata = readPlayers();
+    pokerGame.players.forEach(gp => { const pp = pdata.players.find(p => p.id === gp.id); if (pp) pp.points = gp.chips; });
+    writePlayers(pdata);
+  }
+  pokerGame = null;
+  res.json({ success: true });
+});
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`\n⚔  Lalling Games läuft auf Port ${PORT}`);
   console.log(`   Lokal:   http://localhost:${PORT}`);
