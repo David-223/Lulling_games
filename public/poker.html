@@ -207,10 +207,15 @@
     <div class="logo-sub">Das Culling Spiel · Das Trinkspiel</div>
     <nav class="nav-links">
       <a href="index.html">Regeln</a>
-      <a href="spieler.html">Spieler</a>
       <a href="gluecksrad.html">Gamble</a>
       <a href="poker.html" class="active">Hände</a>
-      <a href="admin.html">Admin</a>
+      <div class="nav-dropdown">
+        <button class="nav-dropdown-btn" id="nav-more-btn">Mehr ▾</button>
+        <div class="nav-dropdown-menu" id="nav-more-menu">
+          <a href="spieler.html">Spieler</a>
+          <a href="admin.html">Admin</a>
+        </div>
+      </div>
     </nav>
     <div class="theme-switcher" id="theme-switcher">
       <button class="theme-btn" data-scheme="ao"    title="蒼 – Gojo Blue"></button>
@@ -478,6 +483,23 @@
     // ── Init ──
     applyTheme(localStorage.getItem('lalling-theme') || 'ao');
     render();
+
+    // ── Dropdown ──
+    (function() {
+      const btn  = document.getElementById('nav-more-btn');
+      const menu = document.getElementById('nav-more-menu');
+      if (!btn) return;
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const open = menu.classList.toggle('open');
+        if (!btn.classList.contains('active')) btn.dataset.wasActive = 'false';
+        if (open) btn.dataset.open = '1'; else delete btn.dataset.open;
+      });
+      document.addEventListener('click', () => {
+        menu.classList.remove('open');
+        delete btn.dataset.open;
+      });
+    })();
   </script>
 </body>
 </html>
