@@ -615,8 +615,10 @@
         document.getElementById('control-label').textContent = 'Showdown — wer hat gewonnen?';
         const sel = document.getElementById('winner-select');
         const activePlayers = g.players.filter(p => !p.folded);
+        const prevVal = sel.value;
         sel.innerHTML = '<option value="">— Gewinner wählen —</option>' +
           activePlayers.map(p => `<option value="${p.id}">${escHtml(p.name)} (${p.chips} Pts)</option>`).join('');
+        if (prevVal) sel.value = prevVal;
       } else if (g.toAct.length === 0 && g.currentPlayerIdx === -1 && ['preflop','flop','turn','river'].includes(g.phase)) {
         const nextPhaseLabel = PHASE_LABEL[PHASE_ORDER[PHASE_ORDER.indexOf(g.phase) + 1]] || '';
         controlPanel.style.display = '';
