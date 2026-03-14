@@ -124,6 +124,85 @@
       text-transform: none;
       letter-spacing: 0;
     }
+
+    /* ── Player management ── */
+    .player-admin-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-mid);
+      border-top: 2px solid var(--accent-dim);
+      border-radius: 3px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    }
+
+    .player-admin-header {
+      background: linear-gradient(90deg, rgba(139,0,0,0.18) 0%, transparent 70%);
+      border-bottom: 1px solid var(--border-mid);
+      padding: 0.4rem 1rem 0.4rem 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .player-admin-name {
+      font-family: var(--font-title);
+      font-size: 0.95rem;
+      color: var(--text);
+      font-weight: bold;
+    }
+
+    .player-admin-body {
+      padding: 0.7rem 1rem 0.8rem 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.8rem;
+    }
+
+    .player-role-tag {
+      font-size: 0.7rem;
+      font-family: var(--font-ui);
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+    }
+
+    .pts-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .pts-display {
+      font-family: var(--font-title);
+      font-size: 1rem;
+      color: var(--gold);
+      min-width: 3rem;
+      text-align: center;
+    }
+
+    .btn-pts {
+      background: var(--bg-card2);
+      border: 1px solid var(--border-mid);
+      color: var(--text-dim);
+      border-radius: 2px;
+      width: 2rem;
+      height: 2rem;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      font-family: var(--font-ui);
+    }
+
+    .btn-pts:hover { color: var(--text); border-color: var(--text-dim); }
+
+    .players-list-admin {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
   </style>
 </head>
 <body>
@@ -175,6 +254,7 @@
         <div class="logo-sub">Regelverwaltung</div>
         <nav class="nav-links">
           <a href="index.html">Regeln</a>
+          <a href="spieler.html">Spieler</a>
           <a href="admin.html" class="active">Admin</a>
         </nav>
         <button class="logout-btn" onclick="logout()">Abmelden</button>
@@ -224,6 +304,40 @@
       <div id="admin-rules-list" class="rules-list">
         <div class="loading">Lade Regeln</div>
       </div>
+
+      <hr class="divider" style="margin-top:2rem;" />
+
+      <!-- Spieler-Sektion -->
+      <div class="form-card" style="margin-top:1.5rem;">
+        <button class="add-rule-toggle" onclick="togglePlayerForm()" style="background:none;border:none;cursor:pointer;padding:0;width:100%;text-align:left;">
+          <h2 class="section-title" style="margin:0;border:none;padding:0;">Spieler hinzufügen</h2>
+          <span class="collapse-icon" id="player-collapse-icon">+</span>
+        </button>
+
+        <div class="add-form-wrapper" id="player-form-wrapper">
+          <div style="height:1rem;"></div>
+          <div class="form-group">
+            <label for="new-player-name">Name</label>
+            <input type="text" id="new-player-name" placeholder="z.B. Gojo Satoru" autocapitalize="words" />
+          </div>
+          <div class="form-group">
+            <label for="new-player-role">Rolle</label>
+            <select id="new-player-role">
+              <option value="Jujutsu Zauberer">⚔ Jujutsu Zauberer</option>
+              <option value="Sonderklasse">★ Sonderklasse</option>
+              <option value="Verfluchter Geist">👁 Verfluchter Geist</option>
+              <option value="Fluchnutzer">🔥 Fluchnutzer</option>
+              <option value="Normaler Mensch">○ Normaler Mensch</option>
+            </select>
+          </div>
+          <button class="btn btn-primary btn-full" onclick="addPlayer()">+ Spieler hinzufügen</button>
+        </div>
+      </div>
+
+      <h2 class="section-title">Alle Spieler</h2>
+      <div id="admin-players-list" class="players-list-admin">
+        <div class="loading">Lade Spieler</div>
+      </div>
     </main>
   </div>
 
@@ -269,7 +383,9 @@
   <script>
     let adminPassword = '';
     let rules = [];
+    let players = [];
     let addFormOpen = false;
+    let playerFormOpen = false;
 
     function toRoman(n) {
       const vals = [1000,900,500,400,100,90,50,40,10,9,5,4,1];
@@ -299,6 +415,7 @@
           document.getElementById('admin-screen').style.display = 'block';
           errEl.style.display = 'none';
           loadAdminRules();
+          loadAdminPlayers();
         } else {
           showError('Falsches Passwort.');
         }
@@ -515,6 +632,115 @@
       toast.className = type;
       toast.classList.add('show');
       setTimeout(() => toast.classList.remove('show'), 2800);
+    }
+
+    // ── Players ──
+
+    async function loadAdminPlayers() {
+      const list = document.getElementById('admin-players-list');
+      try {
+        const res = await fetch('/api/players');
+        players = await res.json();
+        renderAdminPlayers();
+      } catch (e) {
+        list.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><p>Fehler beim Laden.</p></div>`;
+      }
+    }
+
+    function renderAdminPlayers() {
+      const list = document.getElementById('admin-players-list');
+      if (players.length === 0) {
+        list.innerHTML = `<div class="empty-state"><div class="empty-icon">⚔</div><p>Noch keine Spieler. Füge oben einen Spieler hinzu.</p></div>`;
+        return;
+      }
+      const sorted = [...players].sort((a, b) => b.points - a.points);
+      list.innerHTML = sorted.map(p => `
+        <div class="player-admin-card">
+          <div class="player-admin-header">
+            <span class="player-admin-name">${escHtml(p.name)}</span>
+            <button class="btn btn-danger" style="padding:0.2rem 0.5rem;font-size:0.7rem;" onclick="deletePlayer(${p.id})">🗑</button>
+          </div>
+          <div class="player-admin-body">
+            <span class="player-role-tag">${escHtml(p.role)}</span>
+            <div class="pts-controls">
+              <button class="btn-pts" onclick="adjustPoints(${p.id}, -10)">−</button>
+              <span class="pts-display" id="pts-${p.id}">${p.points} Pts</span>
+              <button class="btn-pts" onclick="adjustPoints(${p.id}, +10)">+</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function addPlayer() {
+      const name = document.getElementById('new-player-name').value.trim();
+      const role = document.getElementById('new-player-role').value;
+      if (!name) { showToast('Bitte Name eingeben.', 'error'); return; }
+      try {
+        const res = await fetch('/api/players', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: adminPassword, name, role })
+        });
+        if (res.ok) {
+          document.getElementById('new-player-name').value = '';
+          showToast('Spieler hinzugefügt!', 'success');
+          togglePlayerForm(false);
+          loadAdminPlayers();
+        } else {
+          const err = await res.json();
+          showToast(err.error || 'Fehler', 'error');
+        }
+      } catch (e) { showToast('Verbindungsfehler', 'error'); }
+    }
+
+    async function adjustPoints(id, delta) {
+      try {
+        const res = await fetch(`/api/players/${id}/points`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: adminPassword, delta })
+        });
+        if (res.ok) {
+          const updated = await res.json();
+          const el = document.getElementById(`pts-${id}`);
+          if (el) el.textContent = `${updated.points} Pts`;
+          const p = players.find(x => x.id === id);
+          if (p) p.points = updated.points;
+        } else {
+          showToast('Fehler beim Anpassen.', 'error');
+        }
+      } catch (e) { showToast('Verbindungsfehler', 'error'); }
+    }
+
+    async function deletePlayer(id) {
+      if (!confirm('Spieler wirklich löschen?')) return;
+      try {
+        const res = await fetch(`/api/players/${id}`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: adminPassword })
+        });
+        if (res.ok) {
+          showToast('Spieler entfernt.', 'success');
+          loadAdminPlayers();
+        } else {
+          showToast('Fehler beim Löschen.', 'error');
+        }
+      } catch (e) { showToast('Verbindungsfehler', 'error'); }
+    }
+
+    function togglePlayerForm(forceClose) {
+      playerFormOpen = forceClose === false ? false : !playerFormOpen;
+      const wrapper = document.getElementById('player-form-wrapper');
+      const icon = document.getElementById('player-collapse-icon');
+      if (playerFormOpen) {
+        wrapper.classList.add('open');
+        icon.classList.add('open');
+      } else {
+        wrapper.classList.remove('open');
+        icon.classList.remove('open');
+      }
     }
 
     // ── Utils ──

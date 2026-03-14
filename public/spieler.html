@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Spieler – Lalling Games</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .player-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-mid);
+      border-top: 2px solid var(--accent-dim);
+      border-radius: 3px;
+      padding: 0;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.25s, box-shadow 0.25s;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    }
+
+    .player-card:hover {
+      border-top-color: var(--accent-glow);
+      border-color: var(--accent-mid);
+      box-shadow: 0 6px 28px rgba(139,0,0,0.2);
+    }
+
+    .player-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: linear-gradient(180deg, var(--accent-glow), var(--accent), var(--accent-dim));
+    }
+
+    .player-header {
+      background: linear-gradient(90deg, rgba(139,0,0,0.18) 0%, transparent 70%);
+      border-bottom: 1px solid var(--border-mid);
+      padding: 0.4rem 1rem 0.4rem 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .player-rank {
+      font-family: var(--font-title);
+      font-size: 0.65rem;
+      letter-spacing: 0.35em;
+      color: var(--gold-dim);
+      text-transform: uppercase;
+    }
+
+    .player-rank.rank-1 { color: var(--gold); }
+    .player-rank.rank-2 { color: #aaa; }
+    .player-rank.rank-3 { color: #cd7f32; }
+
+    .player-pts-badge {
+      font-family: var(--font-ui);
+      font-size: 0.65rem;
+      font-weight: bold;
+      color: var(--accent-glow);
+      background: rgba(139,0,0,0.15);
+      border: 1px solid var(--accent-dim);
+      border-radius: 2px;
+      padding: 0.1rem 0.4rem;
+      letter-spacing: 0.08em;
+    }
+
+    .player-pts-badge.zero {
+      color: var(--text-dim);
+      border-color: var(--border-mid);
+      background: rgba(0,0,0,0.2);
+    }
+
+    .player-body {
+      padding: 0.85rem 1rem 1rem 1.2rem;
+    }
+
+    .player-name {
+      font-family: var(--font-title);
+      font-size: 1.1rem;
+      color: var(--text);
+      font-weight: bold;
+      letter-spacing: 0.03em;
+      margin-bottom: 0.5rem;
+    }
+
+    .player-name.eliminated {
+      color: var(--text-dim);
+      text-decoration: line-through;
+    }
+
+    .role-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.7rem;
+      font-family: var(--font-ui);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border-radius: 2px;
+      padding: 0.15rem 0.5rem;
+      border: 1px solid;
+      margin-bottom: 0.7rem;
+    }
+
+    .role-zauberer    { color: #5599dd; border-color: #2a4466; background: rgba(85,153,221,0.08); }
+    .role-sonderklasse{ color: var(--gold); border-color: var(--border-gold); background: rgba(201,162,39,0.08); }
+    .role-geist       { color: #aa66dd; border-color: #442266; background: rgba(170,102,221,0.08); }
+    .role-fluchnutzer { color: var(--accent-glow); border-color: var(--accent-dim); background: rgba(139,0,0,0.08); }
+    .role-mensch      { color: var(--text-dim); border-color: var(--border-mid); background: rgba(90,90,106,0.08); }
+
+    .points-bar-wrap {
+      background: rgba(0,0,0,0.35);
+      border-radius: 2px;
+      height: 4px;
+      overflow: hidden;
+    }
+
+    .points-bar {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.6s ease;
+      background: linear-gradient(90deg, var(--accent), var(--accent-glow));
+    }
+
+    .points-bar.zero {
+      background: var(--border-mid);
+    }
+
+    .eliminated-tag {
+      font-size: 0.65rem;
+      font-family: var(--font-ui);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-top: 0.4rem;
+    }
+
+    .players-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .players-count {
+      text-align: right;
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      margin-bottom: 0.6rem;
+      letter-spacing: 0.08em;
+      font-family: var(--font-ui);
+    }
+
+    .players-count span {
+      color: var(--gold-dim);
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="logo-text">Lalling Games</div>
+    <div class="logo-sub">Das Culling Spiel · Das Trinkspiel</div>
+    <nav class="nav-links">
+      <a href="index.html">Regeln</a>
+      <a href="spieler.html" class="active">Spieler</a>
+      <a href="admin.html">Admin</a>
+    </nav>
+  </header>
+
+  <main>
+    <h2 class="section-title">Teilnehmer</h2>
+
+    <div class="players-count">Aktive Teilnehmer: <span id="players-count">—</span></div>
+
+    <div id="players-list" class="players-list">
+      <div class="loading">Lade Spieler</div>
+    </div>
+  </main>
+
+  <div id="toast"></div>
+
+  <script>
+    const ROLES = {
+      'Jujutsu Zauberer':  { css: 'role-zauberer',     icon: '⚔' },
+      'Sonderklasse':      { css: 'role-sonderklasse',  icon: '★' },
+      'Verfluchter Geist': { css: 'role-geist',         icon: '👁' },
+      'Fluchnutzer':       { css: 'role-fluchnutzer',   icon: '🔥' },
+      'Normaler Mensch':   { css: 'role-mensch',        icon: '○' },
+    };
+
+    function rankLabel(rank) {
+      if (rank === 1) return '— Rang I —';
+      if (rank === 2) return '— Rang II —';
+      if (rank === 3) return '— Rang III —';
+      return `— Rang ${rank} —`;
+    }
+
+    function rankClass(rank) {
+      if (rank === 1) return 'rank-1';
+      if (rank === 2) return 'rank-2';
+      if (rank === 3) return 'rank-3';
+      return '';
+    }
+
+    function escHtml(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    async function loadPlayers() {
+      const list = document.getElementById('players-list');
+      const countEl = document.getElementById('players-count');
+      try {
+        const res = await fetch('/api/players');
+        const players = await res.json();
+
+        const active = players.filter(p => p.points > 0);
+        countEl.textContent = active.length;
+
+        if (players.length === 0) {
+          list.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-icon">⚔</div>
+              <p>Noch keine Teilnehmer.<br>Der Admin kann Spieler hinzufügen.</p>
+            </div>`;
+          return;
+        }
+
+        const sorted = [...players].sort((a, b) => b.points - a.points);
+        list.innerHTML = sorted.map((p, idx) => {
+          const rank = idx + 1;
+          const role = ROLES[p.role] || { css: 'role-mensch', icon: '○' };
+          const pct = Math.min(100, p.points);
+          const isElim = p.points === 0;
+          return `
+            <div class="player-card">
+              <div class="player-header">
+                <span class="player-rank ${rankClass(rank)}">${rankLabel(rank)}</span>
+                <span class="player-pts-badge ${isElim ? 'zero' : ''}">${p.points} Pts</span>
+              </div>
+              <div class="player-body">
+                <div class="player-name ${isElim ? 'eliminated' : ''}">${escHtml(p.name)}</div>
+                <div class="role-badge ${role.css}">${role.icon} ${escHtml(p.role)}</div>
+                <div class="points-bar-wrap">
+                  <div class="points-bar ${isElim ? 'zero' : ''}" style="width:${pct}%"></div>
+                </div>
+                ${isElim ? '<div class="eliminated-tag">✕ Ausgeschieden</div>' : ''}
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (e) {
+        list.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><p>Fehler beim Laden.</p></div>`;
+      }
+    }
+
+    loadPlayers();
+  </script>
+</body>
+</html>
