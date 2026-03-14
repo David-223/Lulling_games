@@ -501,6 +501,144 @@
       background: var(--border-mid);
       margin: 0.8rem 0;
     }
+
+    /* ── View toggle (next to theme switcher) ── */
+    .view-toggle {
+      display: flex;
+      gap: 3px;
+      align-items: center;
+      margin-top: 0.35rem;
+    }
+
+    .view-btn {
+      width: 26px;
+      height: 26px;
+      border-radius: 4px;
+      background: var(--bg-card2);
+      border: 1px solid var(--border-mid);
+      color: var(--text-dim);
+      font-size: 0.75rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .view-btn.active {
+      background: var(--p-bg);
+      border-color: var(--p-dim);
+      color: var(--p-glow);
+    }
+
+    /* ── List view ── */
+    .list-pot-display {
+      text-align: center;
+      margin-bottom: 0.6rem;
+    }
+
+    .list-pot-label {
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      font-family: var(--font-ui);
+      font-weight: 700;
+    }
+
+    .list-pot-value {
+      font-family: var(--font-title);
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--gold);
+      letter-spacing: 0.05em;
+      line-height: 1.1;
+    }
+
+    .list-status-line {
+      text-align: center;
+      padding: 0.4rem;
+      font-family: var(--font-ui);
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      margin-bottom: 0.5rem;
+    }
+
+    .list-status-line .dot {
+      display: inline-block;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--p-glow);
+      margin-right: 0.4rem;
+      animation: pulse 1.5s infinite;
+    }
+
+    .player-rows { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; }
+
+    .player-row {
+      background: var(--bg-card);
+      border: 1px solid var(--border-mid);
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      padding: 0.6rem 0.8rem;
+      gap: 0.6rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .player-row.active-turn { border-color: var(--p); box-shadow: 0 0 10px var(--p-bg); }
+    .player-row.folded-row { opacity: 0.35; }
+
+    .player-row .pr-avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--p-bg);
+      border: 1px solid var(--p-dim);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-title);
+      font-size: 0.8rem; font-weight: 700;
+      color: var(--p-glow); flex-shrink: 0;
+    }
+
+    .player-row .pr-name {
+      flex: 1;
+      font-family: var(--font-ui);
+      font-size: 0.9rem; font-weight: 700;
+      color: var(--text);
+    }
+
+    .player-row.active-turn .pr-name { color: var(--p-glow); }
+
+    .player-row .pr-chips {
+      font-family: var(--font-ui);
+      font-size: 0.82rem; font-weight: 700;
+      color: var(--gold); min-width: 50px; text-align: right;
+    }
+
+    .player-row .pr-bet {
+      font-family: var(--font-ui);
+      font-size: 0.72rem; color: var(--text-dim);
+      min-width: 36px; text-align: right;
+    }
+
+    .pr-badges { display: flex; gap: 0.3rem; flex-wrap: wrap; justify-content: flex-end; }
+
+    .pr-badge {
+      font-size: 0.58rem; letter-spacing: 0.08em;
+      text-transform: uppercase; padding: 0.1rem 0.4rem;
+      border-radius: 2px; font-weight: 700; border: 1px solid; white-space: nowrap;
+    }
+
+    .badge-dealer { color: var(--gold);      border-color: var(--gold-dim); background: rgba(201,162,39,0.08); }
+    .badge-sb     { color: #6cf;             border-color: #1a4466;         background: rgba(100,200,255,0.07); }
+    .badge-bb     { color: #adf;             border-color: #1a2a44;         background: rgba(150,200,255,0.07); }
+    .badge-folded { color: var(--text-dim);  border-color: var(--border-mid); background: transparent; }
+    .badge-allin  { color: #f84;             border-color: #663300;         background: rgba(255,130,60,0.1); }
+    .badge-you    { color: var(--p-glow);    border-color: var(--p-dim);    background: var(--p-bg); }
+    .badge-turn   { color: #4f4;             border-color: #1a441a;         background: rgba(80,220,80,0.1); animation: blink 1s infinite; }
+
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.4} }
   </style>
 </head>
 <body>
@@ -522,11 +660,17 @@
         </div>
       </div>
     </nav>
-    <div class="theme-switcher" id="theme-switcher">
-      <button class="theme-btn" data-scheme="ao"    title="蒼 – Gojo Blue"></button>
-      <button class="theme-btn" data-scheme="shuku" title="赫 – Sukuna Crimson"></button>
-      <button class="theme-btn" data-scheme="yami"  title="闇 – Hollow Purple"></button>
-      <button class="theme-btn" data-scheme="kin"   title="金 – Special Grade"></button>
+    <div style="display:flex;gap:0.5rem;align-items:flex-start;flex-wrap:wrap;justify-content:center;">
+      <div class="theme-switcher" id="theme-switcher">
+        <button class="theme-btn" data-scheme="ao"    title="蒼 – Gojo Blue"></button>
+        <button class="theme-btn" data-scheme="shuku" title="赫 – Sukuna Crimson"></button>
+        <button class="theme-btn" data-scheme="yami"  title="闇 – Hollow Purple"></button>
+        <button class="theme-btn" data-scheme="kin"   title="金 – Special Grade"></button>
+      </div>
+      <div class="view-toggle" id="view-toggle">
+        <button class="view-btn" data-view="table" title="Tischansicht">🎰</button>
+        <button class="view-btn" data-view="list"  title="Listenansicht">☰</button>
+      </div>
     </div>
   </header>
 
@@ -562,6 +706,16 @@
         <div class="phase-step" data-phase="turn">Turn</div>
         <div class="phase-step" data-phase="river">River</div>
         <div class="phase-step" data-phase="showdown">Showdown</div>
+      </div>
+
+      <!-- List view (old style) -->
+      <div id="list-view-wrap" style="display:none">
+        <div class="list-pot-display">
+          <div class="list-pot-label">Pot</div>
+          <div class="list-pot-value" id="list-pot-value">0 <span style="font-size:1rem;color:var(--gold-dim)">Pts</span></div>
+        </div>
+        <div class="list-status-line" id="list-status-line"></div>
+        <div class="player-rows" id="player-rows"></div>
       </div>
 
       <!-- ═══ Poker table scene ═══
@@ -668,6 +822,15 @@
     function isAdmin() { const me = getMe(); return !!(me && me.isAdmin); }
     function adminAuthBody() { const me = getMe(); return me && me.isAdmin ? { adminPlayerId: me.id } : {}; }
 
+    // ── View preference ──
+    function getPokerView() { return localStorage.getItem('lalling-poker-view') || 'table'; }
+    function setPokerView(v) {
+      localStorage.setItem('lalling-poker-view', v);
+      document.querySelectorAll('.view-btn').forEach(b => b.classList.toggle('active', b.dataset.view === v));
+      document.getElementById('table-scene').style.display    = v === 'table' ? '' : 'none';
+      document.getElementById('list-view-wrap').style.display = v === 'list'  ? '' : 'none';
+    }
+
     function escHtml(s) {
       return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
@@ -701,31 +864,39 @@
         el.className = 'phase-step' + (ph === g.phase ? ' active' : idx < cur ? ' done' : '');
       });
 
-      // Pot
+      // Pot — both views
       document.getElementById('pot-value').textContent = g.pot;
+      document.getElementById('list-pot-value').innerHTML = `${g.pot} <span style="font-size:1rem;color:var(--gold-dim)">Pts</span>`;
 
-      // Current bet info inside table
+      // Current bet info inside table oval
       const curBetEl = document.getElementById('table-cur-bet');
       curBetEl.textContent = g.currentBet > 0 ? `Einsatz: ${g.currentBet}` : '';
 
-      // Status inside table oval
+      // Status — table oval
       const statusEl = document.getElementById('status-line');
+      // Status — list view
+      const listStatusEl = document.getElementById('list-status-line');
+
       if (g.currentPlayerIdx >= 0 && g.players[g.currentPlayerIdx]) {
         const cp = g.players[g.currentPlayerIdx];
         statusEl.textContent = `Zug: ${cp.name}`;
         statusEl.className = 'table-status-txt is-turn';
+        listStatusEl.innerHTML = `<span class="dot"></span>Zug: <strong>${escHtml(cp.name)}</strong>`;
       } else if (g.phase === 'showdown' || g.phase === 'ended') {
         statusEl.textContent = PHASE_LABEL[g.phase];
         statusEl.className = 'table-status-txt';
+        listStatusEl.innerHTML = `<span class="dot" style="background:var(--gold)"></span>${PHASE_LABEL[g.phase]}`;
       } else if (g.toAct.length === 0 && ['preflop','flop','turn','river'].includes(g.phase)) {
         statusEl.textContent = 'Runde beendet';
         statusEl.className = 'table-status-txt';
+        listStatusEl.innerHTML = `<span class="dot" style="background:#4f4"></span>Bettingrunde beendet`;
       } else {
         statusEl.textContent = '';
         statusEl.className = 'table-status-txt';
+        listStatusEl.innerHTML = '';
       }
 
-      // ── Seat rendering ──
+      // ── Seat / list rendering ──
       const me = getMe();
       const myIdx = me ? g.players.findIndex(p => p.id === me.id) : -1;
 
@@ -783,6 +954,27 @@
             ${betHtml}
           </div>`;
       });
+
+      // ── List view player rows ──
+      document.getElementById('player-rows').innerHTML = g.players.map((p, i) => {
+        const isMe2 = me && p.id === me.id;
+        const isTurn2 = i === g.currentPlayerIdx;
+        const badges2 = [];
+        if (i === g.dealerIdx && !['ended','setup'].includes(g.phase)) badges2.push('<span class="pr-badge badge-dealer">D</span>');
+        if (i === g.sbIdx && g.phase !== 'ended') badges2.push('<span class="pr-badge badge-sb">SB</span>');
+        if (i === g.bbIdx && g.phase !== 'ended') badges2.push('<span class="pr-badge badge-bb">BB</span>');
+        if (isMe2) badges2.push('<span class="pr-badge badge-you">Du</span>');
+        if (isTurn2) badges2.push('<span class="pr-badge badge-turn">am Zug</span>');
+        if (p.folded) badges2.push('<span class="pr-badge badge-folded">Fold</span>');
+        if (p.allIn)  badges2.push('<span class="pr-badge badge-allin">All-In</span>');
+        return `<div class="player-row${isTurn2 ? ' active-turn' : ''}${p.folded ? ' folded-row' : ''}">
+          <div class="pr-avatar">${escHtml(p.name.charAt(0).toUpperCase())}</div>
+          <div class="pr-name">${escHtml(p.name)}</div>
+          <div class="pr-bet">${p.roundBet > 0 ? '+' + p.roundBet : ''}</div>
+          <div class="pr-chips">${p.chips} Pts</div>
+          <div class="pr-badges">${badges2.join('')}</div>
+        </div>`;
+      }).join('');
 
       // ── Action panel (my turn) ──
       const actionPanel = document.getElementById('action-panel');
@@ -1035,6 +1227,13 @@
       } catch {}
       showNoGame();
     })();
+
+    // ── View toggle ──
+    document.getElementById('view-toggle').addEventListener('click', e => {
+      const btn = e.target.closest('.view-btn');
+      if (btn) setPokerView(btn.dataset.view);
+    });
+    setPokerView(getPokerView()); // apply on load
 
     // ── Theme ──
     const THEMES = ['ao', 'shuku', 'yami', 'kin'];
