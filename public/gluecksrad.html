@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Glücksrad – Lalling Games</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ── Wheel container ── */
+    .wheel-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .wheel-wrap {
+      position: relative;
+      display: inline-block;
+    }
+
+    /* Pointer triangle at the top */
+    .wheel-pointer {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 12px solid transparent;
+      border-right: 12px solid transparent;
+      border-top: 22px solid var(--p-glow);
+      filter: drop-shadow(0 0 6px var(--p-glow));
+      z-index: 2;
+      transition: border-top-color 0.5s, filter 0.5s;
+    }
+
+    #wheel {
+      display: block;
+      border-radius: 50%;
+      filter: drop-shadow(0 0 10px var(--p-glow)) drop-shadow(0 0 28px var(--p-bg));
+      transition: filter 0.5s;
+    }
+
+    /* ── Spin button ── */
+    .spin-btn {
+      font-size: 1.05rem;
+      letter-spacing: 0.2em;
+      padding: 0.9rem 2.5rem;
+      clip-path: polygon(14px 0%, calc(100% - 14px) 0%, 100% 50%, calc(100% - 14px) 100%, 14px 100%, 0% 50%);
+      transition: background 0.3s, box-shadow 0.3s, opacity 0.3s;
+    }
+
+    .spin-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* ── Result panel ── */
+    .result-panel {
+      display: none;
+      background: var(--bg-card);
+      border: 1px solid var(--p-dim);
+      border-top: 2px solid var(--p-glow);
+      border-radius: 4px;
+      padding: 1.4rem 1.2rem 1.2rem;
+      text-align: center;
+      width: 100%;
+      animation: result-appear 0.4s ease;
+      box-shadow: 0 0 30px var(--p-bg), 0 8px 24px rgba(0,0,0,0.6);
+    }
+
+    .result-panel.visible { display: block; }
+
+    @keyframes result-appear {
+      from { opacity: 0; transform: scale(0.92); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    .result-label {
+      font-size: 0.62rem;
+      letter-spacing: 0.45em;
+      text-transform: uppercase;
+      color: var(--p-glow);
+      font-family: var(--font-ui);
+      font-weight: 700;
+      margin-bottom: 0.7rem;
+      opacity: 0.8;
+    }
+
+    .result-text {
+      font-family: var(--font-title);
+      font-size: 1.3rem;
+      color: var(--gold);
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      line-height: 1.3;
+      margin-bottom: 1rem;
+      text-shadow: 0 0 20px rgba(201,162,39,0.4);
+    }
+
+    /* ── Entries ── */
+    .entries-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      margin-top: 0.8rem;
+    }
+
+    .entry-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.8rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-mid);
+      border-left: 3px solid var(--p-dim);
+      border-radius: 0 3px 3px 0;
+      padding: 0.55rem 0.8rem 0.55rem 1rem;
+      transition: border-color 0.5s, background 0.5s;
+    }
+
+    .entry-item:hover {
+      border-left-color: var(--p-glow);
+    }
+
+    .entry-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .entry-name {
+      flex: 1;
+      font-size: 0.93rem;
+      color: var(--text-mid);
+      font-family: var(--font-body);
+    }
+
+    .entries-empty {
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 0.85rem;
+      font-family: var(--font-ui);
+      padding: 1.5rem 0 0.5rem;
+    }
+
+    .entries-count {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      font-family: var(--font-ui);
+      letter-spacing: 0.08em;
+      margin-bottom: 0.4rem;
+      text-align: right;
+    }
+
+    .entries-count span {
+      color: var(--p-glow);
+      font-weight: 700;
+    }
+
+    /* Import from rules button */
+    .import-btn {
+      font-size: 0.75rem;
+      padding: 0.4rem 0.9rem;
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="logo-text">Lalling Games</div>
+    <div class="logo-sub">Das Culling Spiel · Das Trinkspiel</div>
+    <nav class="nav-links">
+      <a href="index.html">Regeln</a>
+      <a href="spieler.html">Spieler</a>
+      <a href="gluecksrad.html" class="active">Glücksrad</a>
+      <a href="admin.html">Admin</a>
+    </nav>
+    <div class="theme-switcher" id="theme-switcher">
+      <button class="theme-btn" data-scheme="ao"    title="蒼 – Gojo Blue"></button>
+      <button class="theme-btn" data-scheme="shuku" title="赫 – Sukuna Crimson"></button>
+      <button class="theme-btn" data-scheme="yami"  title="闇 – Hollow Purple"></button>
+      <button class="theme-btn" data-scheme="kin"   title="金 – Special Grade"></button>
+    </div>
+  </header>
+
+  <main>
+    <h2 class="section-title">Glücksrad</h2>
+
+    <!-- Wheel -->
+    <div class="wheel-section">
+      <div class="wheel-wrap">
+        <div class="wheel-pointer" id="pointer"></div>
+        <canvas id="wheel" width="320" height="320"></canvas>
+      </div>
+
+      <button class="btn btn-primary spin-btn" id="spin-btn" onclick="spin()">
+        ⚔ Drehen
+      </button>
+    </div>
+
+    <!-- Result -->
+    <div class="result-panel" id="result-panel">
+      <div class="result-label">— 術式発動 · Ergebnis —</div>
+      <div class="result-text" id="result-text"></div>
+      <button class="btn btn-secondary" onclick="closeResult()">Schließen</button>
+    </div>
+
+    <!-- Add Entry -->
+    <div class="form-card" style="margin-top:1.5rem;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
+        <h2 class="section-title" style="margin:0; border:none; padding:0;">Einträge</h2>
+        <button class="btn btn-secondary import-btn" onclick="importRules()" title="Regeln aus dem Spiel importieren">
+          ↓ Regeln importieren
+        </button>
+      </div>
+      <div class="form-group">
+        <label for="new-entry">Neuer Eintrag</label>
+        <input type="text" id="new-entry" placeholder="z.B. Jeder trinkt 2 Schlucke" autocapitalize="sentences" maxlength="60" />
+      </div>
+      <button class="btn btn-primary btn-full" onclick="addEntry()">+ Hinzufügen</button>
+    </div>
+
+    <div class="entries-count">Einträge: <span id="entries-count">0</span></div>
+    <div id="entries-list" class="entries-list"></div>
+  </main>
+
+  <div id="toast"></div>
+
+  <script>
+    // ── State ──
+    let entries = JSON.parse(localStorage.getItem('wheel-entries') || 'null') || [
+      'Jeder trinkt 2 Schlucke',
+      'Links trinkt 3 Schlucke',
+      'Rechts trinkt 3 Schlucke',
+      'Alle trinken 1 Schluck',
+      'Du bestimmst wer trinkt',
+      'Strafglas für dich',
+    ];
+
+    let currentAngle = 0;
+    let spinning = false;
+
+    // ── Segment colours ──
+    // Generated from the theme's primary colour family
+    const SEG_PALETTES = [
+      ['#04040e','#060612','#080818','#0a0a1e','#0c0c22'],
+      ['#0e0204','#120308','#16040c','#1a0510','#1e0614'],
+      ['#04000c','#070012','#0a0018','#0d001e','#100024'],
+      ['#080600','#100a00','#180f00','#201400','#281a00'],
+    ];
+
+    function getPalette() {
+      const theme = document.documentElement.getAttribute('data-theme') || 'ao';
+      const map = { ao: 0, shuku: 1, yami: 2, kin: 3 };
+      return SEG_PALETTES[map[theme] ?? 0];
+    }
+
+    function getCSSVar(name) {
+      return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    }
+
+    // ── Draw ──
+    function drawWheel(angle) {
+      const canvas = document.getElementById('wheel');
+      const ctx = canvas.getContext('2d');
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+      const r  = cx - 8;
+      const n  = entries.length;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (n === 0) {
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+        ctx.fillStyle = getCSSVar('--bg-card');
+        ctx.fill();
+        ctx.strokeStyle = getCSSVar('--p-dim');
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.fillStyle = getCSSVar('--text-dim');
+        ctx.font = '14px Rajdhani, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Keine Einträge', cx, cy);
+        return;
+      }
+
+      const arc = (2 * Math.PI) / n;
+      const palette = getPalette();
+      const pGlow  = getCSSVar('--p-glow');
+      const pDim   = getCSSVar('--p-dim');
+      const gold   = getCSSVar('--gold');
+      const textColor = getCSSVar('--text');
+
+      for (let i = 0; i < n; i++) {
+        const start = angle + i * arc;
+        const end   = start + arc;
+
+        // Segment fill
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, r, start, end);
+        ctx.closePath();
+        ctx.fillStyle = palette[i % palette.length];
+        ctx.fill();
+
+        // Segment border
+        ctx.strokeStyle = pGlow;
+        ctx.lineWidth = 1;
+        ctx.globalAlpha = 0.35;
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+
+        // Label
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(start + arc / 2);
+        ctx.textAlign = 'right';
+
+        const label = entries[i].length > 22 ? entries[i].substring(0, 21) + '…' : entries[i];
+        const textR = r - 14;
+
+        // Subtle glow on text
+        ctx.shadowColor = pGlow;
+        ctx.shadowBlur = 4;
+        ctx.fillStyle = i % 2 === 0 ? textColor : gold;
+        ctx.font = `bold ${n > 10 ? 11 : 13}px Rajdhani, sans-serif`;
+        ctx.fillText(label, textR, 4);
+        ctx.shadowBlur = 0;
+        ctx.restore();
+      }
+
+      // Outer ring
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+      ctx.strokeStyle = pGlow;
+      ctx.lineWidth = 2;
+      ctx.globalAlpha = 0.6;
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+
+      // Center circle
+      ctx.beginPath();
+      ctx.arc(cx, cy, 22, 0, 2 * Math.PI);
+      ctx.fillStyle = getCSSVar('--bg-dark');
+      ctx.fill();
+      ctx.strokeStyle = gold;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Center symbol
+      ctx.fillStyle = gold;
+      ctx.font = 'bold 14px serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('呪', cx, cy);
+      ctx.textBaseline = 'alphabetic';
+    }
+
+    // ── Spin ──
+    function spin() {
+      if (spinning || entries.length < 2) {
+        if (entries.length < 2) showToast('Mindestens 2 Einträge erforderlich.', 'error');
+        return;
+      }
+
+      closeResult();
+      spinning = true;
+      document.getElementById('spin-btn').disabled = true;
+
+      const duration  = 4000 + Math.random() * 2000;
+      const extraRot  = (6 + Math.random() * 5) * 2 * Math.PI;
+      const startAngle = currentAngle;
+      const targetAngle = startAngle + extraRot;
+      const startTime = performance.now();
+
+      function animate(now) {
+        const elapsed  = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        // Ease-out expo
+        const eased = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+
+        currentAngle = startAngle + (targetAngle - startAngle) * eased;
+        drawWheel(currentAngle);
+
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          spinning = false;
+          document.getElementById('spin-btn').disabled = false;
+          showResult();
+        }
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    function getWinner() {
+      const n   = entries.length;
+      const arc = (2 * Math.PI) / n;
+      // Pointer is at top (3π/2 in canvas coords)
+      const pointerAngle = (3 * Math.PI / 2 - currentAngle % (2 * Math.PI) + 4 * Math.PI) % (2 * Math.PI);
+      return Math.floor(pointerAngle / arc) % n;
+    }
+
+    function showResult() {
+      const idx = getWinner();
+      document.getElementById('result-text').textContent = entries[idx];
+      document.getElementById('result-panel').classList.add('visible');
+    }
+
+    function closeResult() {
+      document.getElementById('result-panel').classList.remove('visible');
+    }
+
+    // ── Entries ──
+    function saveEntries() {
+      localStorage.setItem('wheel-entries', JSON.stringify(entries));
+    }
+
+    function renderEntries() {
+      const list = document.getElementById('entries-list');
+      document.getElementById('entries-count').textContent = entries.length;
+
+      if (entries.length === 0) {
+        list.innerHTML = '<div class="entries-empty">Noch keine Einträge. Füge oben etwas hinzu.</div>';
+        drawWheel(currentAngle);
+        return;
+      }
+
+      const palette = getPalette();
+      const pGlow = getCSSVar('--p-glow');
+
+      list.innerHTML = entries.map((e, i) => `
+        <div class="entry-item">
+          <span class="entry-dot" style="background:${i % 2 === 0 ? pGlow : getCSSVar('--gold')}; box-shadow: 0 0 5px ${i % 2 === 0 ? pGlow : getCSSVar('--gold')}"></span>
+          <span class="entry-name">${escHtml(e)}</span>
+          <button class="btn btn-danger" style="padding:0.2rem 0.5rem; font-size:0.7rem;" onclick="removeEntry(${i})">✕</button>
+        </div>
+      `).join('');
+
+      drawWheel(currentAngle);
+    }
+
+    function addEntry() {
+      const input = document.getElementById('new-entry');
+      const val   = input.value.trim();
+      if (!val) { showToast('Bitte Eintrag eingeben.', 'error'); return; }
+      if (entries.length >= 20) { showToast('Maximal 20 Einträge.', 'error'); return; }
+      entries.push(val);
+      input.value = '';
+      saveEntries();
+      renderEntries();
+      showToast('Eintrag hinzugefügt!', 'success');
+    }
+
+    function removeEntry(i) {
+      entries.splice(i, 1);
+      saveEntries();
+      renderEntries();
+    }
+
+    async function importRules() {
+      try {
+        const res   = await fetch('/api/rules');
+        const rules = await res.json();
+        if (!rules.length) { showToast('Keine Regeln gefunden.', 'error'); return; }
+        let added = 0;
+        for (const r of rules) {
+          if (entries.length >= 20) break;
+          const label = r.title.length > 40 ? r.title.substring(0, 39) + '…' : r.title;
+          if (!entries.includes(label)) { entries.push(label); added++; }
+        }
+        if (added === 0) { showToast('Alle Regeln bereits vorhanden.', 'error'); return; }
+        saveEntries();
+        renderEntries();
+        showToast(`${added} Regel${added > 1 ? 'n' : ''} importiert!`, 'success');
+      } catch (e) {
+        showToast('Verbindungsfehler.', 'error');
+      }
+    }
+
+    document.getElementById('new-entry').addEventListener('keydown', e => {
+      if (e.key === 'Enter') addEntry();
+    });
+
+    // ── Toast ──
+    function showToast(msg, type = '') {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.className = type;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2800);
+    }
+
+    function escHtml(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // ── Theme Switcher ──
+    const THEMES = ['ao', 'shuku', 'yami', 'kin'];
+
+    function applyTheme(scheme) {
+      if (!THEMES.includes(scheme)) scheme = 'ao';
+      document.documentElement.setAttribute('data-theme', scheme);
+      document.querySelectorAll('.theme-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.scheme === scheme);
+      });
+      localStorage.setItem('lalling-theme', scheme);
+      // Redraw wheel with new theme colours
+      drawWheel(currentAngle);
+      renderEntries();
+    }
+
+    document.getElementById('theme-switcher').addEventListener('click', e => {
+      const btn = e.target.closest('.theme-btn');
+      if (btn) applyTheme(btn.dataset.scheme);
+    });
+
+    // ── Init ──
+    applyTheme(localStorage.getItem('lalling-theme') || 'ao');
+    renderEntries();
+  </script>
+</body>
+</html>
