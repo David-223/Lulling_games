@@ -139,6 +139,106 @@
       font-weight: 700;
     }
 
+    /* ── Regel kaufen ── */
+    .buy-rule-card {
+      margin-top: 1.6rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-mid);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .buy-rule-toggle {
+      width: 100%;
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.9rem 1.1rem;
+      font-family: var(--font-ui);
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--p-glow);
+      letter-spacing: 0.06em;
+      text-align: left;
+    }
+
+    .buy-rule-toggle:hover { background: var(--p-bg); }
+
+    .buy-rule-icon { font-size: 1rem; }
+
+    .buy-rule-cost {
+      margin-left: auto;
+      font-size: 0.72rem;
+      color: var(--gold-dim);
+      background: rgba(201,162,39,0.08);
+      border: 1px solid var(--border-gold);
+      border-radius: 3px;
+      padding: 0.1rem 0.45rem;
+      letter-spacing: 0.04em;
+    }
+
+    .buy-rule-chevron { font-size: 0.8rem; color: var(--text-dim); }
+
+    .buy-rule-body {
+      padding: 0 1.1rem 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      border-top: 1px solid var(--border-mid);
+    }
+
+    .buy-rule-body .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .buy-rule-body label {
+      font-size: 0.68rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      font-family: var(--font-ui);
+      font-weight: 700;
+    }
+
+    .buy-rule-body input,
+    .buy-rule-body select,
+    .buy-rule-body textarea {
+      background: var(--bg-card2);
+      border: 1px solid var(--border-mid);
+      border-radius: 4px;
+      color: var(--text);
+      font-family: var(--font-ui);
+      font-size: 0.9rem;
+      padding: 0.5rem 0.7rem;
+      outline: none;
+      transition: border-color 0.2s;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .buy-rule-body textarea { resize: vertical; }
+
+    .buy-rule-body input:focus,
+    .buy-rule-body select:focus,
+    .buy-rule-body textarea:focus { border-color: var(--p); }
+
+    .buy-player-pts {
+      font-size: 0.78rem;
+      font-family: var(--font-ui);
+      color: var(--text-dim);
+      min-height: 1.1rem;
+    }
+
+    .buy-player-pts.enough { color: var(--p-glow); }
+    .buy-player-pts.broke  { color: var(--accent-glow); }
+
+    .btn-full { width: 100%; }
+
     /* ── Warning note ── */
     .important-note {
       background: var(--p-bg2);
@@ -212,6 +312,32 @@
       <div class="loading">Lade Regeln</div>
     </div>
 
+    <!-- ── Regel kaufen ── -->
+    <div class="buy-rule-card" id="buy-rule-card">
+      <button class="buy-rule-toggle" id="buy-rule-toggle">
+        <span class="buy-rule-icon">⊕</span>
+        Neue Regel hinzufügen
+        <span class="buy-rule-cost">− 100 Punkte</span>
+        <span class="buy-rule-chevron" id="buy-rule-chevron">▾</span>
+      </button>
+      <div class="buy-rule-body" id="buy-rule-body" style="display:none">
+        <div class="form-group">
+          <label for="buy-player">Dein Name</label>
+          <select id="buy-player"><option value="">— Spieler wählen —</option></select>
+        </div>
+        <div class="buy-player-pts" id="buy-player-pts"></div>
+        <div class="form-group">
+          <label for="buy-title">Regelname</label>
+          <input id="buy-title" type="text" placeholder="z.B. Kein Fluchen" maxlength="80" autocomplete="off" />
+        </div>
+        <div class="form-group">
+          <label for="buy-desc">Beschreibung</label>
+          <textarea id="buy-desc" rows="3" placeholder="Was passiert bei Verstoß?" maxlength="400"></textarea>
+        </div>
+        <button class="btn btn-primary btn-full" id="buy-submit">Regel hinzufügen — 100 Punkte</button>
+      </div>
+    </div>
+
     <div class="important-note">
       <strong>⚠ Wichtiger Hinweis</strong>
       Trinkt verantwortungsbewusst. Dieses Spiel ist für volljährige Personen gedacht. Wer nicht mehr kann, darf jederzeit aufhören.
@@ -270,6 +396,77 @@
     }
 
     loadRules();
+
+    // ── Regel kaufen ──
+    let allPlayers = [];
+
+    async function loadPlayersForBuy() {
+      try {
+        const res = await fetch('/api/players');
+        allPlayers = await res.json();
+        const sel = document.getElementById('buy-player');
+        sel.innerHTML = '<option value="">— Spieler wählen —</option>' +
+          allPlayers.map(p => `<option value="${p.id}">${escHtml(p.name)} (${p.points} Pts)</option>`).join('');
+      } catch {}
+    }
+
+    document.getElementById('buy-rule-toggle').addEventListener('click', () => {
+      const body = document.getElementById('buy-rule-body');
+      const chevron = document.getElementById('buy-rule-chevron');
+      const open = body.style.display === 'none';
+      body.style.display = open ? '' : 'none';
+      chevron.textContent = open ? '▴' : '▾';
+      if (open) loadPlayersForBuy();
+    });
+
+    document.getElementById('buy-player').addEventListener('change', function() {
+      const p = allPlayers.find(p => p.id === parseInt(this.value));
+      const el = document.getElementById('buy-player-pts');
+      if (!p) { el.textContent = ''; el.className = 'buy-player-pts'; return; }
+      if (p.points >= 100) {
+        el.textContent = `${p.points} Punkte — du kannst dir eine Regel kaufen`;
+        el.className = 'buy-player-pts enough';
+      } else {
+        el.textContent = `${p.points} Punkte — nicht genug (100 benötigt)`;
+        el.className = 'buy-player-pts broke';
+      }
+    });
+
+    document.getElementById('buy-submit').addEventListener('click', async () => {
+      const playerId = document.getElementById('buy-player').value;
+      const title    = document.getElementById('buy-title').value.trim();
+      const desc     = document.getElementById('buy-desc').value.trim();
+      if (!playerId) { showToast('Bitte Spieler auswählen', 'error'); return; }
+      if (!title)    { showToast('Bitte Regelname eingeben', 'error'); return; }
+      if (!desc)     { showToast('Bitte Beschreibung eingeben', 'error'); return; }
+      const btn = document.getElementById('buy-submit');
+      btn.disabled = true;
+      try {
+        const res = await fetch('/api/rules/buy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ playerId: parseInt(playerId), title, description: desc })
+        });
+        const data = await res.json();
+        if (!res.ok) { showToast(data.error || 'Fehler', 'error'); return; }
+        showToast(`Regel hinzugefügt! ${data.player.name} hat noch ${data.player.points} Punkte.`);
+        document.getElementById('buy-title').value = '';
+        document.getElementById('buy-desc').value = '';
+        document.getElementById('buy-player').value = '';
+        document.getElementById('buy-player-pts').textContent = '';
+        document.getElementById('buy-player-pts').className = 'buy-player-pts';
+        loadRules();
+      } catch { showToast('Verbindungsfehler', 'error'); }
+      finally { btn.disabled = false; }
+    });
+
+    function showToast(msg, type = '') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'show' + (type ? ' ' + type : '');
+      clearTimeout(t._timer);
+      t._timer = setTimeout(() => { t.className = ''; }, 2800);
+    }
 
     // ── Theme Switcher ──
     const THEMES = ['ao', 'shuku', 'yami', 'kin'];

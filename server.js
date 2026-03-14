@@ -103,6 +103,28 @@ app.post('/api/rules', (req, res) => {
   res.status(201).json(newRule);
 });
 
+// POST Regel kaufen (Spieler, kostet 100 Punkte)
+app.post('/api/rules/buy', (req, res) => {
+  const { playerId, title, description } = req.body;
+  if (!playerId || !title || !description) {
+    return res.status(400).json({ error: 'Spieler, Titel und Beschreibung erforderlich' });
+  }
+  const pdata = readPlayers();
+  const pidx = pdata.players.findIndex(p => p.id === parseInt(playerId));
+  if (pidx === -1) return res.status(404).json({ error: 'Spieler nicht gefunden' });
+  if (pdata.players[pidx].points < 100) {
+    return res.status(400).json({ error: 'Nicht genug Punkte (100 benötigt)' });
+  }
+  pdata.players[pidx].points -= 100;
+  writePlayers(pdata);
+  const rdata = readData();
+  const newRule = { id: rdata.nextId, points: null, title: title.trim(), description: description.trim() };
+  rdata.rules.push(newRule);
+  rdata.nextId += 1;
+  writeData(rdata);
+  res.status(201).json({ rule: newRule, player: pdata.players[pidx] });
+});
+
 // PUT Regel bearbeiten (Admin)
 app.put('/api/rules/:id', (req, res) => {
   const { password, title, description, points } = req.body;
