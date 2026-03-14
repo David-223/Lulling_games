@@ -37,7 +37,7 @@ app.post('/api/rules', (req, res) => {
   const data = readData();
   const newRule = {
     id: data.nextId,
-    points: parseInt(points) || 100,
+    points: (points !== undefined && points !== null && points !== '') ? (parseInt(points) || 0) : null,
     title: title.trim(),
     description: description.trim()
   };
@@ -61,7 +61,7 @@ app.put('/api/rules/:id', (req, res) => {
   }
   if (title) data.rules[idx].title = title.trim();
   if (description) data.rules[idx].description = description.trim();
-  if (points !== undefined) data.rules[idx].points = parseInt(points) || 100;
+  if (points !== undefined) data.rules[idx].points = (points === null || points === '') ? null : (parseInt(points) || 0);
   writeData(data);
   res.json(data.rules[idx]);
 });
@@ -94,7 +94,7 @@ app.post('/api/auth', (req, res) => {
 });
 
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`\n🍺 Lulling Games läuft auf Port ${PORT}`);
+  console.log(`\n⚔  Lalling Games läuft auf Port ${PORT}`);
   console.log(`   Lokal:   http://localhost:${PORT}`);
   console.log(`   Admin:   http://localhost:${PORT}/admin.html`);
   console.log(`   Passwort: ${ADMIN_PASSWORD}\n`);

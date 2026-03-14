@@ -1,7 +1,7 @@
 {
-  "name": "lulling-games",
+  "name": "lalling-games",
   "version": "1.0.0",
-  "description": "Lulling Games - Trinkspiel inspiriert von JJK Culling Games",
+  "description": "Lalling Games - Trinkspiel inspiriert von JJK Culling Games",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

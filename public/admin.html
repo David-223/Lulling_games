@@ -3,22 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-  <title>Admin – Lulling Games</title>
+  <title>Admin – Lalling Games</title>
   <link rel="stylesheet" href="style.css" />
   <style>
     /* ── Admin-specific styles ── */
     .admin-badge {
       display: inline-block;
-      font-size: 0.65rem;
+      font-size: 0.6rem;
       letter-spacing: 0.15em;
       text-transform: uppercase;
-      background: rgba(212, 175, 55, 0.15);
+      background: rgba(201, 162, 39, 0.12);
       border: 1px solid var(--gold-dim);
       color: var(--gold-dim);
-      border-radius: 4px;
-      padding: 0.15rem 0.4rem;
+      border-radius: 2px;
+      padding: 0.12rem 0.4rem;
       vertical-align: middle;
       margin-left: 0.4rem;
+      font-family: var(--font-ui);
     }
 
     .logout-btn {
@@ -26,15 +27,16 @@
       right: 1rem;
       top: 50%;
       transform: translateY(-50%);
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       color: var(--text-dim);
       background: none;
-      border: 1px solid var(--border);
-      border-radius: 4px;
+      border: 1px solid var(--border-mid);
+      border-radius: 2px;
       padding: 0.3rem 0.6rem;
       cursor: pointer;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.06em;
       -webkit-tap-highlight-color: transparent;
+      font-family: var(--font-ui);
     }
 
     .logout-btn:hover {
@@ -80,11 +82,7 @@
     }
 
     .add-form-wrapper.open {
-      max-height: 600px;
-    }
-
-    .rule-card.admin-card .rule-header {
-      padding-right: 0;
+      max-height: 700px;
     }
 
     .stats-row {
@@ -96,36 +94,35 @@
     .stat-box {
       flex: 1;
       background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 8px;
+      border: 1px solid var(--border-mid);
+      border-radius: 4px;
       padding: 0.8rem 0.6rem;
       text-align: center;
     }
 
     .stat-box .stat-value {
-      font-family: 'Georgia', serif;
+      font-family: var(--font-title);
       font-size: 1.6rem;
       color: var(--gold);
       line-height: 1;
     }
 
     .stat-box .stat-label {
-      font-size: 0.68rem;
-      letter-spacing: 0.08em;
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
       color: var(--text-dim);
       margin-top: 0.2rem;
+      font-family: var(--font-ui);
     }
 
-    .edit-inline-form {
-      display: none;
-      margin-top: 0.8rem;
-      padding-top: 0.8rem;
-      border-top: 1px solid var(--border);
-    }
-
-    .edit-inline-form.open {
-      display: block;
+    .optional-hint {
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      margin-left: 0.3rem;
+      font-family: var(--font-ui);
+      text-transform: none;
+      letter-spacing: 0;
     }
   </style>
 </head>
@@ -134,8 +131,8 @@
   <!-- LOGIN SCREEN -->
   <div id="login-screen">
     <header class="site-header">
-      <div class="logo-text">Lulling Games</div>
-      <div class="logo-sub">Das Trinkspiel</div>
+      <div class="logo-text">Lalling Games</div>
+      <div class="logo-sub">Das Culling Spiel · Das Trinkspiel</div>
       <nav class="nav-links">
         <a href="index.html">Regeln</a>
         <a href="admin.html" class="active">Admin</a>
@@ -158,9 +155,9 @@
             />
           </div>
           <button class="btn btn-primary btn-full" onclick="login()">Einloggen</button>
-          <div id="login-error" style="display:none; margin-top:0.8rem; color:var(--accent-glow); font-size:0.85rem; text-align:center;"></div>
+          <div id="login-error" style="display:none; margin-top:0.8rem; color:var(--accent-glow); font-size:0.83rem; text-align:center; font-family:var(--font-ui);"></div>
         </div>
-        <p style="text-align:center; margin-top:1rem; font-size:0.75rem; color:var(--text-dim);">
+        <p style="text-align:center; margin-top:1rem; font-size:0.75rem; color:var(--text-dim); font-family:var(--font-ui);">
           <a href="index.html" style="color:var(--text-dim);">← Zurück zu den Regeln</a>
         </p>
       </div>
@@ -172,7 +169,7 @@
     <header class="site-header">
       <div class="header-inner">
         <div class="logo-text">
-          Lulling Games
+          Lalling Games
           <span class="admin-badge">Admin</span>
         </div>
         <div class="logo-sub">Regelverwaltung</div>
@@ -197,7 +194,7 @@
         </div>
       </div>
 
-      <!-- Neue Regel hinzufügen -->
+      <!-- Neue Regel -->
       <div class="form-card">
         <button class="add-rule-toggle" onclick="toggleAddForm()" style="background:none;border:none;cursor:pointer;padding:0;width:100%;text-align:left;">
           <h2 class="section-title" style="margin:0;border:none;padding:0;">Neue Regel</h2>
@@ -215,8 +212,8 @@
             <textarea id="new-desc" placeholder="Was passiert bei dieser Regel? Was muss getrunken werden?"></textarea>
           </div>
           <div class="form-group">
-            <label for="new-points">Punktwert</label>
-            <input type="number" id="new-points" placeholder="100" min="0" max="9999" value="100" />
+            <label for="new-points">Punktwert <span class="optional-hint">(optional)</span></label>
+            <input type="number" id="new-points" placeholder="z.B. 100 – oder leer lassen" min="0" max="9999" />
           </div>
           <button class="btn btn-primary btn-full" onclick="addRule()">⚔ Regel hinzufügen</button>
         </div>
@@ -244,8 +241,8 @@
         <textarea id="edit-desc"></textarea>
       </div>
       <div class="form-group">
-        <label for="edit-points">Punkte</label>
-        <input type="number" id="edit-points" min="0" max="9999" />
+        <label for="edit-points">Punkte <span class="optional-hint">(optional)</span></label>
+        <input type="number" id="edit-points" min="0" max="9999" placeholder="leer lassen = keine Punkte" />
       </div>
       <div class="modal-actions">
         <button class="btn btn-secondary" style="flex:1;" onclick="closeModal()">Abbrechen</button>
@@ -258,7 +255,7 @@
   <div class="modal-overlay" id="delete-modal">
     <div class="modal">
       <h3>🗑 Regel löschen?</h3>
-      <p style="color:var(--text-dim);font-size:0.9rem;margin-bottom:1.2rem;">Diese Aktion kann nicht rückgängig gemacht werden.</p>
+      <p style="color:var(--text-dim);font-size:0.9rem;margin-bottom:1.2rem;font-family:var(--font-ui);">Diese Aktion kann nicht rückgängig gemacht werden.</p>
       <input type="hidden" id="delete-id" />
       <div class="modal-actions">
         <button class="btn btn-secondary" style="flex:1;" onclick="closeDeleteModal()">Abbrechen</button>
@@ -273,6 +270,16 @@
     let adminPassword = '';
     let rules = [];
     let addFormOpen = false;
+
+    function toRoman(n) {
+      const vals = [1000,900,500,400,100,90,50,40,10,9,5,4,1];
+      const syms = ['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];
+      let result = '';
+      for (let i = 0; i < vals.length; i++) {
+        while (n >= vals[i]) { result += syms[i]; n -= vals[i]; }
+      }
+      return result;
+    }
 
     // ── Auth ──
 
@@ -313,7 +320,6 @@
       document.getElementById('login-password').value = '';
     }
 
-    // Allow Enter key on login
     document.getElementById('login-password').addEventListener('keydown', e => {
       if (e.key === 'Enter') login();
     });
@@ -334,8 +340,9 @@
 
     function updateStats() {
       document.getElementById('stat-rules').textContent = rules.length;
-      const maxPts = rules.length ? Math.max(...rules.map(r => r.points)) : 0;
-      document.getElementById('stat-max-pts').textContent = maxPts || '—';
+      const pts = rules.map(r => r.points).filter(p => p != null);
+      const maxPts = pts.length ? Math.max(...pts) : null;
+      document.getElementById('stat-max-pts').textContent = maxPts != null ? maxPts : '—';
     }
 
     function renderAdminRules() {
@@ -348,16 +355,19 @@
           </div>`;
         return;
       }
-      list.innerHTML = rules.map(rule => `
+      list.innerHTML = rules.map((rule, idx) => `
         <div class="rule-card admin-card">
-          <div class="rule-header">
-            <span class="rule-points">${rule.points} Pts</span>
-            <span class="rule-title">${escHtml(rule.title)}</span>
+          <div class="rule-number-bar">
+            <span class="rule-numeral">Regel ${toRoman(idx + 1)}</span>
+            ${rule.points != null ? `<span class="rule-points">${rule.points} Pts</span>` : ''}
           </div>
-          <p class="rule-description">${escHtml(rule.description)}</p>
-          <div class="rule-actions">
-            <button class="btn btn-edit" onclick="openEdit(${rule.id})">✏️ Bearbeiten</button>
-            <button class="btn btn-danger" onclick="openDelete(${rule.id})">🗑 Löschen</button>
+          <div class="rule-body">
+            <div class="rule-title">${escHtml(rule.title)}</div>
+            <p class="rule-description">${escHtml(rule.description)}</p>
+            <div class="rule-actions">
+              <button class="btn btn-edit" onclick="openEdit(${rule.id})">✏️ Bearbeiten</button>
+              <button class="btn btn-danger" onclick="openDelete(${rule.id})">🗑 Löschen</button>
+            </div>
           </div>
         </div>
       `).join('');
@@ -366,7 +376,8 @@
     async function addRule() {
       const title = document.getElementById('new-title').value.trim();
       const description = document.getElementById('new-desc').value.trim();
-      const points = parseInt(document.getElementById('new-points').value) || 100;
+      const pointsVal = document.getElementById('new-points').value;
+      const points = pointsVal !== '' ? parseInt(pointsVal) : null;
 
       if (!title || !description) {
         showToast('Bitte Titel und Beschreibung ausfüllen.', 'error');
@@ -382,7 +393,7 @@
         if (res.ok) {
           document.getElementById('new-title').value = '';
           document.getElementById('new-desc').value = '';
-          document.getElementById('new-points').value = '100';
+          document.getElementById('new-points').value = '';
           showToast('Regel hinzugefügt!', 'success');
           toggleAddForm(false);
           loadAdminRules();
@@ -403,7 +414,7 @@
       document.getElementById('edit-id').value = id;
       document.getElementById('edit-title').value = rule.title;
       document.getElementById('edit-desc').value = rule.description;
-      document.getElementById('edit-points').value = rule.points;
+      document.getElementById('edit-points').value = rule.points != null ? rule.points : '';
       document.getElementById('edit-modal').classList.add('open');
     }
 
@@ -415,10 +426,11 @@
       const id = parseInt(document.getElementById('edit-id').value);
       const title = document.getElementById('edit-title').value.trim();
       const description = document.getElementById('edit-desc').value.trim();
-      const points = parseInt(document.getElementById('edit-points').value) || 100;
+      const pointsVal = document.getElementById('edit-points').value;
+      const points = pointsVal !== '' ? parseInt(pointsVal) : null;
 
       if (!title || !description) {
-        showToast('Bitte alle Felder ausfüllen.', 'error');
+        showToast('Bitte Titel und Beschreibung ausfüllen.', 'error');
         return;
       }
 
@@ -473,7 +485,6 @@
       }
     }
 
-    // Close modals when clicking backdrop
     document.getElementById('edit-modal').addEventListener('click', function(e) {
       if (e.target === this) closeModal();
     });
