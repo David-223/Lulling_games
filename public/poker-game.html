@@ -607,6 +607,11 @@
       advanceBtn.style.display = 'none';
       winnerSection.style.display = 'none';
 
+      // End game buttons — admin only
+      const endDisplay = isAdmin() ? '' : 'none';
+      document.getElementById('end-game-btn').style.display = endDisplay;
+      document.getElementById('end-game-btn2').style.display = endDisplay;
+
       if (g.phase === 'ended') {
         handResult.style.display = '';
         document.getElementById('result-name').textContent = g.winner || '?';
@@ -753,10 +758,14 @@
 
     // ── End game ──
     async function endGame() {
+      if (!isAdmin()) { showToast('Nur Admins können das Spiel beenden', 'error'); return; }
       if (!confirm('Spiel beenden? Chips werden als Punkte gespeichert.')) return;
       stopPolling();
       try {
-        await fetch('/api/poker/end', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+        await fetch('/api/poker/end', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(adminAuthBody())
+        });
         game = null;
         showNoGame();
         showToast('Spiel beendet. Punkte gespeichert.');

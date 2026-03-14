@@ -377,6 +377,7 @@ app.post('/api/poker/winner', (req, res) => {
 });
 
 app.post('/api/poker/end', (req, res) => {
+  if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
   if (pokerGame) {
     const pdata = readPlayers();
     pokerGame.players.forEach(gp => { const pp = pdata.players.find(p => p.id === gp.id); if (pp) pp.points = gp.chips; });
