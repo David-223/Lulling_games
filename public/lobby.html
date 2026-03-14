@@ -218,6 +218,43 @@
       gap: 0.6rem;
     }
 
+    /* ── Game started state ── */
+    .game-started-box {
+      background: rgba(26, 107, 58, 0.08);
+      border: 1px solid #1a6b3a;
+      border-radius: 6px;
+      padding: 1.2rem 1rem;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .game-started-box .started-icon {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .game-started-box h3 {
+      font-family: var(--font-title);
+      font-size: 0.95rem;
+      color: #4caf82;
+      letter-spacing: 0.15em;
+      margin-bottom: 0.4rem;
+    }
+
+    .game-started-box p {
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      font-family: var(--font-ui);
+      margin-bottom: 1rem;
+    }
+
+    .game-links {
+      display: flex;
+      gap: 0.6rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
     /* ── Input with code formatting ── */
     .code-input {
       text-transform: uppercase;
@@ -376,7 +413,7 @@
         <span class="dot"></span>Warte auf Spieler…
       </div>
 
-      <div class="lobby-actions">
+      <div class="lobby-actions" id="lobby-actions">
         <button class="btn btn-primary btn-full" id="start-btn" style="display:none">Spiel starten</button>
         <button class="btn btn-secondary btn-full" id="leave-btn">Lobby verlassen</button>
       </div>
@@ -446,13 +483,29 @@
       const statusEl = document.getElementById('lobby-status');
       if (lobby.status === 'waiting') {
         statusEl.innerHTML = '<span class="dot"></span>Warte auf Spieler…';
+        statusEl.style.color = '';
       } else if (lobby.status === 'started') {
-        statusEl.innerHTML = '✓ Das Spiel hat begonnen!';
-        statusEl.style.color = '#4caf82';
         stopPolling();
-        setTimeout(() => {
-          window.location.href = 'index.html';
-        }, 1500);
+        statusEl.style.display = 'none';
+        document.getElementById('start-btn').style.display = 'none';
+        document.getElementById('leave-btn').style.display = 'none';
+        // Show game started panel if not already shown
+        if (!document.getElementById('game-started-box')) {
+          const box = document.createElement('div');
+          box.id = 'game-started-box';
+          box.className = 'game-started-box';
+          box.innerHTML = `
+            <div class="started-icon">⚔</div>
+            <h3>Das Spiel hat begonnen!</h3>
+            <p>Alle Spieler können jetzt loslegen.</p>
+            <div class="game-links">
+              <a href="index.html" class="btn btn-primary">Regeln</a>
+              <a href="spieler.html" class="btn btn-secondary">Spieler</a>
+              <a href="gluecksrad.html" class="btn btn-secondary">Gamble</a>
+            </div>
+          `;
+          document.getElementById('lobby-actions').before(box);
+        }
       }
     }
 
