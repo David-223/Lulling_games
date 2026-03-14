@@ -255,11 +255,16 @@
 
     // ── Segment colours ──
     // Generated from the theme's primary colour family
+    // Segment fill colours — dark enough to contrast text, hue-tinted per theme
     const SEG_PALETTES = [
-      ['#04040e','#060612','#080818','#0a0a1e','#0c0c22'],
-      ['#0e0204','#120308','#16040c','#1a0510','#1e0614'],
-      ['#04000c','#070012','#0a0018','#0d001e','#100024'],
-      ['#080600','#100a00','#180f00','#201400','#281a00'],
+      // ao – alternating deep navy / midnight blue
+      ['#080f22', '#0c1430', '#06091a', '#0f1a3c', '#04060e'],
+      // shuku – alternating deep crimson / dark wine
+      ['#1e0808', '#280a0a', '#140506', '#320c0c', '#0e0404'],
+      // yami – alternating deep violet / near-black purple
+      ['#0f0020', '#160030', '#08001a', '#1c003a', '#050010'],
+      // kin – alternating deep amber / dark ochre
+      ['#181000', '#221800', '#100c00', '#2c2000', '#080600'],
     ];
 
     function getPalette() {

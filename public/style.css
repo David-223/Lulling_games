@@ -6,48 +6,53 @@
    ROOT – STATIC COLOURS
 ────────────────────────────────────────────── */
 :root {
-  --bg-dark:   #050509;
-  --bg-card:   #09090f;
-  --bg-card2:  #0e0e18;
+  /* ── Base backgrounds: dark blue-black with clear value steps ── */
+  --bg-dark:   #05050c;
+  --bg-card:   #0a0a15;
+  --bg-card2:  #0f0f1e;
 
-  --accent:      #7a1a1a;
-  --accent-glow: #c03030;
-  --accent-dim:  #3d0d0d;
+  /* ── Danger / accent – rich blood crimson, not harsh red ── */
+  --accent:      #8c1c1c;
+  --accent-glow: #cc3535;
+  --accent-dim:  #420e0e;
 
-  --curse-blue:       #1a3a99;
-  --curse-blue-glow:  #4d7aee;
-  --curse-blue-dim:   #0d1f55;
+  /* ── Curse energy colours (used in hero, consistent with ao theme) ── */
+  --curse-blue:       #1e3aaa;
+  --curse-blue-glow:  #5a8af0;
+  --curse-blue-dim:   #0e2062;
 
-  --curse-purple:      #4d1a99;
-  --curse-purple-glow: #8855cc;
-  --curse-purple-dim:  #250d4d;
+  --curse-purple:      #5522a0;
+  --curse-purple-glow: #9060d8;
+  --curse-purple-dim:  #280e50;
 
-  --gold:        #b8921f;
-  --gold-dim:    #6b5412;
-  --gold-bright: #d4a830;
+  /* ── Gold: warmer, more vibrant – complementary to blue & purple ── */
+  --gold:        #c9a227;
+  --gold-dim:    #7a6218;
+  --gold-bright: #e0b830;
 
   --text:     #ddd9ee;
   --text-dim: #7a748f;
   --text-mid: #bab4cc;
 
-  --border:      #111120;
-  --border-mid:  #1e1e30;
-  --border-gold: #251c08;
+  /* ── Borders: blue-tinted dark to match default ao tone ── */
+  --border:      #111128;
+  --border-mid:  #1e1e38;
+  --border-gold: #281f08;
 
-  --success: #1a6b3a;
-  --danger:  #7a1a1a;
+  --success: #1a7240;
+  --danger:  #8c1c1c;
 
   --font-title: 'Cinzel', 'Palatino Linotype', 'Book Antiqua', serif;
   --font-body:  'Rajdhani', 'Segoe UI', system-ui, sans-serif;
   --font-ui:    'Rajdhani', 'Segoe UI', system-ui, sans-serif;
 
   /* ── Theme primary – defaults to Gojo Blue ── */
-  --p:            #1a3a99;
-  --p-glow:       #4d7aee;
-  --p-dim:        #0d1f55;
-  --p-bg:         rgba(26, 58, 153, 0.1);
-  --p-bg2:        rgba(26, 58, 153, 0.05);
-  --p-hover-glow: #b8921f;
+  --p:            #1e3aaa;
+  --p-glow:       #5a8af0;
+  --p-dim:        #0e2062;
+  --p-bg:         rgba(30, 58, 170, 0.12);
+  --p-bg2:        rgba(30, 58, 170, 0.06);
+  --p-hover-glow: #c9a227;
 }
 
 /* ──────────────────────────────────────────────
@@ -56,54 +61,57 @@
 
 /* 蒼  – Gojo Blue (default – explicit for completeness) */
 [data-theme="ao"] {
-  --p:           #1a3a99;
-  --p-glow:      #4d7aee;
-  --p-dim:       #0d1f55;
-  --p-bg:        rgba(26, 58, 153, 0.1);
-  --p-bg2:       rgba(26, 58, 153, 0.05);
-  --p-hover-glow: #b8921f;
+  --p:            #1e3aaa;
+  --p-glow:       #5a8af0;
+  --p-dim:        #0e2062;
+  --p-bg:         rgba(30, 58, 170, 0.12);
+  --p-bg2:        rgba(30, 58, 170, 0.06);
+  --p-hover-glow: #c9a227;
 }
 
 /* 赫  – Sukuna Crimson */
+/* Backgrounds: warm red-dark — R > G ≈ B — no purple bleed */
 [data-theme="shuku"] {
-  --bg-dark:     #060108;
-  --bg-card:     #0c0209;
-  --bg-card2:    #12020e;
-  --p:           #7a1a1a;
-  --p-glow:      #c03030;
-  --p-dim:       #3d0d0d;
-  --p-bg:        rgba(122, 26, 26, 0.12);
-  --p-bg2:       rgba(122, 26, 26, 0.06);
-  --border-mid:  #22080e;
-  --p-hover-glow: #b8921f;
+  --bg-dark:     #0c0404;
+  --bg-card:     #130508;
+  --bg-card2:    #1c060a;
+  --p:           #8c1c1c;
+  --p-glow:      #cc3535;
+  --p-dim:       #420e0e;
+  --p-bg:        rgba(140, 28, 28, 0.14);
+  --p-bg2:       rgba(140, 28, 28, 0.07);
+  --border-mid:  #220a0a;
+  --p-hover-glow: #c9a227;
 }
 
 /* 闇  – Hollow Purple Void */
+/* Backgrounds: pure violet-dark — B > R, G ≈ 0 — true void purple */
 [data-theme="yami"] {
-  --bg-dark:     #040007;
-  --bg-card:     #09000f;
-  --bg-card2:    #100018;
-  --p:           #4d1a99;
-  --p-glow:      #8855cc;
-  --p-dim:       #250d4d;
-  --p-bg:        rgba(77, 26, 153, 0.12);
-  --p-bg2:       rgba(77, 26, 153, 0.06);
-  --border-mid:  #160828;
-  --p-hover-glow: #4d7aee;
+  --bg-dark:     #060009;
+  --bg-card:     #0c0012;
+  --bg-card2:    #12001c;
+  --p:           #5522a0;
+  --p-glow:      #9060d8;
+  --p-dim:       #280e50;
+  --p-bg:        rgba(85, 34, 160, 0.14);
+  --p-bg2:       rgba(85, 34, 160, 0.07);
+  --border-mid:  #180830;
+  --p-hover-glow: #5a8af0;
 }
 
 /* 金  – Special Grade Gold */
+/* Backgrounds: warm amber-dark — R > G > B — no cool bleed */
 [data-theme="kin"] {
-  --bg-dark:     #060500;
-  --bg-card:     #0d0a00;
-  --bg-card2:    #140f00;
-  --p:           #6b5412;
-  --p-glow:      #b8921f;
-  --p-dim:       #352a09;
-  --p-bg:        rgba(107, 84, 18, 0.12);
-  --p-bg2:       rgba(107, 84, 18, 0.06);
-  --border-mid:  #1c1400;
-  --p-hover-glow: #c03030;
+  --bg-dark:     #090700;
+  --bg-card:     #110e00;
+  --bg-card2:    #191500;
+  --p:           #8a6e1a;
+  --p-glow:      #c9a227;
+  --p-dim:       #3c2e0c;
+  --p-bg:        rgba(138, 110, 26, 0.14);
+  --p-bg2:       rgba(138, 110, 26, 0.07);
+  --border-mid:  #221a00;
+  --p-hover-glow: #cc3535;
 }
 
 /* ──────────────────────────────────────────────
@@ -143,7 +151,7 @@ body > * { position: relative; z-index: 1; }
    HEADER
 ────────────────────────────────────────────── */
 .site-header {
-  background: linear-gradient(180deg, #06060e 0%, var(--bg-dark) 100%);
+  background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-dark) 100%);
   border-bottom: 1px solid var(--border-mid);
   padding: 1.2rem 1rem 0.8rem;
   text-align: center;
@@ -255,7 +263,7 @@ body > * { position: relative; z-index: 1; }
   position: absolute;
   top: calc(100% + 6px);
   right: 0;
-  background: #06060f;
+  background: var(--bg-card);
   border: 1px solid var(--p-dim);
   border-radius: 6px;
   min-width: 140px;
@@ -322,10 +330,10 @@ body > * { position: relative; z-index: 1; }
 .theme-btn:hover  { transform: scale(1.2); }
 .theme-btn.active { transform: scale(1.25); box-shadow: 0 0 8px currentColor; }
 
-.theme-btn[data-scheme="ao"]    { background: linear-gradient(135deg, #0d1f55, #4d7aee); color: #4d7aee; }
-.theme-btn[data-scheme="shuku"] { background: linear-gradient(135deg, #3d0d0d, #c03030); color: #c03030; }
-.theme-btn[data-scheme="yami"]  { background: linear-gradient(135deg, #250d4d, #8855cc); color: #8855cc; }
-.theme-btn[data-scheme="kin"]   { background: linear-gradient(135deg, #352a09, #b8921f); color: #b8921f; }
+.theme-btn[data-scheme="ao"]    { background: linear-gradient(135deg, #0e2062, #5a8af0); color: #5a8af0; }
+.theme-btn[data-scheme="shuku"] { background: linear-gradient(135deg, #420e0e, #cc3535); color: #cc3535; }
+.theme-btn[data-scheme="yami"]  { background: linear-gradient(135deg, #280e50, #9060d8); color: #9060d8; }
+.theme-btn[data-scheme="kin"]   { background: linear-gradient(135deg, #3c2e0c, #c9a227); color: #c9a227; }
 
 .theme-btn-label {
   font-size: 0.6rem;
