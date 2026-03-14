@@ -257,6 +257,13 @@ app.post('/api/lobby/:code/leave', (req, res) => {
   res.json({ success: true });
 });
 
+app.post('/api/lobby/:code/end', (req, res) => {
+  const code = req.params.code.toUpperCase();
+  lobbies.delete(code);
+  writeLobbies();
+  res.json({ success: true });
+});
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`\n⚔  Lalling Games läuft auf Port ${PORT}`);
   console.log(`   Lokal:   http://localhost:${PORT}`);

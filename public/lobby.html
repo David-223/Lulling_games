@@ -415,6 +415,7 @@
 
       <div class="lobby-actions" id="lobby-actions">
         <button class="btn btn-primary btn-full" id="start-btn" style="display:none">Spiel starten</button>
+        <button class="btn btn-danger btn-full" id="end-btn" style="display:none">Spiel beenden</button>
         <button class="btn btn-secondary btn-full" id="leave-btn">Lobby verlassen</button>
       </div>
     </div>
@@ -486,19 +487,16 @@
         statusEl.style.color = '';
       } else if (lobby.status === 'started') {
         stopPolling();
-        clearSession();
-        statusEl.style.display = 'none';
+        statusEl.innerHTML = '<span class="dot" style="background:#4ade80;box-shadow:0 0 6px #4ade80"></span>Spiel läuft…';
+        statusEl.style.display = '';
         document.getElementById('start-btn').style.display = 'none';
         document.getElementById('leave-btn').style.display = 'none';
-        // Show game started panel if not already shown
-        if (!document.getElementById('game-started-box')) {
+        document.getElementById('end-btn').style.display = '';
+        if (!document.getElementById('game-links-box')) {
           const box = document.createElement('div');
-          box.id = 'game-started-box';
+          box.id = 'game-links-box';
           box.className = 'game-started-box';
           box.innerHTML = `
-            <div class="started-icon">⚔</div>
-            <h3>Das Spiel hat begonnen!</h3>
-            <p>Alle Spieler können jetzt loslegen.</p>
             <div class="game-links">
               <a href="index.html" class="btn btn-primary">Regeln</a>
               <a href="spieler.html" class="btn btn-secondary">Spieler</a>
@@ -653,6 +651,21 @@
       } catch (e) {
         showToast('Verbindungsfehler', 'error');
       }
+    });
+
+    // ── End game ──
+    document.getElementById('end-btn').addEventListener('click', async () => {
+      if (!confirm('Spiel wirklich beenden? Die Lobby wird für alle geschlossen.')) return;
+      try {
+        await fetch('/api/lobby/' + myCode + '/end', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ playerId: myPlayerId })
+        });
+      } catch {}
+      clearSession();
+      myCode = null; myPlayerId = null; myName = null;
+      showLanding();
     });
 
     // ── Leave ──
