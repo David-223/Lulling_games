@@ -545,22 +545,20 @@
         document.getElementById('identity-modal').style.display = 'none';
     });
 
-    // Auto-identify from lobby session
+    // Auto-identify from lobby session — immer frische Daten laden
     (async () => {
-      if (!getMe()) {
-        try {
-          const raw = localStorage.getItem('lalling-lobby');
-          if (raw) {
-            const session = JSON.parse(raw);
-            if (session.name) {
-              const res = await fetch('/api/players');
-              const players = await res.json();
-              const p = players.find(p => p.name.toLowerCase() === session.name.toLowerCase());
-              if (p) setMe({ id: p.id, name: p.name, points: p.points });
-            }
+      try {
+        const raw = localStorage.getItem('lalling-lobby');
+        if (raw) {
+          const session = JSON.parse(raw);
+          if (session.name) {
+            const res = await fetch('/api/players');
+            const players = await res.json();
+            const p = players.find(p => p.name.toLowerCase() === session.name.toLowerCase());
+            if (p) setMe({ id: p.id, name: p.name, points: p.points });
           }
-        } catch {}
-      }
+        }
+      } catch {}
       updateIdentityChip();
     })();
 
