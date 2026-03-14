@@ -129,14 +129,19 @@
     .player-admin-card {
       background: var(--bg-card);
       border: 1px solid var(--border-mid);
-      border-top: 2px solid var(--accent-dim);
+      border-top: 2px solid var(--curse-blue-dim);
       border-radius: 3px;
       overflow: hidden;
       box-shadow: 0 4px 16px rgba(0,0,0,0.4);
     }
 
+    .player-admin-card:hover {
+      border-top-color: var(--curse-blue-glow);
+      border-color: var(--curse-blue-dim);
+    }
+
     .player-admin-header {
-      background: linear-gradient(90deg, rgba(139,0,0,0.18) 0%, transparent 70%);
+      background: linear-gradient(90deg, rgba(0,40,160,0.18) 0%, transparent 70%);
       border-bottom: 1px solid var(--border-mid);
       padding: 0.4rem 1rem 0.4rem 1.2rem;
       display: flex;
@@ -175,7 +180,7 @@
     .pts-display {
       font-family: var(--font-title);
       font-size: 1rem;
-      color: var(--gold);
+      color: var(--curse-blue-glow);
       min-width: 3rem;
       text-align: center;
     }

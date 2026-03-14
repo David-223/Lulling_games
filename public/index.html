@@ -10,58 +10,92 @@
     .hero {
       text-align: center;
       padding: 2.5rem 0 1rem;
+      position: relative;
+    }
+
+    /* Cursed energy orbs behind the hero */
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 10%; left: 50%;
+      transform: translateX(-50%);
+      width: 260px; height: 260px;
+      border-radius: 50%;
+      background: radial-gradient(
+        circle,
+        rgba(34, 102, 255, 0.06) 0%,
+        rgba(100, 0, 200, 0.04) 40%,
+        transparent 70%
+      );
+      animation: orb-pulse 5s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes orb-pulse {
+      0%, 100% { transform: translateX(-50%) scale(1);   opacity: 0.6; }
+      50%       { transform: translateX(-50%) scale(1.15); opacity: 1; }
     }
 
     .hero-decree {
-      font-size: 0.58rem;
-      letter-spacing: 0.55em;
-      color: var(--accent-glow);
+      font-size: 0.6rem;
+      letter-spacing: 0.6em;
+      color: var(--curse-blue-glow);
       text-transform: uppercase;
       font-family: var(--font-ui);
+      font-weight: 700;
       margin-bottom: 1.2rem;
-      opacity: 0.75;
+      opacity: 0.7;
     }
 
     .hero-title {
       font-family: var(--font-title);
       font-size: 3rem;
-      font-weight: bold;
+      font-weight: 900;
       letter-spacing: 0.12em;
       text-transform: uppercase;
       color: var(--gold);
       text-shadow:
-        0 0 30px rgba(201, 162, 39, 0.45),
-        0 0 70px rgba(201, 162, 39, 0.12);
+        0 0 30px rgba(201, 162, 39, 0.5),
+        0 0 80px rgba(34, 102, 255, 0.15);
       line-height: 0.95;
       margin-bottom: 1.1rem;
-      animation: title-breathe 4s ease-in-out infinite;
+      animation: title-breathe 5s ease-in-out infinite;
     }
 
     @keyframes title-breathe {
-      0%, 100% { text-shadow: 0 0 30px rgba(201,162,39,0.45), 0 0 70px rgba(201,162,39,0.12); }
-      50%       { text-shadow: 0 0 50px rgba(201,162,39,0.65), 0 0 100px rgba(201,162,39,0.2); }
+      0%, 100% {
+        text-shadow:
+          0 0 30px rgba(201,162,39,0.5),
+          0 0 80px rgba(34,102,255,0.15);
+      }
+      50% {
+        text-shadow:
+          0 0 55px rgba(201,162,39,0.7),
+          0 0 120px rgba(34,102,255,0.25),
+          0 0 160px rgba(100,0,200,0.1);
+      }
     }
 
     .hero-subtitle {
       font-size: 0.62rem;
-      letter-spacing: 0.42em;
+      letter-spacing: 0.45em;
       text-transform: uppercase;
       color: var(--text-dim);
       font-family: var(--font-ui);
+      font-weight: 600;
       margin-bottom: 1rem;
     }
 
     .hero-tagline {
-      font-size: 0.92rem;
+      font-size: 0.93rem;
       color: var(--text-mid);
-      font-style: italic;
       font-family: var(--font-body);
       display: inline-block;
-      padding: 0.55rem 1.2rem;
-      border-left: 2px solid var(--accent-dim);
-      border-right: 2px solid var(--accent-dim);
-      max-width: 340px;
-      line-height: 1.5;
+      padding: 0.6rem 1.2rem;
+      border-left: 2px solid var(--curse-blue-dim);
+      border-right: 2px solid var(--curse-blue-dim);
+      max-width: 360px;
+      line-height: 1.55;
     }
 
     .hero-divider {
@@ -76,51 +110,55 @@
       content: '';
       flex: 1;
       height: 1px;
-      background: linear-gradient(90deg, transparent, var(--accent-dim), transparent);
+      background: linear-gradient(90deg, transparent, var(--curse-blue-dim), transparent);
     }
 
     .hero-divider-text {
       font-size: 0.55rem;
-      letter-spacing: 0.35em;
-      color: var(--accent-dim);
+      letter-spacing: 0.4em;
+      color: var(--curse-blue-glow);
+      opacity: 0.6;
       text-transform: uppercase;
       font-family: var(--font-ui);
+      font-weight: 700;
     }
 
     /* ── Rules count ── */
     .rules-count {
       text-align: right;
-      font-size: 0.7rem;
+      font-size: 0.72rem;
       color: var(--text-dim);
       margin-bottom: 0.6rem;
       letter-spacing: 0.08em;
       font-family: var(--font-ui);
+      font-weight: 600;
     }
 
     .rules-count span {
-      color: var(--gold-dim);
-      font-weight: bold;
+      color: var(--curse-blue-glow);
+      font-weight: 700;
     }
 
     /* ── Warning note ── */
     .important-note {
-      background: rgba(139, 0, 0, 0.06);
-      border: 1px solid var(--accent-dim);
+      background: rgba(0, 30, 120, 0.06);
+      border: 1px solid var(--curse-blue-dim);
       border-radius: 4px;
       padding: 0.9rem 1rem;
       margin-top: 1.8rem;
-      font-size: 0.82rem;
+      font-size: 0.85rem;
       color: var(--text-dim);
       font-family: var(--font-ui);
     }
 
     .important-note strong {
-      color: var(--accent-glow);
+      color: var(--curse-blue-glow);
       display: block;
       font-size: 0.68rem;
-      letter-spacing: 0.15em;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
       margin-bottom: 0.3rem;
+      font-weight: 700;
     }
   </style>
 </head>
@@ -138,12 +176,12 @@
 
   <main>
     <div class="hero">
-      <div class="hero-decree">— Offizielle Bekanntmachung —</div>
+      <div class="hero-decree">— 術式発動 · Technique Activated —</div>
       <h1 class="hero-title">Lalling<br>Games</h1>
-      <div class="hero-subtitle">Das Culling Spiel · Das Trinkspiel</div>
-      <p class="hero-tagline">"Alle Teilnehmer beginnen mit 100 Punkten. Die Regeln sind bindend."</p>
+      <div class="hero-subtitle">呪術廻戦 · Das Culling Spiel · Das Trinkspiel</div>
+      <p class="hero-tagline">"Alle Teilnehmer beginnen mit 100 Punkten. Die Regeln sind bindend. Kein Ausstieg."</p>
       <div class="hero-divider">
-        <span class="hero-divider-text">Regelwerk</span>
+        <span class="hero-divider-text">呪 · Regelwerk · 術</span>
       </div>
     </div>
 

@@ -29,11 +29,11 @@
       position: absolute;
       left: 0; top: 0; bottom: 0;
       width: 3px;
-      background: linear-gradient(180deg, var(--accent-glow), var(--accent), var(--accent-dim));
+      background: linear-gradient(180deg, var(--curse-blue-glow), var(--curse-blue), var(--curse-blue-dim));
     }
 
     .player-header {
-      background: linear-gradient(90deg, rgba(139,0,0,0.18) 0%, transparent 70%);
+      background: linear-gradient(90deg, rgba(0,40,160,0.18) 0%, transparent 70%);
       border-bottom: 1px solid var(--border-mid);
       padding: 0.4rem 1rem 0.4rem 1.2rem;
       display: flex;
@@ -45,7 +45,8 @@
       font-family: var(--font-title);
       font-size: 0.65rem;
       letter-spacing: 0.35em;
-      color: var(--gold-dim);
+      color: var(--curse-blue-glow);
+      opacity: 0.8;
       text-transform: uppercase;
     }
 
@@ -56,10 +57,10 @@
     .player-pts-badge {
       font-family: var(--font-ui);
       font-size: 0.65rem;
-      font-weight: bold;
-      color: var(--accent-glow);
-      background: rgba(139,0,0,0.15);
-      border: 1px solid var(--accent-dim);
+      font-weight: 700;
+      color: var(--curse-blue-glow);
+      background: rgba(0,51,187,0.15);
+      border: 1px solid var(--curse-blue-dim);
       border-radius: 2px;
       padding: 0.1rem 0.4rem;
       letter-spacing: 0.08em;
@@ -103,9 +104,9 @@
       margin-bottom: 0.7rem;
     }
 
-    .role-zauberer    { color: #5599dd; border-color: #2a4466; background: rgba(85,153,221,0.08); }
+    .role-zauberer    { color: var(--curse-blue-glow); border-color: var(--curse-blue-dim); background: rgba(34,102,255,0.08); }
     .role-sonderklasse{ color: var(--gold); border-color: var(--border-gold); background: rgba(201,162,39,0.08); }
-    .role-geist       { color: #aa66dd; border-color: #442266; background: rgba(170,102,221,0.08); }
+    .role-geist       { color: var(--curse-purple-glow); border-color: #330066; background: rgba(102,0,204,0.08); }
     .role-fluchnutzer { color: var(--accent-glow); border-color: var(--accent-dim); background: rgba(139,0,0,0.08); }
     .role-mensch      { color: var(--text-dim); border-color: var(--border-mid); background: rgba(90,90,106,0.08); }
 
@@ -120,7 +121,8 @@
       height: 100%;
       border-radius: 2px;
       transition: width 0.6s ease;
-      background: linear-gradient(90deg, var(--accent), var(--accent-glow));
+      background: linear-gradient(90deg, var(--curse-blue), var(--curse-blue-glow));
+      box-shadow: 0 0 6px rgba(34,102,255,0.4);
     }
 
     .points-bar.zero {
