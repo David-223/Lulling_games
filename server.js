@@ -29,6 +29,19 @@ function writePlayers(data) {
   fs.writeFileSync(PLAYERS_FILE, JSON.stringify(data, null, 2), 'utf-8');
 }
 
+// ── Admin auth helper ──
+
+function checkAdminAuth(body) {
+  const { password, adminPlayerId } = body || {};
+  if (password === ADMIN_PASSWORD) return true;
+  if (adminPlayerId) {
+    const data = readPlayers();
+    const player = data.players.find(p => p.id === parseInt(adminPlayerId));
+    return !!(player && player.isAdmin);
+  }
+  return false;
+}
+
 // ── Players API ──
 
 app.get('/api/players', (req, res) => {
@@ -37,11 +50,11 @@ app.get('/api/players', (req, res) => {
 });
 
 app.post('/api/players', (req, res) => {
-  const { password, name, role } = req.body;
-  if (password !== ADMIN_PASSWORD) return res.status(401).json({ error: 'Falsches Passwort' });
+  if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
+  const { name, role } = req.body;
   if (!name || !role) return res.status(400).json({ error: 'Name und Rolle erforderlich' });
   const data = readPlayers();
-  const player = { id: data.nextId, name: name.trim(), role, points: 100 };
+  const player = { id: data.nextId, name: name.trim(), role, points: 100, isAdmin: false };
   data.players.push(player);
   data.nextId += 1;
   writePlayers(data);
@@ -49,8 +62,8 @@ app.post('/api/players', (req, res) => {
 });
 
 app.patch('/api/players/:id/points', (req, res) => {
-  const { password, delta } = req.body;
-  if (password !== ADMIN_PASSWORD) return res.status(401).json({ error: 'Falsches Passwort' });
+  if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
+  const { delta } = req.body;
   const id = parseInt(req.params.id);
   const data = readPlayers();
   const idx = data.players.findIndex(p => p.id === id);
@@ -60,9 +73,19 @@ app.patch('/api/players/:id/points', (req, res) => {
   res.json(data.players[idx]);
 });
 
+app.patch('/api/players/:id/admin', (req, res) => {
+  if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
+  const id = parseInt(req.params.id);
+  const data = readPlayers();
+  const idx = data.players.findIndex(p => p.id === id);
+  if (idx === -1) return res.status(404).json({ error: 'Spieler nicht gefunden' });
+  data.players[idx].isAdmin = !data.players[idx].isAdmin;
+  writePlayers(data);
+  res.json(data.players[idx]);
+});
+
 app.delete('/api/players/:id', (req, res) => {
-  const { password } = req.body;
-  if (password !== ADMIN_PASSWORD) return res.status(401).json({ error: 'Falsches Passwort' });
+  if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
   const id = parseInt(req.params.id);
   const data = readPlayers();
   const idx = data.players.findIndex(p => p.id === id);
@@ -79,7 +102,7 @@ app.post('/api/players/register', (req, res) => {
   const data = readPlayers();
   const existing = data.players.find(p => p.name.toLowerCase() === name.trim().toLowerCase());
   if (existing) return res.json(existing);
-  const player = { id: data.nextId, name: name.trim(), role: role || 'Normaler Mensch', points: 100 };
+  const player = { id: data.nextId, name: name.trim(), role: role || 'Normaler Mensch', points: 100, isAdmin: false };
   data.players.push(player);
   data.nextId += 1;
   writePlayers(data);
@@ -96,10 +119,8 @@ app.get('/api/rules', (req, res) => {
 
 // POST neue Regel (Admin)
 app.post('/api/rules', (req, res) => {
-  const { password, title, description, points } = req.body;
-  if (password !== ADMIN_PASSWORD) {
-    return res.status(401).json({ error: 'Falsches Passwort' });
-  }
+  if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
+  const { title, description, points } = req.body;
   if (!title || !description) {
     return res.status(400).json({ error: 'Titel und Beschreibung erforderlich' });
   }
@@ -140,10 +161,8 @@ app.post('/api/rules/buy', (req, res) => {
 
 // PUT Regel bearbeiten (Admin)
 app.put('/api/rules/:id', (req, res) => {
-  const { password, title, description, points } = req.body;
-  if (password !== ADMIN_PASSWORD) {
-    return res.status(401).json({ error: 'Falsches Passwort' });
-  }
+  if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
+  const { title, description, points } = req.body;
   const id = parseInt(req.params.id);
   const data = readData();
   const idx = data.rules.findIndex(r => r.id === id);
@@ -159,10 +178,7 @@ app.put('/api/rules/:id', (req, res) => {
 
 // DELETE Regel (Admin)
 app.delete('/api/rules/:id', (req, res) => {
-  const { password } = req.body;
-  if (password !== ADMIN_PASSWORD) {
-    return res.status(401).json({ error: 'Falsches Passwort' });
-  }
+  if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
   const id = parseInt(req.params.id);
   const data = readData();
   const idx = data.rules.findIndex(r => r.id === id);
@@ -176,8 +192,7 @@ app.delete('/api/rules/:id', (req, res) => {
 
 // Admin-Passwort prüfen
 app.post('/api/auth', (req, res) => {
-  const { password } = req.body;
-  if (password === ADMIN_PASSWORD) {
+  if (checkAdminAuth(req.body)) {
     res.json({ success: true });
   } else {
     res.status(401).json({ error: 'Falsches Passwort' });
@@ -337,6 +352,7 @@ app.post('/api/poker/action', (req, res) => {
 });
 
 app.post('/api/poker/advance', (req, res) => {
+  if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
   if (!pokerGame) return res.status(400).json({ error: 'Kein Spiel' });
   if (pokerGame.toAct.length > 0) return res.status(400).json({ error: 'Bettingrunde noch nicht beendet' });
   pokerAdvancePhase(pokerGame);
@@ -344,6 +360,7 @@ app.post('/api/poker/advance', (req, res) => {
 });
 
 app.post('/api/poker/winner', (req, res) => {
+  if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
   if (!pokerGame) return res.status(400).json({ error: 'Kein Spiel' });
   const { winnerId } = req.body;
   const g = pokerGame;

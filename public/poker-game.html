@@ -493,6 +493,8 @@
     // ── Identity ──
     function getMe() { try { return JSON.parse(localStorage.getItem('lalling-me')); } catch { return null; } }
     function setMe(p) { localStorage.setItem('lalling-me', JSON.stringify(p)); }
+    function isAdmin() { const me = getMe(); return !!(me && me.isAdmin); }
+    function adminAuthBody() { const me = getMe(); return me && me.isAdmin ? { adminPlayerId: me.id } : {}; }
 
     function escHtml(s) {
       return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -609,7 +611,7 @@
         handResult.style.display = '';
         document.getElementById('result-name').textContent = g.winner || '?';
         document.getElementById('result-text').textContent = `Hat den Pot gewonnen!`;
-      } else if (g.phase === 'showdown') {
+      } else if (g.phase === 'showdown' && isAdmin()) {
         controlPanel.style.display = '';
         winnerSection.style.display = '';
         document.getElementById('control-label').textContent = 'Showdown — wer hat gewonnen?';
@@ -619,7 +621,7 @@
         sel.innerHTML = '<option value="">— Gewinner wählen —</option>' +
           activePlayers.map(p => `<option value="${p.id}">${escHtml(p.name)} (${p.chips} Pts)</option>`).join('');
         if (prevVal) sel.value = prevVal;
-      } else if (g.toAct.length === 0 && g.currentPlayerIdx === -1 && ['preflop','flop','turn','river'].includes(g.phase)) {
+      } else if (g.toAct.length === 0 && g.currentPlayerIdx === -1 && ['preflop','flop','turn','river'].includes(g.phase) && isAdmin()) {
         const nextPhaseLabel = PHASE_LABEL[PHASE_ORDER[PHASE_ORDER.indexOf(g.phase) + 1]] || '';
         controlPanel.style.display = '';
         document.getElementById('control-label').textContent = `Bettingrunde beendet`;
@@ -714,7 +716,10 @@
     // ── Advance phase ──
     document.getElementById('advance-btn').addEventListener('click', async () => {
       try {
-        const res = await fetch('/api/poker/advance', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+        const res = await fetch('/api/poker/advance', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(adminAuthBody())
+        });
         const data = await res.json();
         if (!res.ok) { showToast(data.error || 'Fehler', 'error'); return; }
         render(data);
@@ -728,7 +733,7 @@
       try {
         const res = await fetch('/api/poker/winner', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ winnerId: parseInt(winnerId) })
+          body: JSON.stringify({ ...adminAuthBody(), winnerId: parseInt(winnerId) })
         });
         const data = await res.json();
         if (!res.ok) { showToast(data.error || 'Fehler', 'error'); return; }
@@ -773,18 +778,17 @@
     function startPolling() { stopPolling(); pollTimer = setInterval(poll, 1500); }
     function stopPolling()  { if (pollTimer) { clearInterval(pollTimer); pollTimer = null; } }
 
-    // ── Auto-identity from lobby ──
+    // ── Init ──
     (async () => {
+      // Refresh identity from server (pick up isAdmin changes etc.)
       try {
-        const raw = localStorage.getItem('lalling-lobby');
-        if (raw) {
-          const session = JSON.parse(raw);
-          if (session.name) {
-            const res = await fetch('/api/players');
-            const players = await res.json();
-            const p = players.find(p => p.name.toLowerCase() === session.name.toLowerCase());
-            if (p) setMe({ id: p.id, name: p.name, points: p.points });
-          }
+        const me = getMe();
+        if (me) {
+          const res = await fetch('/api/players');
+          const all = await res.json();
+          const fresh = all.find(p => p.id === me.id);
+          if (fresh) setMe({ ...me, points: fresh.points, isAdmin: fresh.isAdmin || false });
+          else localStorage.removeItem('lalling-me');
         }
       } catch {}
 
