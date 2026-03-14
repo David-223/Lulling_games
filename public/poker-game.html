@@ -368,7 +368,7 @@
     <div class="logo-sub">Das Culling Spiel · Das Trinkspiel</div>
     <nav class="nav-links">
       <a href="index.html">Regeln</a>
-      <a href="lobby.html">Lobby</a>
+      <a href="lobby.html">Anmelden</a>
       <a href="gluecksrad.html">Gamble</a>
       <a href="poker-game.html" class="active">Poker</a>
       <div class="nav-dropdown">
@@ -643,7 +643,7 @@
       try {
         const res = await fetch('/api/players');
         const players = await res.json();
-        if (!players.length) { el.innerHTML = '<p style="color:var(--text-dim);font-size:0.82rem;font-family:var(--font-ui)">Keine Spieler. Zuerst Lobby starten.</p>'; return; }
+        if (!players.length) { el.innerHTML = '<p style="color:var(--text-dim);font-size:0.82rem;font-family:var(--font-ui)">Keine Spieler. Bitte zuerst unter Anmelden registrieren.</p>'; return; }
         el.innerHTML = players.map(p =>
           `<div class="setup-player"><span>${escHtml(p.name)}</span><span class="setup-player-chips">${p.points} Pts</span></div>`
         ).join('');

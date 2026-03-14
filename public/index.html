@@ -345,7 +345,7 @@
     <div class="logo-sub">Das Culling Spiel · Das Trinkspiel</div>
     <nav class="nav-links">
       <a href="index.html" class="active">Regeln</a>
-      <a href="lobby.html">Lobby</a>
+      <a href="lobby.html">Anmelden</a>
       <a href="gluecksrad.html">Gamble</a>
       <a href="poker-game.html">Poker</a>
       <div class="nav-dropdown">
@@ -547,18 +547,16 @@
         document.getElementById('identity-modal').style.display = 'none';
     });
 
-    // Auto-identify from lobby session — immer frische Daten laden
+    // Refresh stored identity with latest server data (points may have changed)
     (async () => {
       try {
-        const raw = localStorage.getItem('lalling-lobby');
-        if (raw) {
-          const session = JSON.parse(raw);
-          if (session.name) {
-            const res = await fetch('/api/players');
-            const players = await res.json();
-            const p = players.find(p => p.name.toLowerCase() === session.name.toLowerCase());
-            if (p) setMe({ id: p.id, name: p.name, points: p.points });
-          }
+        const me = getMe();
+        if (me) {
+          const res = await fetch('/api/players');
+          const players = await res.json();
+          const fresh = players.find(p => p.id === me.id);
+          if (fresh) setMe(fresh);
+          else clearMe(); // player was deleted by admin
         }
       } catch {}
       updateIdentityChip();
