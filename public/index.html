@@ -239,6 +239,81 @@
 
     .btn-full { width: 100%; }
 
+    /* ── Identity chip ── */
+    .identity-chip {
+      background: var(--bg-card);
+      border: 1px solid var(--border-mid);
+      border-radius: 99px;
+      color: var(--text-dim);
+      cursor: pointer;
+      font-family: var(--font-ui);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      padding: 0.25rem 0.75rem;
+      white-space: nowrap;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .identity-chip:hover { border-color: var(--p); color: var(--p-glow); }
+    .identity-chip.logged-in { border-color: var(--p); color: var(--p-glow); }
+
+    /* ── Identity modal ── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.65);
+      z-index: 200;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .modal-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-mid);
+      border-radius: 8px;
+      padding: 1.4rem 1.2rem;
+      width: min(340px, 90vw);
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    .modal-title {
+      font-family: var(--font-ui);
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+    .identity-player-list { display: flex; flex-direction: column; gap: 0.4rem; }
+    .identity-player-btn {
+      background: var(--bg-card2);
+      border: 1px solid var(--border-mid);
+      border-radius: 5px;
+      color: var(--text);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: space-between;
+      font-family: var(--font-ui);
+      font-size: 0.88rem;
+      padding: 0.55rem 0.8rem;
+      text-align: left;
+      transition: border-color 0.15s;
+      width: 100%;
+    }
+    .identity-player-btn:hover { border-color: var(--p); }
+    .identity-player-btn .ipts { font-size: 0.72rem; color: var(--text-dim); }
+
+    /* ── Buy form helpers ── */
+    .buy-hint {
+      font-family: var(--font-ui);
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      margin: 0.4rem 0;
+    }
+    .link-btn {
+      background: none; border: none; cursor: pointer;
+      color: var(--p-glow); font-family: var(--font-ui); font-size: inherit;
+      font-weight: 700; padding: 0; text-decoration: underline;
+    }
+    #buy-fields { display: flex; flex-direction: column; gap: 0.8rem; }
+
     /* ── Warning note ── */
     .important-note {
       background: var(--p-bg2);
@@ -286,7 +361,19 @@
       <button class="theme-btn" data-scheme="yami"  title="闇 – Hollow Purple"></button>
       <button class="theme-btn" data-scheme="kin"   title="金 – Special Grade"></button>
     </div>
+    <button class="identity-chip" id="identity-chip" title="Spieler wechseln">
+      <span id="identity-label">Anmelden</span>
+    </button>
   </header>
+
+  <!-- Identity Modal -->
+  <div class="modal-overlay" id="identity-modal" style="display:none">
+    <div class="modal-box">
+      <div class="modal-title">Wer bist du?</div>
+      <div id="identity-player-list" class="identity-player-list">Lade Spieler…</div>
+      <button class="btn btn-secondary btn-full" id="identity-cancel" style="margin-top:0.6rem">Abbrechen</button>
+    </div>
+  </div>
 
   <main>
     <div class="hero">
@@ -321,20 +408,23 @@
         <span class="buy-rule-chevron" id="buy-rule-chevron">▾</span>
       </button>
       <div class="buy-rule-body" id="buy-rule-body" style="display:none">
-        <div class="form-group">
-          <label for="buy-player">Dein Name</label>
-          <input id="buy-player" type="text" placeholder="Genau so wie im Spiel" maxlength="60" autocomplete="off" />
+        <div id="buy-no-identity" style="display:none">
+          <p class="buy-hint">Du bist noch nicht angemeldet. <button class="link-btn" id="buy-open-identity">Wer bist du?</button></p>
         </div>
-        <div class="buy-player-pts" id="buy-player-pts"></div>
-        <div class="form-group">
-          <label for="buy-title">Regelname</label>
-          <input id="buy-title" type="text" placeholder="z.B. Kein Fluchen" maxlength="80" autocomplete="off" />
+        <div id="buy-identity-info" style="display:none">
+          <div class="buy-player-pts" id="buy-player-pts"></div>
         </div>
-        <div class="form-group">
-          <label for="buy-desc">Beschreibung</label>
-          <textarea id="buy-desc" rows="3" placeholder="Was passiert bei Verstoß?" maxlength="400"></textarea>
+        <div id="buy-fields" style="display:none">
+          <div class="form-group">
+            <label for="buy-title">Regelname</label>
+            <input id="buy-title" type="text" placeholder="z.B. Kein Fluchen" maxlength="80" autocomplete="off" />
+          </div>
+          <div class="form-group">
+            <label for="buy-desc">Beschreibung</label>
+            <textarea id="buy-desc" rows="3" placeholder="Was passiert bei Verstoß?" maxlength="400"></textarea>
+          </div>
+          <button class="btn btn-primary btn-full" id="buy-submit">Regel hinzufügen — 100 Punkte</button>
         </div>
-        <button class="btn btn-primary btn-full" id="buy-submit">Regel hinzufügen — 100 Punkte</button>
       </div>
     </div>
 
@@ -397,64 +487,118 @@
 
     loadRules();
 
-    // ── Regel kaufen ──
-    let buyPlayers = [];
+    // ── Identity (wer bin ich) ──
+    const ME_KEY = 'lalling-me';
 
-    async function loadBuyPlayers() {
+    function getMe() {
+      try { return JSON.parse(localStorage.getItem(ME_KEY)); } catch { return null; }
+    }
+    function setMe(player) {
+      localStorage.setItem(ME_KEY, JSON.stringify(player));
+    }
+    function clearMe() { localStorage.removeItem(ME_KEY); }
+
+    function updateIdentityChip() {
+      const me = getMe();
+      const chip = document.getElementById('identity-chip');
+      const label = document.getElementById('identity-label');
+      if (me) {
+        label.textContent = me.name;
+        chip.classList.add('logged-in');
+      } else {
+        label.textContent = 'Anmelden';
+        chip.classList.remove('logged-in');
+      }
+    }
+
+    async function openIdentityModal() {
+      const modal = document.getElementById('identity-modal');
+      const list  = document.getElementById('identity-player-list');
+      modal.style.display = 'flex';
+      list.textContent = 'Lade…';
       try {
-        const res = await fetch('/api/players');
-        buyPlayers = await res.json();
-      } catch {}
+        const res     = await fetch('/api/players');
+        const players = await res.json();
+        if (!players.length) { list.textContent = 'Keine Spieler gefunden.'; return; }
+        list.innerHTML = players.map(p => `
+          <button class="identity-player-btn" data-id="${p.id}" data-name="${escHtml(p.name)}" data-pts="${p.points}">
+            <span>${escHtml(p.name)}</span>
+            <span class="ipts">${p.points} Pts</span>
+          </button>`).join('');
+        list.querySelectorAll('.identity-player-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            setMe({ id: parseInt(btn.dataset.id), name: btn.dataset.name, points: parseInt(btn.dataset.pts) });
+            modal.style.display = 'none';
+            updateIdentityChip();
+            updateBuyForm();
+          });
+        });
+      } catch { list.textContent = 'Fehler beim Laden.'; }
+    }
+
+    document.getElementById('identity-chip').addEventListener('click', openIdentityModal);
+    document.getElementById('identity-cancel').addEventListener('click', () => {
+      document.getElementById('identity-modal').style.display = 'none';
+    });
+    document.getElementById('identity-modal').addEventListener('click', e => {
+      if (e.target === document.getElementById('identity-modal'))
+        document.getElementById('identity-modal').style.display = 'none';
+    });
+
+    updateIdentityChip();
+
+    // ── Regel kaufen ──
+    function updateBuyForm() {
+      const me = getMe();
+      document.getElementById('buy-no-identity').style.display  = me ? 'none' : '';
+      document.getElementById('buy-identity-info').style.display = me ? '' : 'none';
+      document.getElementById('buy-fields').style.display        = me ? '' : 'none';
+      if (me) {
+        const el = document.getElementById('buy-player-pts');
+        if (me.points >= 100) {
+          el.textContent = `${me.name} · ${me.points} Punkte — reicht für eine Regel`;
+          el.className = 'buy-player-pts enough';
+        } else {
+          el.textContent = `${me.name} · ${me.points} Punkte — nicht genug (100 benötigt)`;
+          el.className = 'buy-player-pts broke';
+        }
+      }
     }
 
     document.getElementById('buy-rule-toggle').addEventListener('click', () => {
-      const body = document.getElementById('buy-rule-body');
+      const body    = document.getElementById('buy-rule-body');
       const chevron = document.getElementById('buy-rule-chevron');
-      const open = body.style.display === 'none';
+      const open    = body.style.display === 'none';
       body.style.display = open ? '' : 'none';
       chevron.textContent = open ? '▴' : '▾';
-      if (open) loadBuyPlayers();
+      if (open) updateBuyForm();
     });
 
-    document.getElementById('buy-player').addEventListener('input', function() {
-      const name = this.value.trim().toLowerCase();
-      const el = document.getElementById('buy-player-pts');
-      const p = buyPlayers.find(p => p.name.toLowerCase() === name);
-      if (!p) { el.textContent = ''; el.className = 'buy-player-pts'; return; }
-      if (p.points >= 100) {
-        el.textContent = `${p.points} Punkte — du kannst dir eine Regel kaufen`;
-        el.className = 'buy-player-pts enough';
-      } else {
-        el.textContent = `${p.points} Punkte — nicht genug (100 benötigt)`;
-        el.className = 'buy-player-pts broke';
-      }
-    });
+    document.getElementById('buy-open-identity').addEventListener('click', openIdentityModal);
 
     document.getElementById('buy-submit').addEventListener('click', async () => {
-      const nameInput = document.getElementById('buy-player').value.trim();
-      const title     = document.getElementById('buy-title').value.trim();
-      const desc      = document.getElementById('buy-desc').value.trim();
-      if (!nameInput) { showToast('Bitte deinen Namen eingeben', 'error'); return; }
-      if (!title)     { showToast('Bitte Regelname eingeben', 'error'); return; }
-      if (!desc)      { showToast('Bitte Beschreibung eingeben', 'error'); return; }
-      const p = buyPlayers.find(p => p.name.toLowerCase() === nameInput.toLowerCase());
-      if (!p) { showToast('Spieler nicht gefunden', 'error'); return; }
+      const me   = getMe();
+      const title = document.getElementById('buy-title').value.trim();
+      const desc  = document.getElementById('buy-desc').value.trim();
+      if (!me)    { showToast('Bitte zuerst anmelden', 'error'); return; }
+      if (!title) { showToast('Bitte Regelname eingeben', 'error'); return; }
+      if (!desc)  { showToast('Bitte Beschreibung eingeben', 'error'); return; }
       const btn = document.getElementById('buy-submit');
       btn.disabled = true;
       try {
-        const res = await fetch('/api/rules/buy', {
+        const res  = await fetch('/api/rules/buy', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ playerId: p.id, title, description: desc })
+          body: JSON.stringify({ playerId: me.id, title, description: desc })
         });
         const data = await res.json();
         if (!res.ok) { showToast(data.error || 'Fehler', 'error'); return; }
-        showToast(`Regel hinzugefügt! ${data.player.name} hat noch ${data.player.points} Punkte.`);
+        setMe({ id: data.player.id, name: data.player.name, points: data.player.points });
+        updateIdentityChip();
+        showToast(`Regel hinzugefügt! Noch ${data.player.points} Punkte übrig.`);
         document.getElementById('buy-title').value = '';
-        document.getElementById('buy-desc').value = '';
-        document.getElementById('buy-player').value = '';
-        document.getElementById('buy-player-pts').textContent = '';
-        document.getElementById('buy-player-pts').className = 'buy-player-pts';
+        document.getElementById('buy-desc').value  = '';
+        updateBuyForm();
         loadRules();
       } catch { showToast('Verbindungsfehler', 'error'); }
       finally { btn.disabled = false; }
