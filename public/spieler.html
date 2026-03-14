@@ -8,10 +8,28 @@
   <style>
     .player-card {
       background: var(--bg-card);
-      clip-path: polygon(20px 0%, calc(100% - 20px) 0%, 100% 50%, calc(100% - 20px) 100%, 20px 100%, 0% 50%);
+      border: 1px solid var(--border-mid);
+      border-top: 2px solid var(--p-dim);
+      border-radius: 3px;
       padding: 0;
       position: relative;
       overflow: hidden;
+      transition: border-color 0.3s, box-shadow 0.3s, background 0.5s;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+    }
+
+    .player-card:hover {
+      border-top-color: var(--p-glow);
+      border-color: var(--p-dim);
+      box-shadow: 0 6px 28px rgba(0,0,0,0.4), 0 0 40px var(--p-bg2);
+    }
+
+    .player-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0; width: 3px;
+      background: linear-gradient(180deg, var(--p-glow), var(--p), var(--p-dim));
+      transition: background 0.5s;
     }
 
     .player-header {
@@ -91,15 +109,6 @@
     .role-geist       { color: var(--curse-purple-glow); border-color: #330066; background: rgba(102,0,204,0.08); }
     .role-fluchnutzer { color: var(--accent-glow); border-color: var(--accent-dim); background: rgba(139,0,0,0.08); }
     .role-mensch      { color: var(--text-dim); border-color: var(--border-mid); background: rgba(90,90,106,0.08); }
-
-    .player-card-wrap {
-      clip-path: polygon(20px 0%, calc(100% - 20px) 0%, 100% 50%, calc(100% - 20px) 100%, 20px 100%, 0% 50%);
-      filter: drop-shadow(0 0 2px var(--p-dim)) drop-shadow(0 4px 14px rgba(0,0,0,0.6));
-      transition: filter 0.3s;
-    }
-    .player-card-wrap:hover {
-      filter: drop-shadow(0 0 5px var(--p-glow)) drop-shadow(0 6px 20px rgba(0,0,0,0.5));
-    }
 
     .points-bar-wrap {
       background: rgba(0,0,0,0.35);
@@ -233,20 +242,18 @@
           const pct = Math.min(100, p.points);
           const isElim = p.points === 0;
           return `
-            <div class="player-card-wrap">
-              <div class="player-card">
-                <div class="player-header">
-                  <span class="player-rank ${rankClass(rank)}">${rankLabel(rank)}</span>
-                  <span class="player-pts-badge ${isElim ? 'zero' : ''}">${p.points} Pts</span>
+            <div class="player-card">
+              <div class="player-header">
+                <span class="player-rank ${rankClass(rank)}">${rankLabel(rank)}</span>
+                <span class="player-pts-badge ${isElim ? 'zero' : ''}">${p.points} Pts</span>
+              </div>
+              <div class="player-body">
+                <div class="player-name ${isElim ? 'eliminated' : ''}">${escHtml(p.name)}</div>
+                <div class="role-badge ${role.css}">${role.icon} ${escHtml(p.role)}</div>
+                <div class="points-bar-wrap">
+                  <div class="points-bar ${isElim ? 'zero' : ''}" style="width:${pct}%"></div>
                 </div>
-                <div class="player-body">
-                  <div class="player-name ${isElim ? 'eliminated' : ''}">${escHtml(p.name)}</div>
-                  <div class="role-badge ${role.css}">${role.icon} ${escHtml(p.role)}</div>
-                  <div class="points-bar-wrap">
-                    <div class="points-bar ${isElim ? 'zero' : ''}" style="width:${pct}%"></div>
-                  </div>
-                  ${isElim ? '<div class="eliminated-tag">✕ Ausgeschieden</div>' : ''}
-                </div>
+                ${isElim ? '<div class="eliminated-tag">✕ Ausgeschieden</div>' : ''}
               </div>
             </div>
           `;

@@ -349,65 +349,47 @@ main {
 .intro-card strong { color: var(--gold); }
 
 /* ──────────────────────────────────────────────
-   HEX RULE CARDS
+   RULE CARDS
 ────────────────────────────────────────────── */
-
-/* The hex clip-path polygon for elongated hexagons */
-.hex-clip {
-  clip-path: polygon(
-    20px 0%,
-    calc(100% - 20px) 0%,
-    100% 50%,
-    calc(100% - 20px) 100%,
-    20px 100%,
-    0% 50%
-  );
-}
 
 .rules-list {
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
-}
-
-/* Wrapper handles the drop-shadow (which follows clip-path) */
-.rule-card-wrap {
-  clip-path: polygon(
-    20px 0%,
-    calc(100% - 20px) 0%,
-    100% 50%,
-    calc(100% - 20px) 100%,
-    20px 100%,
-    0% 50%
-  );
-  filter: drop-shadow(0 0 2px var(--p-dim)) drop-shadow(0 4px 14px rgba(0,0,0,0.6));
-  transition: filter 0.3s;
-}
-
-.rule-card-wrap:hover {
-  filter:
-    drop-shadow(0 0 5px var(--p-glow))
-    drop-shadow(0 6px 22px rgba(0,0,0,0.5));
+  gap: 1rem;
 }
 
 .rule-card {
-  clip-path: polygon(
-    20px 0%,
-    calc(100% - 20px) 0%,
-    100% 50%,
-    calc(100% - 20px) 100%,
-    20px 100%,
-    0% 50%
-  );
   background: var(--bg-card);
+  border: 1px solid var(--border-mid);
+  border-top: 2px solid var(--p-dim);
+  border-radius: 3px;
   padding: 0;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s, box-shadow 0.3s, transform 0.2s, background 0.5s;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+}
+
+.rule-card:hover {
+  border-top-color: var(--p-glow);
+  border-color: var(--p-dim);
+  box-shadow: 0 6px 28px rgba(0,0,0,0.4), 0 0 40px var(--p-bg2);
+  transform: translateY(-1px);
+}
+
+.rule-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--p-glow), var(--p), var(--p-dim));
   transition: background 0.5s;
 }
 
 .rule-number-bar {
   background: linear-gradient(90deg, var(--p-bg) 0%, transparent 70%);
   border-bottom: 1px solid var(--border-mid);
-  padding: 0.45rem 1.8rem 0.45rem 1.8rem;
+  padding: 0.4rem 1rem 0.4rem 1.2rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -419,7 +401,7 @@ main {
   font-size: 0.65rem;
   letter-spacing: 0.35em;
   color: var(--p-glow);
-  opacity: 0.8;
+  opacity: 0.85;
   text-transform: uppercase;
   transition: color 0.5s;
 }
@@ -437,7 +419,7 @@ main {
 }
 
 .rule-body {
-  padding: 0.9rem 1.8rem 1rem 1.8rem;
+  padding: 0.85rem 1rem 1rem 1.2rem;
 }
 
 .rule-title {
