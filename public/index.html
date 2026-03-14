@@ -322,8 +322,8 @@
       </button>
       <div class="buy-rule-body" id="buy-rule-body" style="display:none">
         <div class="form-group">
-          <label for="buy-player">Wer bist du?</label>
-          <select id="buy-player"><option value="">— Ich bin… —</option></select>
+          <label for="buy-player">Dein Name</label>
+          <input id="buy-player" type="text" placeholder="Genau so wie im Spiel" maxlength="60" autocomplete="off" />
         </div>
         <div class="buy-player-pts" id="buy-player-pts"></div>
         <div class="form-group">
@@ -398,15 +398,12 @@
     loadRules();
 
     // ── Regel kaufen ──
-    let allPlayers = [];
+    let buyPlayers = [];
 
-    async function loadPlayersForBuy() {
+    async function loadBuyPlayers() {
       try {
         const res = await fetch('/api/players');
-        allPlayers = await res.json();
-        const sel = document.getElementById('buy-player');
-        sel.innerHTML = '<option value="">— Ich bin… —</option>' +
-          allPlayers.map(p => `<option value="${p.id}">${escHtml(p.name)} (${p.points} Pts)</option>`).join('');
+        buyPlayers = await res.json();
       } catch {}
     }
 
@@ -416,12 +413,13 @@
       const open = body.style.display === 'none';
       body.style.display = open ? '' : 'none';
       chevron.textContent = open ? '▴' : '▾';
-      if (open) loadPlayersForBuy();
+      if (open) loadBuyPlayers();
     });
 
-    document.getElementById('buy-player').addEventListener('change', function() {
-      const p = allPlayers.find(p => p.id === parseInt(this.value));
+    document.getElementById('buy-player').addEventListener('input', function() {
+      const name = this.value.trim().toLowerCase();
       const el = document.getElementById('buy-player-pts');
+      const p = buyPlayers.find(p => p.name.toLowerCase() === name);
       if (!p) { el.textContent = ''; el.className = 'buy-player-pts'; return; }
       if (p.points >= 100) {
         el.textContent = `${p.points} Punkte — du kannst dir eine Regel kaufen`;
@@ -433,19 +431,21 @@
     });
 
     document.getElementById('buy-submit').addEventListener('click', async () => {
-      const playerId = document.getElementById('buy-player').value;
-      const title    = document.getElementById('buy-title').value.trim();
-      const desc     = document.getElementById('buy-desc').value.trim();
-      if (!playerId) { showToast('Bitte Spieler auswählen', 'error'); return; }
-      if (!title)    { showToast('Bitte Regelname eingeben', 'error'); return; }
-      if (!desc)     { showToast('Bitte Beschreibung eingeben', 'error'); return; }
+      const nameInput = document.getElementById('buy-player').value.trim();
+      const title     = document.getElementById('buy-title').value.trim();
+      const desc      = document.getElementById('buy-desc').value.trim();
+      if (!nameInput) { showToast('Bitte deinen Namen eingeben', 'error'); return; }
+      if (!title)     { showToast('Bitte Regelname eingeben', 'error'); return; }
+      if (!desc)      { showToast('Bitte Beschreibung eingeben', 'error'); return; }
+      const p = buyPlayers.find(p => p.name.toLowerCase() === nameInput.toLowerCase());
+      if (!p) { showToast('Spieler nicht gefunden', 'error'); return; }
       const btn = document.getElementById('buy-submit');
       btn.disabled = true;
       try {
         const res = await fetch('/api/rules/buy', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ playerId: parseInt(playerId), title, description: desc })
+          body: JSON.stringify({ playerId: p.id, title, description: desc })
         });
         const data = await res.json();
         if (!res.ok) { showToast(data.error || 'Fehler', 'error'); return; }
