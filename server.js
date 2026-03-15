@@ -361,13 +361,19 @@ app.post('/api/poker/advance', (req, res) => {
 app.post('/api/poker/winner', (req, res) => {
   if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
   if (!pokerGame) return res.status(400).json({ error: 'Kein Spiel' });
-  const { winnerId } = req.body;
   const g = pokerGame;
-  const widx = g.players.findIndex(p => p.id === parseInt(winnerId));
-  if (widx === -1) return res.status(404).json({ error: 'Spieler nicht gefunden' });
-  g.players[widx].chips += g.pot;
-  g.winner = g.players[widx].name;
-  g.winnerId = parseInt(winnerId);
+  // Accept winnerIds (array) for split pot, or legacy winnerId (single)
+  const ids = req.body.winnerIds
+    ? req.body.winnerIds.map(id => parseInt(id))
+    : [parseInt(req.body.winnerId)];
+  const winners = ids.map(id => g.players.find(p => p.id === id)).filter(Boolean);
+  if (!winners.length) return res.status(404).json({ error: 'Spieler nicht gefunden' });
+  const share = Math.floor(g.pot / winners.length);
+  const remainder = g.pot - share * winners.length;
+  winners.forEach((p, i) => { p.chips += share + (i === 0 ? remainder : 0); });
+  g.winner = winners.map(p => p.name).join(' & ');
+  g.winnerId = winners[0].id;
+  g.splitPot = winners.length > 1;
   g.pot = 0; g.phase = 'ended';
   const pdata = readPlayers();
   g.players.forEach(gp => { const pp = pdata.players.find(p => p.id === gp.id); if (pp) pp.points = gp.chips; });

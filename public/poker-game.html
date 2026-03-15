@@ -786,9 +786,7 @@
           Weiter → nächste Karten aufdecken
         </button>
         <div id="winner-section" style="display:none">
-          <select class="winner-select" id="winner-select">
-            <option value="">— Gewinner wählen —</option>
-          </select>
+          <div id="winner-checkboxes" style="display:flex;flex-direction:column;gap:0.35rem;margin-bottom:0.5rem"></div>
           <button class="btn btn-primary btn-full" id="winner-btn" style="margin-top:0.5rem">
             Pot vergeben
           </button>
@@ -1061,18 +1059,21 @@
       if (g.phase === 'ended') {
         handResult.style.display = '';
         document.getElementById('result-name').textContent = g.winner || '?';
-        document.getElementById('result-text').textContent = 'Hat den Pot gewonnen!';
+        document.getElementById('result-text').textContent = g.splitPot ? 'Pot aufgeteilt!' : 'Hat den Pot gewonnen!';
 
       } else if (g.phase === 'showdown' && isAdmin()) {
         controlPanel.style.display = '';
         winnerSection.style.display = '';
         document.getElementById('control-label').textContent = 'Showdown — wer hat gewonnen?';
-        const sel = document.getElementById('winner-select');
+        const box = document.getElementById('winner-checkboxes');
         const activePlayers = g.players.filter(p => !p.folded);
-        const prevVal = sel.value;
-        sel.innerHTML = '<option value="">— Gewinner wählen —</option>' +
-          activePlayers.map(p => `<option value="${p.id}">${escHtml(p.name)} (${p.chips} Pts)</option>`).join('');
-        if (prevVal) sel.value = prevVal;
+        const prevChecked = new Set([...box.querySelectorAll('input:checked')].map(el => el.value));
+        box.innerHTML = activePlayers.map(p =>
+          `<label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;padding:0.3rem 0.5rem;border-radius:4px;background:var(--bg-card2);border:1px solid var(--border-mid)">
+            <input type="checkbox" value="${p.id}"${prevChecked.has(String(p.id)) ? ' checked' : ''} style="accent-color:var(--gold);width:1rem;height:1rem">
+            <span style="font-family:var(--font-ui);font-size:0.9rem">${escHtml(p.name)} <span style="color:var(--text-dim)">(${p.chips} Pts)</span></span>
+          </label>`
+        ).join('');
 
       }
     }
@@ -1173,12 +1174,13 @@
 
     // ── Declare winner ──
     document.getElementById('winner-btn').addEventListener('click', async () => {
-      const winnerId = document.getElementById('winner-select').value;
-      if (!winnerId) { showToast('Gewinner auswählen', 'error'); return; }
+      const checked = [...document.querySelectorAll('#winner-checkboxes input:checked')];
+      if (!checked.length) { showToast('Gewinner auswählen', 'error'); return; }
+      const winnerIds = checked.map(el => parseInt(el.value));
       try {
         const res = await fetch('/api/poker/winner', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...adminAuthBody(), winnerId: parseInt(winnerId) })
+          body: JSON.stringify({ ...adminAuthBody(), winnerIds })
         });
         const data = await res.json();
         if (!res.ok) { showToast(data.error || 'Fehler', 'error'); return; }
