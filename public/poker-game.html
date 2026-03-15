@@ -508,6 +508,16 @@
     // ── State ──
     let game = null;
     let pollTimer = null;
+    let lastHandNum = -1;
+    let wasMyTurn = false;
+
+    // ── Vibration helpers ──
+    function vibrateNewHand() {
+      if ('vibrate' in navigator) navigator.vibrate([200, 100, 200]);
+    }
+    function vibrateMyTurn() {
+      if ('vibrate' in navigator) navigator.vibrate([100, 50, 100, 50, 300]);
+    }
 
     const PHASE_ORDER = ['preflop', 'flop', 'turn', 'river', 'showdown'];
     const PHASE_LABEL = { preflop: 'Pre-Flop', flop: 'Flop', turn: 'Turn', river: 'River', showdown: 'Showdown', ended: 'Beendet', setup: 'Setup' };
@@ -517,6 +527,15 @@
       if (!g || g.phase === 'setup') { showNoGame(); return; }
       showGame();
       game = g;
+
+      // ── Detect new hand → vibrate ──
+      if (lastHandNum !== -1 && g.handNum > lastHandNum) {
+        vibrateNewHand();
+      }
+      if (g.handNum !== lastHandNum) {
+        lastHandNum = g.handNum;
+        localStorage.setItem('lalling-poker-redirect-hand', g.handNum);
+      }
 
       // Phase bar
       document.querySelectorAll('.phase-step').forEach(el => {
@@ -571,6 +590,12 @@
       const myIdx = me ? g.players.findIndex(p => p.id === me.id) : -1;
       const isMyTurn = myIdx >= 0 && g.currentPlayerIdx === myIdx && ['preflop','flop','turn','river'].includes(g.phase);
       actionPanel.style.display = isMyTurn ? '' : 'none';
+
+      // ── Detect my turn → vibrate ──
+      if (isMyTurn && !wasMyTurn) {
+        vibrateMyTurn();
+      }
+      wasMyTurn = isMyTurn;
 
       if (isMyTurn) {
         const me_p = g.players[myIdx];

@@ -663,6 +663,24 @@
         delete btn.dataset.open;
       });
     })();
+
+    // ── Poker watcher: auto-redirect when a new hand starts ──
+    (function() {
+      let lastSeen = parseInt(localStorage.getItem('lalling-poker-redirect-hand') || '-1');
+      setInterval(async () => {
+        try {
+          const res = await fetch('/api/poker/state');
+          if (!res.ok) return;
+          const data = await res.json();
+          if (data && data.phase === 'preflop' && data.handNum > lastSeen) {
+            lastSeen = data.handNum;
+            localStorage.setItem('lalling-poker-redirect-hand', data.handNum);
+            if ('vibrate' in navigator) navigator.vibrate([200, 100, 200]);
+            window.location.href = 'poker-game.html';
+          }
+        } catch {}
+      }, 2000);
+    })();
   </script>
 </body>
 </html>
