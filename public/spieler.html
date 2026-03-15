@@ -330,7 +330,7 @@
           if (data.phase === 'preflop' && data.handNum > lastRedirectHand) {
             lastRedirectHand = data.handNum;
             if ('vibrate' in navigator) navigator.vibrate([200, 100, 200]);
-            window.location.href = 'poker-game.html';
+            setTimeout(() => { window.location.href = 'poker-game.html'; }, 300);
             return;
           }
           // My turn
@@ -342,7 +342,7 @@
               if (myIdx >= 0 && data.currentPlayerIdx === myIdx && turnKey !== lastMyTurnKey) {
                 lastMyTurnKey = turnKey;
                 if ('vibrate' in navigator) navigator.vibrate([100, 50, 100, 50, 300]);
-                window.location.href = 'poker-game.html';
+                setTimeout(() => { window.location.href = 'poker-game.html'; }, 300);
                 return;
               }
               if (turnKey !== lastMyTurnKey) lastMyTurnKey = turnKey;
