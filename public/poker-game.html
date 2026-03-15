@@ -1013,8 +1013,6 @@
         if ('Notification' in window && Notification.permission === 'granted') {
           try { new Notification('🃏 Dein Zug!', { body: 'Du bist an der Reihe', tag: 'poker-turn', renotify: true }); } catch {}
         }
-        // Mark this turn so watcher pages don't re-redirect
-        localStorage.setItem('lalling-last-turn-key', g.handNum + ':' + g.currentPlayerIdx);
       }
       prevCurrentPlayerIdx = g.currentPlayerIdx;
 

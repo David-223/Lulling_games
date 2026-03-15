@@ -348,7 +348,7 @@
             try {
               const me = JSON.parse(localStorage.getItem('lalling-me') || 'null');
               const myIdx = me ? data.players.findIndex(p => p.id === me.id) : -1;
-              const turnKey = data.handNum + ':' + data.currentPlayerIdx;
+              const turnKey = data.handNum + ':' + data.phase + ':' + data.currentPlayerIdx;
               if (myIdx >= 0 && data.currentPlayerIdx === myIdx && turnKey !== lastMyTurnKey) {
                 lastMyTurnKey = turnKey;
                 localStorage.setItem('lalling-last-turn-key', turnKey);
