@@ -857,6 +857,16 @@
       if ('vibrate' in navigator) navigator.vibrate([100, 50, 100, 50, 300]);
     }
 
+    // ── Fire vibration requested by redirect from another page ──
+    (function() {
+      const reason = localStorage.getItem('lalling-vibrate-on-load');
+      if (reason) {
+        localStorage.removeItem('lalling-vibrate-on-load');
+        if (reason === 'hand') vibrateNewHand();
+        else if (reason === 'turn') vibrateMyTurn();
+      }
+    })();
+
     const PHASE_ORDER = ['preflop', 'flop', 'turn', 'river', 'showdown'];
     const PHASE_LABEL = { preflop: 'Pre-Flop', flop: 'Flop', turn: 'Turn', river: 'River', showdown: 'Showdown', ended: 'Beendet', setup: 'Setup' };
 

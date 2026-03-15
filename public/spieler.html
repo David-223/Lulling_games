@@ -320,7 +320,7 @@
     (function() {
       let lastRedirectHand = parseInt(localStorage.getItem('lalling-poker-redirect-hand') || '-1');
       let lastMyTurnKey = '';
-      setInterval(async () => {
+      async function checkPoker() {
         try {
           const res = await fetch('/api/poker/state');
           if (!res.ok) return;
@@ -329,8 +329,8 @@
           // New hand started
           if (data.phase === 'preflop' && data.handNum > lastRedirectHand) {
             lastRedirectHand = data.handNum;
-            if ('vibrate' in navigator) navigator.vibrate([200, 100, 200]);
-            setTimeout(() => { window.location.href = 'poker-game.html'; }, 300);
+            localStorage.setItem('lalling-vibrate-on-load', 'hand');
+            window.location.href = 'poker-game.html';
             return;
           }
           // My turn
@@ -341,15 +341,17 @@
               const turnKey = data.handNum + ':' + data.currentPlayerIdx;
               if (myIdx >= 0 && data.currentPlayerIdx === myIdx && turnKey !== lastMyTurnKey) {
                 lastMyTurnKey = turnKey;
-                if ('vibrate' in navigator) navigator.vibrate([100, 50, 100, 50, 300]);
-                setTimeout(() => { window.location.href = 'poker-game.html'; }, 300);
+                localStorage.setItem('lalling-vibrate-on-load', 'turn');
+                window.location.href = 'poker-game.html';
                 return;
               }
               if (turnKey !== lastMyTurnKey) lastMyTurnKey = turnKey;
             } catch {}
           }
         } catch {}
-      }, 2000);
+      }
+      setInterval(checkPoker, 2000);
+      document.addEventListener('visibilitychange', () => { if (!document.hidden) checkPoker(); });
     })();
   </script>
 </body>
