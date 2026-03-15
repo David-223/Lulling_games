@@ -663,19 +663,38 @@
       });
     })();
 
-    // ── Poker watcher: auto-redirect when a new hand starts ──
+    // ── Poker watcher: auto-redirect on new hand or player's turn ──
     (function() {
-      let lastSeen = parseInt(localStorage.getItem('lalling-poker-redirect-hand') || '-1');
+      let lastRedirectHand = parseInt(localStorage.getItem('lalling-poker-redirect-hand') || '-1');
+      let lastMyTurnKey = '';
       setInterval(async () => {
         try {
           const res = await fetch('/api/poker/state');
           if (!res.ok) return;
           const data = await res.json();
-          if (data && data.phase === 'preflop' && data.handNum > lastSeen) {
-            lastSeen = data.handNum;
+          if (!data) return;
+          // New hand started
+          if (data.phase === 'preflop' && data.handNum > lastRedirectHand) {
+            lastRedirectHand = data.handNum;
             localStorage.setItem('lalling-poker-redirect-hand', data.handNum);
             if ('vibrate' in navigator) navigator.vibrate([200, 100, 200]);
             window.location.href = 'poker-game.html';
+            return;
+          }
+          // My turn
+          if (['preflop','flop','turn','river'].includes(data.phase) && data.currentPlayerIdx >= 0) {
+            try {
+              const me = JSON.parse(localStorage.getItem('lalling-me') || 'null');
+              const myIdx = me ? data.players.findIndex(p => p.id === me.id) : -1;
+              const turnKey = data.handNum + ':' + data.currentPlayerIdx;
+              if (myIdx >= 0 && data.currentPlayerIdx === myIdx && turnKey !== lastMyTurnKey) {
+                lastMyTurnKey = turnKey;
+                if ('vibrate' in navigator) navigator.vibrate([100, 50, 100, 50, 300]);
+                window.location.href = 'poker-game.html';
+                return;
+              }
+              if (turnKey !== lastMyTurnKey) lastMyTurnKey = turnKey;
+            } catch {}
           }
         } catch {}
       }, 2000);
