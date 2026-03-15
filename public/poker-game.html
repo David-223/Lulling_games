@@ -846,7 +846,7 @@
     // ── State ──
     let game = null;
     let pollTimer = null;
-    let lastHandNum = -1;
+    let lastHandNum = parseInt(localStorage.getItem('lalling-poker-redirect-hand') || '-1');
     let wasMyTurn = false;
 
     // ── Vibration helpers ──

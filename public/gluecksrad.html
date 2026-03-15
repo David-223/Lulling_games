@@ -569,7 +569,6 @@
           // New hand started
           if (data.phase === 'preflop' && data.handNum > lastRedirectHand) {
             lastRedirectHand = data.handNum;
-            localStorage.setItem('lalling-poker-redirect-hand', data.handNum);
             if ('vibrate' in navigator) navigator.vibrate([200, 100, 200]);
             window.location.href = 'poker-game.html';
             return;
