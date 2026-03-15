@@ -857,15 +857,10 @@
       if ('vibrate' in navigator) navigator.vibrate([100, 50, 100, 50, 300]);
     }
 
-    // ── Fire vibration requested by redirect from another page ──
-    (function() {
-      const reason = localStorage.getItem('lalling-vibrate-on-load');
-      if (reason) {
-        localStorage.removeItem('lalling-vibrate-on-load');
-        if (reason === 'hand') vibrateNewHand();
-        else if (reason === 'turn') vibrateMyTurn();
-      }
-    })();
+    // ── Request notification permission (needed for alerts when away from this page) ──
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
 
     const PHASE_ORDER = ['preflop', 'flop', 'turn', 'river', 'showdown'];
     const PHASE_LABEL = { preflop: 'Pre-Flop', flop: 'Flop', turn: 'Turn', river: 'River', showdown: 'Showdown', ended: 'Beendet', setup: 'Setup' };
@@ -876,9 +871,10 @@
       showGame();
       game = g;
 
-      // ── Detect new hand → vibrate ──
+      // ── Detect new hand → vibrate + clear turn key ──
       if (lastHandNum !== -1 && g.handNum > lastHandNum) {
         vibrateNewHand();
+        localStorage.removeItem('lalling-last-turn-key');
       }
       if (g.handNum !== lastHandNum) {
         lastHandNum = g.handNum;
@@ -1011,9 +1007,14 @@
         && ['preflop','flop','turn','river'].includes(g.phase);
       actionPanel.style.display = isMyTurn ? '' : 'none';
 
-      // ── Detect my turn → vibrate once per transition ──
+      // ── Detect my turn → vibrate + notify once per transition ──
       if (isMyTurn && g.currentPlayerIdx !== prevCurrentPlayerIdx) {
         vibrateMyTurn();
+        if ('Notification' in window && Notification.permission === 'granted') {
+          try { new Notification('🃏 Dein Zug!', { body: 'Du bist an der Reihe', tag: 'poker-turn', renotify: true }); } catch {}
+        }
+        // Mark this turn so watcher pages don't re-redirect
+        localStorage.setItem('lalling-last-turn-key', g.handNum + ':' + g.currentPlayerIdx);
       }
       prevCurrentPlayerIdx = g.currentPlayerIdx;
 

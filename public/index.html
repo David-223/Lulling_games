@@ -666,7 +666,7 @@
     // ── Poker watcher: auto-redirect on new hand or player's turn ──
     (function() {
       let lastRedirectHand = parseInt(localStorage.getItem('lalling-poker-redirect-hand') || '-1');
-      let lastMyTurnKey = '';
+      let lastMyTurnKey = localStorage.getItem('lalling-last-turn-key') || '';
       async function checkPoker() {
         try {
           const res = await fetch('/api/poker/state');
@@ -676,7 +676,7 @@
           // New hand started
           if (data.phase === 'preflop' && data.handNum > lastRedirectHand) {
             lastRedirectHand = data.handNum;
-            localStorage.setItem('lalling-vibrate-on-load', 'hand');
+            localStorage.removeItem('lalling-last-turn-key');
             window.location.href = 'poker-game.html';
             return;
           }
@@ -688,7 +688,10 @@
               const turnKey = data.handNum + ':' + data.currentPlayerIdx;
               if (myIdx >= 0 && data.currentPlayerIdx === myIdx && turnKey !== lastMyTurnKey) {
                 lastMyTurnKey = turnKey;
-                localStorage.setItem('lalling-vibrate-on-load', 'turn');
+                localStorage.setItem('lalling-last-turn-key', turnKey);
+                if ('Notification' in window && Notification.permission === 'granted') {
+                  try { new Notification('🃏 Dein Zug!', { body: 'Du bist an der Reihe', tag: 'poker-turn', renotify: true }); } catch {}
+                }
                 window.location.href = 'poker-game.html';
                 return;
               }
