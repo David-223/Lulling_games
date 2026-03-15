@@ -847,7 +847,7 @@
     let game = null;
     let pollTimer = null;
     let lastHandNum = parseInt(localStorage.getItem('lalling-poker-redirect-hand') || '-1');
-    let wasMyTurn = false;
+    let prevCurrentPlayerIdx = -2; // -2 = uninitialized
 
     // ── Vibration helpers ──
     function vibrateNewHand() {
@@ -1001,11 +1001,11 @@
         && ['preflop','flop','turn','river'].includes(g.phase);
       actionPanel.style.display = isMyTurn ? '' : 'none';
 
-      // ── Detect my turn → vibrate ──
-      if (isMyTurn && !wasMyTurn) {
+      // ── Detect my turn → vibrate once per transition ──
+      if (isMyTurn && g.currentPlayerIdx !== prevCurrentPlayerIdx) {
         vibrateMyTurn();
       }
-      wasMyTurn = isMyTurn;
+      prevCurrentPlayerIdx = g.currentPlayerIdx;
 
       if (isMyTurn) {
         const me_p = g.players[myIdx];
