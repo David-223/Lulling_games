@@ -688,10 +688,6 @@
     }
 
     /* Apply animations */
-    .seat-card {
-      animation: seat-deal-in 0.3s ease both;
-    }
-
     .table-pot-val.pot-updated {
       animation: pot-pop 0.35s ease both;
     }
@@ -716,28 +712,8 @@
       animation: row-turn-pulse 1.8s ease-in-out infinite;
     }
 
-    /* Stagger seat cards */
-    .ts-slot:nth-child(1) .seat-card { animation-delay: 0.05s; }
-    .ts-slot:nth-child(2) .seat-card { animation-delay: 0.10s; }
-    .ts-slot:nth-child(3) .seat-card { animation-delay: 0.15s; }
-    .ts-slot:nth-child(4) .seat-card { animation-delay: 0.20s; }
-    .ts-slot:nth-child(5) .seat-card { animation-delay: 0.25s; }
-    .ts-slot:nth-child(6) .seat-card { animation-delay: 0.30s; }
-    .ts-slot:nth-child(7) .seat-card { animation-delay: 0.35s; }
-    .ts-slot:nth-child(8) .seat-card { animation-delay: 0.40s; }
-
-    /* Player row entrance */
-    .player-row {
-      animation: seat-deal-in 0.3s ease both;
-    }
-    .player-rows .player-row:nth-child(1) { animation-delay: 0.05s; }
-    .player-rows .player-row:nth-child(2) { animation-delay: 0.10s; }
-    .player-rows .player-row:nth-child(3) { animation-delay: 0.15s; }
-    .player-rows .player-row:nth-child(4) { animation-delay: 0.20s; }
-    .player-rows .player-row:nth-child(5) { animation-delay: 0.25s; }
-    .player-rows .player-row:nth-child(6) { animation-delay: 0.30s; }
-    .player-rows .player-row:nth-child(7) { animation-delay: 0.35s; }
-    .player-rows .player-row:nth-child(8) { animation-delay: 0.40s; }
+    /* Stagger seat cards - removed to prevent re-animation on each poll */
+    /* Player row entrance - removed to prevent blinking on each poll */
   </style>
 </head>
 <body>
