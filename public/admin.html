@@ -426,6 +426,44 @@
       <div id="admin-players-list" class="players-list-admin">
         <div class="loading">Lade Spieler</div>
       </div>
+
+      <hr class="divider" style="margin-top:2rem;" />
+
+      <!-- Poker Hände Regeln -->
+      <div class="form-card" style="margin-top:1.5rem;">
+        <button class="add-rule-toggle" onclick="toggleHandRuleForm()" style="background:none;border:none;cursor:pointer;padding:0;width:100%;text-align:left;">
+          <h2 class="section-title" style="margin:0;border:none;padding:0;">Poker Hand-Regel hinzufügen</h2>
+          <span class="collapse-icon" id="hand-rule-collapse-icon">+</span>
+        </button>
+        <div class="add-form-wrapper" id="hand-rule-form-wrapper">
+          <div style="height:1rem;"></div>
+          <div class="form-group">
+            <label for="new-hand-type">Poker Hand</label>
+            <select id="new-hand-type">
+              <option value="royal_flush">Royal Flush</option>
+              <option value="straight_flush">Straight Flush</option>
+              <option value="four_of_a_kind">Vierling (Four of a Kind)</option>
+              <option value="full_house">Full House</option>
+              <option value="flush">Flush</option>
+              <option value="straight">Straße (Straight)</option>
+              <option value="three_of_a_kind">Drilling (Three of a Kind)</option>
+              <option value="two_pair">Zwei Paare (Two Pair)</option>
+              <option value="one_pair">Ein Paar (One Pair)</option>
+              <option value="high_card">High Card</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="new-hand-rule">Regel <span class="optional-hint">– nutze {Spieler} als Platzhalter für den Gewinner</span></label>
+            <textarea id="new-hand-rule" rows="2" placeholder='z.B. {Spieler} darf 6 Schlücke verteilen'></textarea>
+          </div>
+          <button class="btn btn-primary btn-full" onclick="addHandRule()">🃏 Hand-Regel hinzufügen</button>
+        </div>
+      </div>
+
+      <h2 class="section-title">Poker Hand-Regeln</h2>
+      <div id="admin-hand-rules-list" style="display:flex;flex-direction:column;gap:0.7rem;">
+        <div class="loading">Lade Hand-Regeln</div>
+      </div>
     </main>
   </div>
 
@@ -449,6 +487,37 @@
       <div class="modal-actions">
         <button class="btn btn-secondary" style="flex:1;" onclick="closeModal()">Abbrechen</button>
         <button class="btn btn-primary" style="flex:2;" onclick="saveEdit()">Speichern</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HAND RULE EDIT MODAL -->
+  <div class="modal-overlay" id="hand-rule-edit-modal">
+    <div class="modal">
+      <h3>✏️ Hand-Regel bearbeiten</h3>
+      <input type="hidden" id="hr-edit-id" />
+      <div class="form-group">
+        <label for="hr-edit-hand">Poker Hand</label>
+        <select id="hr-edit-hand">
+          <option value="royal_flush">Royal Flush</option>
+          <option value="straight_flush">Straight Flush</option>
+          <option value="four_of_a_kind">Vierling (Four of a Kind)</option>
+          <option value="full_house">Full House</option>
+          <option value="flush">Flush</option>
+          <option value="straight">Straße (Straight)</option>
+          <option value="three_of_a_kind">Drilling (Three of a Kind)</option>
+          <option value="two_pair">Zwei Paare (Two Pair)</option>
+          <option value="one_pair">Ein Paar (One Pair)</option>
+          <option value="high_card">High Card</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="hr-edit-rule">Regel <span class="optional-hint">– {Spieler} = Gewinnername</span></label>
+        <textarea id="hr-edit-rule" rows="2"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" style="flex:1;" onclick="closeHandRuleModal()">Abbrechen</button>
+        <button class="btn btn-primary" style="flex:2;" onclick="saveHandRuleEdit()">Speichern</button>
       </div>
     </div>
   </div>
@@ -492,6 +561,7 @@
       document.getElementById('admin-screen').style.display = 'block';
       loadAdminRules();
       loadAdminPlayers();
+      loadHandRules();
     }
 
     function toRoman(n) {
@@ -977,6 +1047,125 @@
     function escHtml(str) {
       return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
+
+    // ── Hand Rules ──
+
+    const HAND_LABELS = {
+      royal_flush: 'Royal Flush', straight_flush: 'Straight Flush',
+      four_of_a_kind: 'Vierling (Four of a Kind)', full_house: 'Full House',
+      flush: 'Flush', straight: 'Straße (Straight)',
+      three_of_a_kind: 'Drilling (Three of a Kind)', two_pair: 'Zwei Paare (Two Pair)',
+      one_pair: 'Ein Paar (One Pair)', high_card: 'High Card'
+    };
+
+    let handRules = [];
+    let handRuleFormOpen = false;
+
+    function toggleHandRuleForm(forceClose) {
+      handRuleFormOpen = forceClose === false ? false : !handRuleFormOpen;
+      const wrapper = document.getElementById('hand-rule-form-wrapper');
+      const icon    = document.getElementById('hand-rule-collapse-icon');
+      wrapper.classList.toggle('open', handRuleFormOpen);
+      icon.classList.toggle('open', handRuleFormOpen);
+    }
+
+    async function loadHandRules() {
+      const list = document.getElementById('admin-hand-rules-list');
+      try {
+        const res = await fetch('/api/hand-rules');
+        handRules = await res.json();
+        renderHandRules();
+      } catch {
+        list.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><p>Fehler beim Laden.</p></div>`;
+      }
+    }
+
+    function renderHandRules() {
+      const list = document.getElementById('admin-hand-rules-list');
+      if (!handRules.length) {
+        list.innerHTML = `<div class="empty-state"><div class="empty-icon">🃏</div><p>Noch keine Hand-Regeln. Füge oben eine hinzu.</p></div>`;
+        return;
+      }
+      list.innerHTML = handRules.map(hr => `
+        <div style="background:var(--bg-card);border:1px solid var(--border-mid);border-radius:6px;padding:0.75rem 1rem;display:flex;align-items:flex-start;justify-content:space-between;gap:0.7rem;">
+          <div>
+            <div style="font-family:var(--font-ui);font-size:0.72rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold-dim);font-weight:700;margin-bottom:0.2rem">${escHtml(HAND_LABELS[hr.hand] || hr.hand)}</div>
+            <div style="font-family:var(--font-ui);font-size:0.92rem;color:var(--text)">${escHtml(hr.rule)}</div>
+          </div>
+          <div style="display:flex;gap:0.4rem;flex-shrink:0;">
+            <button class="btn btn-edit" onclick="openHandRuleEdit(${hr.id})">✏️</button>
+            <button class="btn btn-danger" onclick="deleteHandRule(${hr.id})">🗑</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function addHandRule() {
+      const hand = document.getElementById('new-hand-type').value;
+      const rule = document.getElementById('new-hand-rule').value.trim();
+      if (!rule) { showToast('Bitte Regel eingeben.', 'error'); return; }
+      const handLabel = HAND_LABELS[hand] || hand;
+      try {
+        const res = await fetch('/api/hand-rules', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...adminAuthBody(), hand, handLabel, rule })
+        });
+        if (res.ok) {
+          document.getElementById('new-hand-rule').value = '';
+          showToast('Hand-Regel hinzugefügt!', 'success');
+          toggleHandRuleForm(false);
+          loadHandRules();
+        } else {
+          const err = await res.json();
+          showToast(err.error || 'Fehler', 'error');
+        }
+      } catch { showToast('Verbindungsfehler', 'error'); }
+    }
+
+    function openHandRuleEdit(id) {
+      const hr = handRules.find(r => r.id === id);
+      if (!hr) return;
+      document.getElementById('hr-edit-id').value = id;
+      document.getElementById('hr-edit-hand').value = hr.hand;
+      document.getElementById('hr-edit-rule').value = hr.rule;
+      document.getElementById('hand-rule-edit-modal').classList.add('open');
+    }
+
+    function closeHandRuleModal() {
+      document.getElementById('hand-rule-edit-modal').classList.remove('open');
+    }
+
+    async function saveHandRuleEdit() {
+      const id   = parseInt(document.getElementById('hr-edit-id').value);
+      const hand = document.getElementById('hr-edit-hand').value;
+      const rule = document.getElementById('hr-edit-rule').value.trim();
+      if (!rule) { showToast('Bitte Regel eingeben.', 'error'); return; }
+      const handLabel = HAND_LABELS[hand] || hand;
+      try {
+        const res = await fetch(`/api/hand-rules/${id}`, {
+          method: 'PUT', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...adminAuthBody(), hand, handLabel, rule })
+        });
+        if (res.ok) { closeHandRuleModal(); showToast('Gespeichert!', 'success'); loadHandRules(); }
+        else { const err = await res.json(); showToast(err.error || 'Fehler', 'error'); }
+      } catch { showToast('Verbindungsfehler', 'error'); }
+    }
+
+    async function deleteHandRule(id) {
+      if (!confirm('Hand-Regel wirklich löschen?')) return;
+      try {
+        const res = await fetch(`/api/hand-rules/${id}`, {
+          method: 'DELETE', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(adminAuthBody())
+        });
+        if (res.ok) { showToast('Gelöscht.', 'success'); loadHandRules(); }
+        else { showToast('Fehler', 'error'); }
+      } catch { showToast('Verbindungsfehler', 'error'); }
+    }
+
+    document.getElementById('hand-rule-edit-modal').addEventListener('click', function(e) {
+      if (e.target === this) closeHandRuleModal();
+    });
   </script>
 </body>
 </html>

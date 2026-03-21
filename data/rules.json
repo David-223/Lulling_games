@@ -31,5 +31,6 @@
       "description": "Bündnisse sind erlaubt. Scheitert ein Bündnis, trinken beide Partner 2 Schlucke extra."
     }
   ],
-  "nextId": 6
+  "nextId": 6,
+  "handRules": []
 }

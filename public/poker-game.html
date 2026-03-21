@@ -862,6 +862,22 @@
         </button>
         <div id="winner-section" style="display:none">
           <div id="winner-checkboxes" style="display:flex;flex-direction:column;gap:0.35rem;margin-bottom:0.5rem"></div>
+          <div style="margin-top:0.5rem">
+            <div style="font-family:var(--font-ui);font-size:0.63rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--text-dim);font-weight:700;margin-bottom:0.3rem">Gewinnende Hand (optional)</div>
+            <select id="winning-hand-select" class="winner-select">
+              <option value="">— Keine Angabe —</option>
+              <option value="royal_flush">Royal Flush</option>
+              <option value="straight_flush">Straight Flush</option>
+              <option value="four_of_a_kind">Vierling (Four of a Kind)</option>
+              <option value="full_house">Full House</option>
+              <option value="flush">Flush</option>
+              <option value="straight">Straße (Straight)</option>
+              <option value="three_of_a_kind">Drilling (Three of a Kind)</option>
+              <option value="two_pair">Zwei Paare (Two Pair)</option>
+              <option value="one_pair">Ein Paar (One Pair)</option>
+              <option value="high_card">High Card</option>
+            </select>
+          </div>
           <button class="btn btn-primary btn-full" id="winner-btn" style="margin-top:0.5rem">
             Pot vergeben
           </button>
@@ -872,6 +888,10 @@
       <div class="hand-result" id="hand-result" style="display:none">
         <div class="winner-name" id="result-name"></div>
         <p id="result-text"></p>
+        <div id="hand-rule-box" style="display:none;margin-top:0.8rem;background:rgba(201,162,39,0.08);border:1px solid var(--gold-dim);border-radius:6px;padding:0.7rem 0.9rem;text-align:left;">
+          <div style="font-family:var(--font-ui);font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-dim);font-weight:700;margin-bottom:0.25rem" id="hand-rule-label"></div>
+          <div style="font-family:var(--font-ui);font-size:0.95rem;color:var(--gold);font-weight:600" id="hand-rule-text"></div>
+        </div>
         <div style="display:flex;gap:0.5rem;margin-top:0.8rem;justify-content:center">
           <button class="btn btn-primary" id="next-hand-btn">Nächste Hand</button>
           <button class="btn btn-secondary" id="end-game-btn">Spiel beenden</button>
@@ -1142,6 +1162,14 @@
         handResult.style.display = '';
         document.getElementById('result-name').textContent = g.winner || '?';
         document.getElementById('result-text').textContent = g.splitPot ? 'Pot aufgeteilt!' : 'Hat den Pot gewonnen!';
+        const ruleBox = document.getElementById('hand-rule-box');
+        if (g.handRuleText) {
+          document.getElementById('hand-rule-label').textContent = g.handRuleHand || g.winningHand || '';
+          document.getElementById('hand-rule-text').textContent = g.handRuleText;
+          ruleBox.style.display = '';
+        } else {
+          ruleBox.style.display = 'none';
+        }
 
       } else if (g.phase === 'showdown' && isAdmin()) {
         controlPanel.style.display = '';
@@ -1259,10 +1287,11 @@
       const checked = [...document.querySelectorAll('#winner-checkboxes input:checked')];
       if (!checked.length) { showToast('Gewinner auswählen', 'error'); return; }
       const winnerIds = checked.map(el => parseInt(el.value));
+      const winningHand = document.getElementById('winning-hand-select').value || null;
       try {
         const res = await fetch('/api/poker/winner', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...adminAuthBody(), winnerIds })
+          body: JSON.stringify({ ...adminAuthBody(), winnerIds, winningHand })
         });
         const data = await res.json();
         if (!res.ok) { showToast(data.error || 'Fehler', 'error'); return; }
