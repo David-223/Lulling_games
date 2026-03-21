@@ -641,68 +641,103 @@
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
     /* ══════════════════════════════════════
-       INSTAGRAM AWAY LOG
+       BUSTED – INSTAGRAM POPUP
     ══════════════════════════════════════ */
-    .insta-log {
+    .busted-overlay {
       display: none;
-      background: rgba(200, 0, 100, 0.07);
-      border: 1px solid rgba(220, 30, 120, 0.28);
-      border-left: 3px solid #e0186e;
-      border-radius: 6px;
-      padding: 0.55rem 0.9rem;
-      margin-bottom: 0.65rem;
-      animation: panel-slide-up 0.3s ease both;
-    }
-    .insta-log.has-events { display: block; }
-
-    .insta-log-title {
-      font-family: var(--font-ui);
-      font-size: 0.6rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: #ff5599;
-      font-weight: 700;
-      margin-bottom: 0.45rem;
-      display: flex; align-items: center; gap: 0.4rem;
-    }
-
-    .insta-events-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-    }
-
-    .insta-event {
-      display: flex;
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: rgba(0, 0, 0, 0.88);
       align-items: center;
-      gap: 0.5rem;
+      justify-content: center;
+    }
+    .busted-overlay.visible {
+      display: flex;
+      animation: busted-bg-in 0.2s ease both;
+    }
+    @keyframes busted-bg-in {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes busted-card-in {
+      from { opacity: 0; transform: scale(0.6) translateY(30px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    @keyframes busted-flash {
+      0%,100% { border-color: #e0186e; box-shadow: 0 0 60px rgba(224,24,110,0.45), inset 0 0 30px rgba(224,24,110,0.08); }
+      50%      { border-color: #ff66bb; box-shadow: 0 0 110px rgba(255,80,180,0.7), inset 0 0 50px rgba(255,80,180,0.12); }
+    }
+    @keyframes busted-icon-bounce {
+      0%,100% { transform: translateY(0) rotate(-6deg); }
+      50%      { transform: translateY(-12px) rotate(6deg); }
+    }
+    .busted-card {
+      background: linear-gradient(160deg, #0d0008 0%, #160010 100%);
+      border: 2px solid #e0186e;
+      border-radius: 16px;
+      padding: 2.2rem 2rem 1.8rem;
+      text-align: center;
+      max-width: 340px;
+      width: 92%;
+      animation:
+        busted-card-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both,
+        busted-flash 0.7s ease-in-out 0.35s 4;
+    }
+    .busted-icon {
+      font-size: 4rem;
+      display: block;
+      margin-bottom: 0.6rem;
+      animation: busted-icon-bounce 0.9s ease-in-out infinite;
+    }
+    .busted-heading {
+      font-family: var(--font-title);
+      font-size: 2.2rem;
+      font-weight: 900;
+      letter-spacing: 0.15em;
+      color: #ff2288;
+      text-shadow: 0 0 24px rgba(255,34,136,0.9), 0 0 60px rgba(255,34,136,0.4);
+      margin-bottom: 1rem;
+    }
+    .busted-name {
+      font-family: var(--font-title);
+      font-size: 1.7rem;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.55rem;
+      text-shadow: 0 2px 16px rgba(255,100,180,0.5);
+    }
+    .busted-text {
+      font-family: var(--font-ui);
+      font-size: 0.95rem;
+      color: rgba(255, 200, 225, 0.85);
+      margin-bottom: 0.35rem;
+    }
+    .busted-phase-wrap {
       font-family: var(--font-ui);
       font-size: 0.8rem;
-      color: var(--text-mid);
-      padding: 0.15rem 0;
+      color: rgba(255, 150, 190, 0.55);
+      margin-bottom: 1.6rem;
     }
-
-    .insta-event-icon { font-size: 1rem; flex-shrink: 0; }
-
-    .insta-event-name {
-      color: #ff4499;
+    .busted-phase-wrap span { color: #ff66bb; font-weight: 700; }
+    .busted-close {
+      background: linear-gradient(135deg, #c0106a, #8c0040);
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-family: var(--font-ui);
+      font-size: 0.92rem;
       font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.75rem 1.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      -webkit-tap-highlight-color: transparent;
     }
-
-    .insta-event-phase {
-      color: var(--text-dim);
-      font-size: 0.7rem;
-      margin-left: auto;
-      white-space: nowrap;
-    }
-
-    @keyframes insta-flash {
-      0%, 100% { border-color: rgba(220, 30, 120, 0.28); background: rgba(200,0,100,0.07); }
-      40%        { border-color: rgba(255, 60, 150, 0.7);  background: rgba(220,0,110,0.18); }
-    }
-    .insta-log.new-event {
-      animation: insta-flash 0.6s ease both;
-    }
+    .busted-close:hover  { background: linear-gradient(135deg, #e01888, #c00060); box-shadow: 0 0 20px rgba(220,24,100,0.5); }
+    .busted-close:active { transform: scale(0.96); }
 
     /* ══════════════════════════════════════
        POKER ANIMATIONS – CURSED ENERGY
@@ -847,12 +882,6 @@
         <div class="phase-step" data-phase="showdown">Showdown</div>
       </div>
 
-      <!-- Instagram / Away detector log -->
-      <div class="insta-log" id="insta-log">
-        <div class="insta-log-title">📱 Instagram-Polizei</div>
-        <div class="insta-events-list" id="insta-events-list"></div>
-      </div>
-
       <!-- List view (old style) -->
       <div id="list-view-wrap" style="display:none">
         <div class="list-pot-display">
@@ -976,6 +1005,18 @@
     </div>
   </main>
 
+  <!-- Busted popup overlay -->
+  <div class="busted-overlay" id="busted-overlay">
+    <div class="busted-card">
+      <span class="busted-icon">📱</span>
+      <div class="busted-heading">ERWISCHT!</div>
+      <div class="busted-name" id="busted-name"></div>
+      <div class="busted-text">hat heimlich Instagram gecheckt!</div>
+      <div class="busted-phase-wrap">während <span id="busted-phase"></span></div>
+      <button class="busted-close" id="busted-close-btn">Ok, schäm dich!</button>
+    </div>
+  </div>
+
   <div id="toast"></div>
 
   <script>
@@ -1012,6 +1053,10 @@
     let lastHandNum = parseInt(localStorage.getItem('lalling-poker-redirect-hand') || '-1');
     let prevCurrentPlayerIdx = -2; // -2 = uninitialized
 
+    // ── Busted popup state ──
+    let lastBustedHandNum = -1;
+    let shownBustedCount  = 0;
+
     // ── Vibration helpers ──
     function vibrateNewHand() {
       if ('vibrate' in navigator) navigator.vibrate([200, 100, 200]);
@@ -1044,34 +1089,13 @@
         localStorage.setItem('lalling-poker-redirect-hand', g.handNum);
       }
 
-      // ── Instagram away log ──
-      const instaLog = document.getElementById('insta-log');
-      const instaList = document.getElementById('insta-events-list');
-      const events = g.awayEvents || [];
-      // Only show events from the current hand
-      const curEvents = events.filter(e => e.handNum === g.handNum);
-      if (curEvents.length > 0) {
-        const PHASE_SHORT = { preflop: 'Pre-Flop', flop: 'Flop', turn: 'Turn', river: 'River', showdown: 'Showdown' };
-        const prevCount = parseInt(instaLog.dataset.count || '0');
-        instaLog.dataset.count = curEvents.length;
-        if (curEvents.length > prevCount) {
-          instaLog.classList.remove('new-event');
-          void instaLog.offsetWidth;
-          instaLog.classList.add('new-event');
-        }
-        instaLog.classList.add('has-events');
-        instaList.innerHTML = curEvents.slice(-8).map(e =>
-          `<div class="insta-event">
-            <span class="insta-event-icon">📱</span>
-            <span class="insta-event-name">${escHtml(e.name)}</span>
-            <span>hat heimlich Instagram gecheckt</span>
-            <span class="insta-event-phase">${PHASE_SHORT[e.phase] || e.phase}</span>
-          </div>`
-        ).join('');
-      } else {
-        instaLog.classList.remove('has-events');
-        instaLog.dataset.count = '0';
-        instaList.innerHTML = '';
+      // ── Instagram busted popup ──
+      const curEvents = (g.awayEvents || []).filter(e => e.handNum === g.handNum);
+      if (g.handNum !== lastBustedHandNum) { lastBustedHandNum = g.handNum; shownBustedCount = 0; }
+      if (curEvents.length > shownBustedCount) {
+        const newEvts = curEvents.slice(shownBustedCount);
+        shownBustedCount = curEvents.length;
+        newEvts.forEach(showBustedPopup);
       }
 
       // Phase bar
@@ -1450,23 +1474,89 @@
     document.getElementById('end-game-btn').addEventListener('click', endGame);
     document.getElementById('end-game-btn2').addEventListener('click', endGame);
 
+    // ── Busted sound (Web Audio API – no external files needed) ──
+    function playBustedSound() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const master = ctx.createGain();
+        master.gain.setValueAtTime(0.75, ctx.currentTime);
+        master.connect(ctx.destination);
+        const now = ctx.currentTime;
+        // Police siren: 3 sweeping oscillators
+        for (let i = 0; i < 3; i++) {
+          const osc = ctx.createOscillator();
+          const g   = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.connect(g); g.connect(master);
+          const t = now + i * 0.48;
+          osc.frequency.setValueAtTime(600, t);
+          osc.frequency.linearRampToValueAtTime(1100, t + 0.24);
+          osc.frequency.linearRampToValueAtTime(600,  t + 0.48);
+          g.gain.setValueAtTime(0.5, t);
+          g.gain.setValueAtTime(0.5, t + 0.42);
+          g.gain.linearRampToValueAtTime(0, t + 0.48);
+          osc.start(t); osc.stop(t + 0.5);
+        }
+        // Low "BUSTED" buzz at the end
+        const buzz = ctx.createOscillator();
+        const buzzG = ctx.createGain();
+        buzz.type = 'square';
+        buzz.frequency.setValueAtTime(160, now + 1.5);
+        buzz.connect(buzzG); buzzG.connect(master);
+        buzzG.gain.setValueAtTime(0, now + 1.5);
+        buzzG.gain.linearRampToValueAtTime(0.65, now + 1.58);
+        buzzG.gain.linearRampToValueAtTime(0, now + 2.1);
+        buzz.start(now + 1.5); buzz.stop(now + 2.2);
+        setTimeout(() => { try { ctx.close(); } catch {} }, 3000);
+      } catch (e) {}
+    }
+
+    // ── Busted popup ──
+    const PHASE_SHORT = { preflop: 'Pre-Flop', flop: 'Flop', turn: 'Turn', river: 'River', showdown: 'Showdown' };
+
+    function showBustedPopup(evt) {
+      const overlay = document.getElementById('busted-overlay');
+      document.getElementById('busted-name').textContent  = evt.name;
+      document.getElementById('busted-phase').textContent = PHASE_SHORT[evt.phase] || evt.phase;
+      overlay.classList.add('visible');
+      playBustedSound();
+      clearTimeout(overlay._t);
+      overlay._t = setTimeout(closeBustedPopup, 6000);
+    }
+
+    function closeBustedPopup() {
+      const overlay = document.getElementById('busted-overlay');
+      clearTimeout(overlay._t);
+      overlay.classList.remove('visible');
+    }
+
+    document.getElementById('busted-close-btn').addEventListener('click', closeBustedPopup);
+
     // ── Instagram / Away detector ──
     (function() {
       let lastReport = 0;
+      let wentAway = false;
       document.addEventListener('visibilitychange', () => {
-        if (!document.hidden) return;
-        if (!game) return;
-        if (!['preflop', 'flop', 'turn', 'river', 'showdown'].includes(game.phase)) return;
-        const me = getMe();
-        if (!me) return;
-        const now = Date.now();
-        if (now - lastReport < 4000) return; // client-side throttle
-        lastReport = now;
-        fetch('/api/poker/away', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ playerId: me.id })
-        }).catch(() => {});
+        if (document.hidden) {
+          // Page going to background — report if hand is active
+          if (!game) return;
+          if (!['preflop', 'flop', 'turn', 'river', 'showdown'].includes(game.phase)) return;
+          const me = getMe();
+          if (!me) return;
+          const now = Date.now();
+          if (now - lastReport < 4000) return;
+          lastReport = now;
+          wentAway = true;
+          fetch('/api/poker/away', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ playerId: me.id })
+          }).catch(() => {});
+        } else if (wentAway) {
+          // Returned from Instagram — trigger immediate poll so popup shows instantly
+          wentAway = false;
+          poll();
+        }
       });
     })();
 
