@@ -1544,6 +1544,7 @@
       window.addEventListener('beforeunload', () => { isUnloading = true; });
 
       function reportAway() {
+        if (localStorage.getItem('lalling-handy-detect') !== '1') return; // feature disabled
         if (isUnloading) return;          // reload or close — ignore
         if (!game) return;
         if (!['preflop', 'flop', 'turn', 'river', 'showdown'].includes(game.phase)) return;
