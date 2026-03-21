@@ -780,6 +780,158 @@ main {
 ::-webkit-scrollbar-thumb { background: var(--p-dim); border-radius: 2px; }
 
 /* ──────────────────────────────────────────────
+   ANIMATIONS – MODERN CURSED ENERGY
+────────────────────────────────────────────── */
+
+/* Page-level entrance */
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slide-in-left {
+  from { opacity: 0; transform: translateX(-18px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Shimmer sweep (button hover enhancement) */
+@keyframes shimmer-sweep {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+/* Floating drift for decorative elements */
+@keyframes float-drift {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33%       { transform: translateY(-5px) rotate(0.5deg); }
+  66%       { transform: translateY(3px) rotate(-0.5deg); }
+}
+
+/* Glow pulse for highlighted elements */
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 8px var(--p-bg); }
+  50%       { box-shadow: 0 0 22px var(--p-bg), 0 0 40px rgba(90,138,240,0.12); }
+}
+
+/* Border light sweep */
+@keyframes border-sweep {
+  0%   { opacity: 0; transform: scaleX(0); transform-origin: left; }
+  50%  { opacity: 1; transform: scaleX(1); transform-origin: left; }
+  51%  { transform-origin: right; }
+  100% { opacity: 0; transform: scaleX(0); transform-origin: right; }
+}
+
+/* Cursed energy flicker */
+@keyframes curse-flicker {
+  0%, 95%, 100% { opacity: 1; }
+  96%            { opacity: 0.7; }
+  97%            { opacity: 1; }
+  98%            { opacity: 0.85; }
+}
+
+/* ── Apply entrance animations ── */
+main {
+  animation: fade-in 0.4s ease both;
+}
+
+.site-header {
+  animation: fade-in 0.3s ease both;
+}
+
+.intro-card {
+  animation: slide-in-left 0.45s ease both;
+  animation-delay: 0.05s;
+}
+
+.section-title {
+  animation: fade-in-up 0.4s ease both;
+  animation-delay: 0.1s;
+}
+
+.rules-count {
+  animation: fade-in 0.4s ease both;
+  animation-delay: 0.15s;
+}
+
+/* Staggered rule cards */
+.rule-card-wrap {
+  animation: fade-in-up 0.4s ease both;
+}
+.rule-card-wrap:nth-child(1)  { animation-delay: 0.10s; }
+.rule-card-wrap:nth-child(2)  { animation-delay: 0.16s; }
+.rule-card-wrap:nth-child(3)  { animation-delay: 0.22s; }
+.rule-card-wrap:nth-child(4)  { animation-delay: 0.28s; }
+.rule-card-wrap:nth-child(5)  { animation-delay: 0.34s; }
+.rule-card-wrap:nth-child(6)  { animation-delay: 0.40s; }
+.rule-card-wrap:nth-child(7)  { animation-delay: 0.46s; }
+.rule-card-wrap:nth-child(8)  { animation-delay: 0.50s; }
+.rule-card-wrap:nth-child(n+9){ animation-delay: 0.54s; }
+
+/* ── Enhanced shimmer on primary button hover ── */
+.btn-primary {
+  background-size: 200% auto;
+  background-image: linear-gradient(
+    135deg,
+    var(--p) 0%,
+    var(--p-glow) 40%,
+    var(--p) 60%,
+    var(--p-dim) 100%
+  );
+  transition: background-position 0.5s ease, box-shadow 0.3s, border-color 0.3s;
+}
+
+.btn-primary:hover {
+  background-position: right center;
+  box-shadow: 0 0 24px var(--p-bg), 0 2px 8px rgba(0,0,0,0.4);
+}
+
+/* ── Floating logo ── */
+.site-header .logo-text {
+  animation: curse-flicker 8s ease-in-out infinite;
+}
+
+/* ── Section title sweep line ── */
+.section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--p-dim), transparent);
+  animation: border-sweep 4s ease-in-out infinite;
+  margin-left: 0.4rem;
+}
+
+/* ── Form card entrance ── */
+.form-card {
+  animation: fade-in-up 0.4s ease both;
+  animation-delay: 0.1s;
+}
+
+/* ── Login icon float ── */
+.login-icon {
+  animation: float-drift 4s ease-in-out infinite;
+}
+
+/* ── Modal slide-up ── */
+.modal-overlay.open .modal {
+  animation: fade-in-up 0.3s ease both;
+}
+
+/* ── Toast bounce-in ── */
+#toast.show {
+  animation: fade-in-up 0.3s ease both;
+}
+
+/* ── Active nav link pulse glow ── */
+.nav-links a.active {
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+
+/* ──────────────────────────────────────────────
    RESPONSIVE
 ────────────────────────────────────────────── */
 @media (max-width: 380px) {

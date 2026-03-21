@@ -639,6 +639,105 @@
     .badge-turn   { color: #4f4;             border-color: #1a441a;         background: rgba(80,220,80,0.1); animation: blink 1s infinite; }
 
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    /* ══════════════════════════════════════
+       POKER ANIMATIONS – CURSED ENERGY
+    ══════════════════════════════════════ */
+
+    /* Seat cards deal in on new hand */
+    @keyframes seat-deal-in {
+      from { opacity: 0; transform: scale(0.85) translateY(8px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    /* Pot value pop when it changes */
+    @keyframes pot-pop {
+      0%   { transform: scale(1); }
+      40%  { transform: scale(1.18); color: #e8c84a; }
+      100% { transform: scale(1); }
+    }
+
+    /* Action panel slide in from bottom */
+    @keyframes panel-slide-up {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Winner celebration */
+    @keyframes winner-glow {
+      0%, 100% { box-shadow: 0 0 8px rgba(26,107,58,0.3); }
+      50%       { box-shadow: 0 0 28px rgba(26,200,80,0.6), 0 0 60px rgba(201,162,39,0.2); }
+    }
+
+    /* Phase step highlight sweep */
+    @keyframes phase-sweep {
+      from { background-color: var(--p-bg2); }
+      to   { background-color: var(--p-bg); }
+    }
+
+    /* Poker oval table glow pulse */
+    @keyframes table-glow {
+      0%, 100% { box-shadow: 0 0 0 3px #5c2e0a, inset 0 2px 14px rgba(0,0,0,0.45), 0 8px 28px rgba(0,0,0,0.65); }
+      50%       { box-shadow: 0 0 0 3px #7a3e12, inset 0 2px 14px rgba(0,0,0,0.45), 0 8px 40px rgba(0,0,0,0.7), 0 0 40px rgba(56,134,74,0.12); }
+    }
+
+    /* Player row turn pulse (list view) */
+    @keyframes row-turn-pulse {
+      0%, 100% { box-shadow: 0 0 8px var(--p-bg); }
+      50%       { box-shadow: 0 0 20px var(--p-bg), 0 0 36px rgba(90,138,240,0.15); }
+    }
+
+    /* Apply animations */
+    .seat-card {
+      animation: seat-deal-in 0.3s ease both;
+    }
+
+    .table-pot-val.pot-updated {
+      animation: pot-pop 0.35s ease both;
+    }
+
+    .action-panel {
+      animation: panel-slide-up 0.3s ease both;
+    }
+
+    .hand-result {
+      animation: winner-glow 2s ease-in-out infinite;
+    }
+
+    .phase-step.active {
+      animation: phase-sweep 0.3s ease both;
+    }
+
+    .poker-oval {
+      animation: table-glow 4s ease-in-out infinite;
+    }
+
+    .player-row.active-turn {
+      animation: row-turn-pulse 1.8s ease-in-out infinite;
+    }
+
+    /* Stagger seat cards */
+    .ts-slot:nth-child(1) .seat-card { animation-delay: 0.05s; }
+    .ts-slot:nth-child(2) .seat-card { animation-delay: 0.10s; }
+    .ts-slot:nth-child(3) .seat-card { animation-delay: 0.15s; }
+    .ts-slot:nth-child(4) .seat-card { animation-delay: 0.20s; }
+    .ts-slot:nth-child(5) .seat-card { animation-delay: 0.25s; }
+    .ts-slot:nth-child(6) .seat-card { animation-delay: 0.30s; }
+    .ts-slot:nth-child(7) .seat-card { animation-delay: 0.35s; }
+    .ts-slot:nth-child(8) .seat-card { animation-delay: 0.40s; }
+
+    /* Player row entrance */
+    .player-row {
+      animation: seat-deal-in 0.3s ease both;
+    }
+    .player-rows .player-row:nth-child(1) { animation-delay: 0.05s; }
+    .player-rows .player-row:nth-child(2) { animation-delay: 0.10s; }
+    .player-rows .player-row:nth-child(3) { animation-delay: 0.15s; }
+    .player-rows .player-row:nth-child(4) { animation-delay: 0.20s; }
+    .player-rows .player-row:nth-child(5) { animation-delay: 0.25s; }
+    .player-rows .player-row:nth-child(6) { animation-delay: 0.30s; }
+    .player-rows .player-row:nth-child(7) { animation-delay: 0.35s; }
+    .player-rows .player-row:nth-child(8) { animation-delay: 0.40s; }
   </style>
 </head>
 <body>
@@ -887,8 +986,15 @@
         el.className = 'phase-step' + (ph === g.phase ? ' active' : idx < cur ? ' done' : '');
       });
 
-      // Pot — both views
-      document.getElementById('pot-value').textContent = g.pot;
+      // Pot — both views (animate on change)
+      const potEl = document.getElementById('pot-value');
+      if (potEl.textContent !== String(g.pot)) {
+        potEl.classList.remove('pot-updated');
+        void potEl.offsetWidth; // reflow to restart animation
+        potEl.classList.add('pot-updated');
+        setTimeout(() => potEl.classList.remove('pot-updated'), 400);
+      }
+      potEl.textContent = g.pot;
       document.getElementById('list-pot-value').innerHTML = `${g.pot} <span style="font-size:1rem;color:var(--gold-dim)">Pts</span>`;
 
       // Current bet info inside table oval
