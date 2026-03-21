@@ -1536,28 +1536,39 @@
     (function() {
       let lastReport = 0;
       let wentAway = false;
+
+      function reportAway() {
+        if (!game) return;
+        if (!['preflop', 'flop', 'turn', 'river', 'showdown'].includes(game.phase)) return;
+        const me = getMe();
+        if (!me) return;
+        const now = Date.now();
+        if (now - lastReport < 4000) return;
+        lastReport = now;
+        wentAway = true;
+        const body = JSON.stringify({ playerId: me.id });
+        // sendBeacon survives app-switching on mobile (iOS/Android freeze JS on backgrounding)
+        if (typeof navigator.sendBeacon === 'function') {
+          navigator.sendBeacon('/api/poker/away', new Blob([body], { type: 'application/json' }));
+        } else {
+          fetch('/api/poker/away', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            keepalive: true, body
+          }).catch(() => {});
+        }
+      }
+
       document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
-          // Page going to background — report if hand is active
-          if (!game) return;
-          if (!['preflop', 'flop', 'turn', 'river', 'showdown'].includes(game.phase)) return;
-          const me = getMe();
-          if (!me) return;
-          const now = Date.now();
-          if (now - lastReport < 4000) return;
-          lastReport = now;
-          wentAway = true;
-          fetch('/api/poker/away', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ playerId: me.id })
-          }).catch(() => {});
+          reportAway();
         } else if (wentAway) {
-          // Returned from Instagram — trigger immediate poll so popup shows instantly
           wentAway = false;
-          poll();
+          poll(); // immediate poll so popup shows the moment they return
         }
       });
+
+      // pagehide fires on some mobile browsers when switching apps — belt-and-suspenders
+      window.addEventListener('pagehide', reportAway);
     })();
 
     // ── Polling ──
