@@ -1534,10 +1534,17 @@
 
     // ── Instagram / Away detector ──
     (function() {
-      let lastReport = 0;
-      let wentAway = false;
+      let lastReport  = 0;
+      let wentAway    = false;
+      let isUnloading = false;
+
+      // beforeunload fires BEFORE visibilitychange on reload / tab-close / navigation.
+      // It does NOT fire on a plain app-switch (home button / switching to Instagram).
+      // We use this to tell the two cases apart.
+      window.addEventListener('beforeunload', () => { isUnloading = true; });
 
       function reportAway() {
+        if (isUnloading) return;          // reload or close — ignore
         if (!game) return;
         if (!['preflop', 'flop', 'turn', 'river', 'showdown'].includes(game.phase)) return;
         const me = getMe();
@@ -1547,7 +1554,7 @@
         lastReport = now;
         wentAway = true;
         const body = JSON.stringify({ playerId: me.id });
-        // sendBeacon survives app-switching on mobile (iOS/Android freeze JS on backgrounding)
+        // sendBeacon survives the JS freeze that happens right after app-switching on iOS/Android
         if (typeof navigator.sendBeacon === 'function') {
           navigator.sendBeacon('/api/poker/away', new Blob([body], { type: 'application/json' }));
         } else {
@@ -1561,14 +1568,14 @@
       document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
           reportAway();
-        } else if (wentAway) {
-          wentAway = false;
-          poll(); // immediate poll so popup shows the moment they return
+        } else {
+          isUnloading = false; // page came back — reset flag
+          if (wentAway) {
+            wentAway = false;
+            poll(); // immediate poll so popup shows the moment they return
+          }
         }
       });
-
-      // pagehide fires on some mobile browsers when switching apps — belt-and-suspenders
-      window.addEventListener('pagehide', reportAway);
     })();
 
     // ── Polling ──
