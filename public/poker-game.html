@@ -641,6 +641,70 @@
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
     /* ══════════════════════════════════════
+       INSTAGRAM AWAY LOG
+    ══════════════════════════════════════ */
+    .insta-log {
+      display: none;
+      background: rgba(200, 0, 100, 0.07);
+      border: 1px solid rgba(220, 30, 120, 0.28);
+      border-left: 3px solid #e0186e;
+      border-radius: 6px;
+      padding: 0.55rem 0.9rem;
+      margin-bottom: 0.65rem;
+      animation: panel-slide-up 0.3s ease both;
+    }
+    .insta-log.has-events { display: block; }
+
+    .insta-log-title {
+      font-family: var(--font-ui);
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #ff5599;
+      font-weight: 700;
+      margin-bottom: 0.45rem;
+      display: flex; align-items: center; gap: 0.4rem;
+    }
+
+    .insta-events-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .insta-event {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-ui);
+      font-size: 0.8rem;
+      color: var(--text-mid);
+      padding: 0.15rem 0;
+    }
+
+    .insta-event-icon { font-size: 1rem; flex-shrink: 0; }
+
+    .insta-event-name {
+      color: #ff4499;
+      font-weight: 700;
+    }
+
+    .insta-event-phase {
+      color: var(--text-dim);
+      font-size: 0.7rem;
+      margin-left: auto;
+      white-space: nowrap;
+    }
+
+    @keyframes insta-flash {
+      0%, 100% { border-color: rgba(220, 30, 120, 0.28); background: rgba(200,0,100,0.07); }
+      40%        { border-color: rgba(255, 60, 150, 0.7);  background: rgba(220,0,110,0.18); }
+    }
+    .insta-log.new-event {
+      animation: insta-flash 0.6s ease both;
+    }
+
+    /* ══════════════════════════════════════
        POKER ANIMATIONS – CURSED ENERGY
     ══════════════════════════════════════ */
 
@@ -781,6 +845,12 @@
         <div class="phase-step" data-phase="turn">Turn</div>
         <div class="phase-step" data-phase="river">River</div>
         <div class="phase-step" data-phase="showdown">Showdown</div>
+      </div>
+
+      <!-- Instagram / Away detector log -->
+      <div class="insta-log" id="insta-log">
+        <div class="insta-log-title">📱 Instagram-Polizei</div>
+        <div class="insta-events-list" id="insta-events-list"></div>
       </div>
 
       <!-- List view (old style) -->
@@ -972,6 +1042,36 @@
       if (g.handNum !== lastHandNum) {
         lastHandNum = g.handNum;
         localStorage.setItem('lalling-poker-redirect-hand', g.handNum);
+      }
+
+      // ── Instagram away log ──
+      const instaLog = document.getElementById('insta-log');
+      const instaList = document.getElementById('insta-events-list');
+      const events = g.awayEvents || [];
+      // Only show events from the current hand
+      const curEvents = events.filter(e => e.handNum === g.handNum);
+      if (curEvents.length > 0) {
+        const PHASE_SHORT = { preflop: 'Pre-Flop', flop: 'Flop', turn: 'Turn', river: 'River', showdown: 'Showdown' };
+        const prevCount = parseInt(instaLog.dataset.count || '0');
+        instaLog.dataset.count = curEvents.length;
+        if (curEvents.length > prevCount) {
+          instaLog.classList.remove('new-event');
+          void instaLog.offsetWidth;
+          instaLog.classList.add('new-event');
+        }
+        instaLog.classList.add('has-events');
+        instaList.innerHTML = curEvents.slice(-8).map(e =>
+          `<div class="insta-event">
+            <span class="insta-event-icon">📱</span>
+            <span class="insta-event-name">${escHtml(e.name)}</span>
+            <span>hat heimlich Instagram gecheckt</span>
+            <span class="insta-event-phase">${PHASE_SHORT[e.phase] || e.phase}</span>
+          </div>`
+        ).join('');
+      } else {
+        instaLog.classList.remove('has-events');
+        instaLog.dataset.count = '0';
+        instaList.innerHTML = '';
       }
 
       // Phase bar
@@ -1349,6 +1449,26 @@
     }
     document.getElementById('end-game-btn').addEventListener('click', endGame);
     document.getElementById('end-game-btn2').addEventListener('click', endGame);
+
+    // ── Instagram / Away detector ──
+    (function() {
+      let lastReport = 0;
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) return;
+        if (!game) return;
+        if (!['preflop', 'flop', 'turn', 'river', 'showdown'].includes(game.phase)) return;
+        const me = getMe();
+        if (!me) return;
+        const now = Date.now();
+        if (now - lastReport < 4000) return; // client-side throttle
+        lastReport = now;
+        fetch('/api/poker/away', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ playerId: me.id })
+        }).catch(() => {});
+      });
+    })();
 
     // ── Polling ──
     async function poll() {

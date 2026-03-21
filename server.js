@@ -253,6 +253,7 @@ app.post('/api/poker/new', (req, res) => {
     blindSmall: Math.max(1, parseInt(blindSmall) || 5),
     blindBig: Math.max(2, parseInt(blindBig) || 10),
     handNum: 0, winner: null, winnerId: null,
+    awayEvents: [],
   };
   res.json(pokerGame);
 });
@@ -268,6 +269,7 @@ app.post('/api/poker/deal', (req, res) => {
   }
   g.handNum++;
   g.pot = 0; g.currentBet = 0; g.winner = null; g.winnerId = null; g.phase = 'preflop';
+  g.awayEvents = [];
   g.players.forEach(p => { p.roundBet = 0; p.totalBet = 0; p.folded = p.chips <= 0; p.allIn = false; });
 
   let sbIdx = (g.dealerIdx + 1) % n;
@@ -395,6 +397,27 @@ app.post('/api/poker/end', (req, res) => {
     writePlayers(pdata);
   }
   pokerGame = null;
+  res.json({ success: true });
+});
+
+// ── Poker: Away-from-table event (Instagram detector) ──
+app.post('/api/poker/away', (req, res) => {
+  if (!pokerGame) return res.status(400).json({ error: 'Kein Spiel' });
+  const g = pokerGame;
+  if (!['preflop', 'flop', 'turn', 'river', 'showdown'].includes(g.phase))
+    return res.status(400).json({ error: 'Keine aktive Hand' });
+  const { playerId } = req.body;
+  if (!playerId) return res.status(400).json({ error: 'Spieler erforderlich' });
+  const player = g.players.find(p => p.id === parseInt(playerId));
+  if (!player) return res.status(404).json({ error: 'Spieler nicht gefunden' });
+  if (!g.awayEvents) g.awayEvents = [];
+  // Throttle: max one entry per player per 4 seconds
+  const now = Date.now();
+  const last = g.awayEvents.filter(e => e.playerId === player.id).pop();
+  if (last && now - last.at < 4000) return res.json({ success: true, skipped: true });
+  g.awayEvents.push({ playerId: player.id, name: player.name, handNum: g.handNum, phase: g.phase, at: now });
+  // Keep log to last 20 entries total
+  if (g.awayEvents.length > 20) g.awayEvents.shift();
   res.json({ success: true });
 });
 
