@@ -204,53 +204,6 @@ app.post('/api/auth', (req, res) => {
   }
 });
 
-// ── Hand Rules API ──
-
-app.get('/api/hand-rules', (req, res) => {
-  const data = readData();
-  res.json(data.handRules || []);
-});
-
-app.post('/api/hand-rules', (req, res) => {
-  if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
-  const { hand, handLabel, rule } = req.body;
-  if (!hand || !rule) return res.status(400).json({ error: 'Hand und Regel erforderlich' });
-  const data = readData();
-  if (!data.handRules) data.handRules = [];
-  const entry = { id: data.nextId, hand, handLabel: handLabel || hand, rule: rule.trim() };
-  data.handRules.push(entry);
-  data.nextId += 1;
-  writeData(data);
-  res.status(201).json(entry);
-});
-
-app.put('/api/hand-rules/:id', (req, res) => {
-  if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
-  const id = parseInt(req.params.id);
-  const { hand, handLabel, rule } = req.body;
-  const data = readData();
-  if (!data.handRules) data.handRules = [];
-  const idx = data.handRules.findIndex(r => r.id === id);
-  if (idx === -1) return res.status(404).json({ error: 'Nicht gefunden' });
-  if (hand) data.handRules[idx].hand = hand;
-  if (handLabel) data.handRules[idx].handLabel = handLabel;
-  if (rule) data.handRules[idx].rule = rule.trim();
-  writeData(data);
-  res.json(data.handRules[idx]);
-});
-
-app.delete('/api/hand-rules/:id', (req, res) => {
-  if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
-  const id = parseInt(req.params.id);
-  const data = readData();
-  if (!data.handRules) data.handRules = [];
-  const idx = data.handRules.findIndex(r => r.id === id);
-  if (idx === -1) return res.status(404).json({ error: 'Nicht gefunden' });
-  data.handRules.splice(idx, 1);
-  writeData(data);
-  res.json({ success: true });
-});
-
 // ── Poker ──
 
 let pokerGame = null;
@@ -427,19 +380,7 @@ app.post('/api/poker/winner', (req, res) => {
   g.winnerId = winners[0].id;
   g.splitPot = winners.length > 1;
   g.pot = 0; g.phase = 'ended';
-  // Resolve hand rule
-  const { winningHand } = req.body;
-  g.winningHand = winningHand || null;
-  g.handRuleText = null;
-  g.handRuleHand = null;
-  if (winningHand) {
-    const rdata2 = readData();
-    const hr = (rdata2.handRules || []).find(r => r.hand === winningHand);
-    if (hr) {
-      g.handRuleText = hr.rule.replace(/\{Spieler\}/gi, g.winner);
-      g.handRuleHand = hr.handLabel || winningHand;
-    }
-  }
+  g.winningHand = req.body.winningHand || null;
   const pdata = readPlayers();
   g.players.forEach(gp => { const pp = pdata.players.find(p => p.id === gp.id); if (pp) pp.points = gp.chips; });
   writePlayers(pdata);

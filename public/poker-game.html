@@ -1163,9 +1163,33 @@
         document.getElementById('result-name').textContent = g.winner || '?';
         document.getElementById('result-text').textContent = g.splitPot ? 'Pot aufgeteilt!' : 'Hat den Pot gewonnen!';
         const ruleBox = document.getElementById('hand-rule-box');
-        if (g.handRuleText) {
-          document.getElementById('hand-rule-label').textContent = g.handRuleHand || g.winningHand || '';
-          document.getElementById('hand-rule-text').textContent = g.handRuleText;
+        if (g.winningHand) {
+          const savedHandRules = JSON.parse(localStorage.getItem('poker-hand-rules') || '{}');
+          const HAND_DEFS = {
+            royal_flush: 'Alle anderen trinken 5 Schlucke. Du bist unantastbar.',
+            straight_flush: 'Verteile 8 Schlucke frei auf beliebige Spieler.',
+            four_of_a_kind: 'Verteile 6 Schlucke frei. Du darfst eine Regel für diese Runde bestimmen.',
+            full_house: 'Verteile 4 Schlucke und trink selbst 1 Schluck.',
+            flush: 'Verteile 3 Schlucke frei.',
+            straight: 'Spieler links und rechts trinken je 2 Schlucke.',
+            three_of_a_kind: 'Wähle einen Spieler aus – dieser trinkt 3 Schlucke.',
+            two_pair: 'Du trinkst 2 Schlucke.',
+            one_pair: 'Du trinkst 1 Schluck.',
+            high_card: 'Du trinkst 2 Schlucke. Pech gehabt.'
+          };
+          const HAND_NAMES = {
+            royal_flush: 'Royaler Flush', straight_flush: 'Straight Flush',
+            four_of_a_kind: 'Vierling', full_house: 'Full House',
+            flush: 'Flush', straight: 'Straße',
+            three_of_a_kind: 'Drilling', two_pair: 'Zwei Paare',
+            one_pair: 'Ein Paar', high_card: 'Höchste Karte'
+          };
+          const ruleText = savedHandRules[g.winningHand] !== undefined
+            ? savedHandRules[g.winningHand]
+            : (HAND_DEFS[g.winningHand] || '');
+          const resolved = ruleText.replace(/\{Spieler\}/gi, g.winner || '?');
+          document.getElementById('hand-rule-label').textContent = HAND_NAMES[g.winningHand] || g.winningHand;
+          document.getElementById('hand-rule-text').textContent = resolved;
           ruleBox.style.display = '';
         } else {
           ruleBox.style.display = 'none';
