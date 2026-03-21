@@ -151,6 +151,11 @@ app.post('/api/rules/buy', (req, res) => {
   }
   pdata.players[pidx].points -= 100;
   writePlayers(pdata);
+  // Keep in-memory poker chips in sync so the deduction isn't overwritten at showdown
+  if (pokerGame) {
+    const gp = pokerGame.players.find(p => p.id === parseInt(playerId));
+    if (gp) gp.chips = Math.max(0, gp.chips - 100);
+  }
   const rdata = readData();
   const newRule = { id: rdata.nextId, points: null, title: title.trim(), description: description.trim() };
   rdata.rules.push(newRule);

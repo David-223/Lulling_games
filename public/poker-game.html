@@ -1304,7 +1304,7 @@
         if (res.status === 404) { stopPolling(); showNoGame(); return; }
         const data = await res.json();
         if (!data || data.phase === 'setup') { stopPolling(); showNoGame(); return; }
-        if (data.phase === 'ended') return;
+        if (data.phase === 'ended') { render(data); stopPolling(); return; }
         render(data);
         // Auto-advance when a betting round is finished
         if (data.toAct.length === 0 && data.currentPlayerIdx === -1
