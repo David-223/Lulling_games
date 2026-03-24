@@ -999,6 +999,19 @@ main {
 /* ──────────────────────────────────────────────
    RESPONSIVE
 ────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .nav-links {
+    gap: 0.25rem;
+    flex-wrap: wrap;
+  }
+  .nav-links a,
+  .nav-dropdown-btn {
+    padding: 0.3rem 0.55rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+  }
+}
+
 @media (max-width: 380px) {
   .site-header .logo-text { font-size: 1.3rem; }
   .rule-title { font-size: 0.97rem; }
