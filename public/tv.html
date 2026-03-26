@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lalling Games – TV</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      background: #080010;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+
+    /* ── Background image ── */
+    #tv-bg {
+      position: fixed;
+      inset: 0;
+      background: url('tv-bg.jpg') center/cover no-repeat;
+      z-index: 0;
+    }
+
+    /* ── Auth overlay ── */
+    #auth-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 0, 20, 0.94);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    .auth-box {
+      background: rgba(15, 0, 40, 0.97);
+      border: 2px solid #7a0000;
+      border-radius: 14px;
+      padding: 2.5rem 3rem;
+      text-align: center;
+      min-width: 320px;
+      box-shadow: 0 0 40px rgba(180, 20, 20, 0.3);
+    }
+
+    .auth-box h2 {
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: #e04040;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 0.3rem;
+    }
+
+    .auth-box p {
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 0.78rem;
+      letter-spacing: 0.1em;
+      margin-bottom: 1.8rem;
+    }
+
+    .auth-box input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(139, 0, 0, 0.55);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 1rem;
+      margin-bottom: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .auth-box input:focus { border-color: #d03030; }
+
+    .auth-box button {
+      width: 100%;
+      padding: 0.75rem;
+      background: linear-gradient(135deg, #7a0000, #b00000);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      transition: opacity 0.2s;
+    }
+    .auth-box button:hover { opacity: 0.85; }
+
+    .auth-error {
+      color: #ff5555;
+      font-size: 0.8rem;
+      margin-top: 0.6rem;
+      display: none;
+    }
+
+    /* ── Main TV display ── */
+    #tv-display {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      display: none;
+    }
+
+    /* ════════════════════════════════════════
+       IDLE MODE – player leaderboard
+    ════════════════════════════════════════ */
+    #idle-overlay {
+      position: absolute;
+      left: 2%;
+      top: 6%;
+      width: 46%;
+      height: 88%;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      padding: 1.5rem 1.8rem;
+    }
+
+    .tv-title {
+      font-size: clamp(1.4rem, 3.2vw, 2.6rem);
+      font-weight: 900;
+      color: #fff;
+      text-shadow:
+        0 0 18px rgba(200, 40, 40, 0.9),
+        0 0 40px rgba(200, 40, 40, 0.4),
+        0 2px 6px rgba(0, 0, 0, 0.95);
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      margin-bottom: 0.2rem;
+    }
+
+    .tv-subtitle {
+      font-size: clamp(0.55rem, 1.3vw, 0.85rem);
+      color: rgba(255, 130, 130, 0.65);
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      margin-bottom: 1.8rem;
+    }
+
+    .player-list-tv {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .player-row-tv {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 0.55rem 1rem;
+      background: rgba(8, 0, 25, 0.75);
+      border: 1px solid rgba(120, 0, 0, 0.45);
+      border-radius: 9px;
+      backdrop-filter: blur(6px);
+      transition: background 0.3s;
+    }
+
+    .player-row-tv.top-player {
+      border-color: rgba(180, 40, 40, 0.65);
+      background: rgba(15, 0, 40, 0.82);
+    }
+
+    .player-rank-tv {
+      font-size: clamp(0.75rem, 1.8vw, 1rem);
+      font-weight: 700;
+      color: rgba(200, 100, 100, 0.65);
+      min-width: 1.8rem;
+      text-align: center;
+    }
+
+    .top-player .player-rank-tv {
+      color: #e04040;
+    }
+
+    .player-name-tv {
+      flex: 1;
+      font-size: clamp(0.9rem, 2.2vw, 1.35rem);
+      font-weight: 600;
+      color: #fff;
+      text-shadow: 0 0 6px rgba(180, 40, 40, 0.4);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .player-points-tv {
+      font-size: clamp(1rem, 2.4vw, 1.55rem);
+      font-weight: 900;
+      color: #e04040;
+      text-shadow: 0 0 10px rgba(200, 40, 40, 0.7);
+      min-width: 3.5rem;
+      text-align: right;
+    }
+
+    .player-eliminated-tv .player-name-tv  { color: rgba(255,255,255,0.25); }
+    .player-eliminated-tv .player-points-tv { color: rgba(220,60,60,0.25); text-shadow: none; }
+    .player-eliminated-tv .player-rank-tv  { color: rgba(180,80,80,0.25); }
+
+    /* ════════════════════════════════════════
+       POKER MODE
+    ════════════════════════════════════════ */
+    #poker-overlay {
+      position: absolute;
+      inset: 0;
+      display: none;
+    }
+
+    /*
+      Red window position in the image (1456×816 reference):
+      roughly x: 58%–79%, y: 12%–71%
+      We place an overlay div in that area for the pot display.
+      The rectangular pane section starts below the arch at ~27% top.
+    */
+    #pot-window {
+      position: absolute;
+      left: 59.5%;
+      top: 27%;
+      width: 19%;
+      height: 44%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      /* subtle glow to blend with the red window */
+      filter: drop-shadow(0 0 12px rgba(255, 80, 20, 0.6));
+    }
+
+    .pot-label {
+      font-size: clamp(0.55rem, 1.5vw, 0.9rem);
+      color: rgba(255, 210, 170, 0.75);
+      text-transform: uppercase;
+      letter-spacing: 0.25em;
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+      text-shadow: 0 0 8px rgba(255, 120, 60, 0.9);
+    }
+
+    .pot-amount {
+      font-size: clamp(2rem, 6.5vw, 5rem);
+      font-weight: 900;
+      color: #fff;
+      line-height: 1;
+      text-shadow:
+        0 0 20px rgba(255, 90, 20, 1),
+        0 0 50px rgba(255, 90, 20, 0.7),
+        0 0 80px rgba(255, 60, 10, 0.4),
+        0 3px 6px rgba(0, 0, 0, 0.95);
+      transition: transform 0.15s ease;
+    }
+
+    .pot-amount.pop {
+      transform: scale(1.15);
+    }
+
+    .pot-chips-label {
+      font-size: clamp(0.4rem, 0.9vw, 0.6rem);
+      color: rgba(255, 180, 120, 0.55);
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      margin-top: 0.35rem;
+    }
+
+    /* Current player – displayed at bottom center */
+    #current-player-banner {
+      position: absolute;
+      bottom: 7%;
+      left: 0;
+      right: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .turn-label {
+      font-size: clamp(0.65rem, 1.6vw, 1rem);
+      color: rgba(255, 140, 140, 0.75);
+      text-transform: uppercase;
+      letter-spacing: 0.25em;
+      text-shadow: 0 0 8px rgba(200, 40, 40, 0.5);
+    }
+
+    .turn-player-name {
+      font-size: clamp(2.2rem, 7vw, 5.5rem);
+      font-weight: 900;
+      color: #fff;
+      text-shadow:
+        0 0 30px rgba(200, 40, 40, 0.95),
+        0 0 60px rgba(200, 40, 40, 0.45),
+        0 0 100px rgba(200, 40, 40, 0.2),
+        0 4px 10px rgba(0, 0, 0, 0.95);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      animation: pulse-name 2.2s ease-in-out infinite;
+      max-width: 90vw;
+      text-align: center;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    @keyframes pulse-name {
+      0%,  100% {
+        opacity: 1;
+        text-shadow:
+          0 0 30px rgba(200,40,40,0.95),
+          0 0 60px rgba(200,40,40,0.45),
+          0 4px 10px rgba(0,0,0,0.95);
+      }
+      50% {
+        opacity: 0.88;
+        text-shadow:
+          0 0 50px rgba(220,40,40,1),
+          0 0 100px rgba(200,40,40,0.65),
+          0 0 140px rgba(200,40,40,0.25),
+          0 4px 10px rgba(0,0,0,0.95);
+      }
+    }
+
+    .poker-phase-badge {
+      font-size: clamp(0.55rem, 1.3vw, 0.8rem);
+      color: rgba(255, 195, 175, 0.65);
+      text-transform: uppercase;
+      letter-spacing: 0.28em;
+      background: rgba(8, 0, 25, 0.65);
+      padding: 0.22rem 1rem;
+      border-radius: 999px;
+      border: 1px solid rgba(120, 0, 0, 0.45);
+      backdrop-filter: blur(4px);
+    }
+
+    /* Showdown special */
+    .showdown-text {
+      animation: pulse-name 1.4s ease-in-out infinite;
+      color: #ffaa80 !important;
+      text-shadow:
+        0 0 30px rgba(255, 120, 50, 0.95),
+        0 0 60px rgba(255, 100, 30, 0.5),
+        0 4px 10px rgba(0,0,0,0.95) !important;
+    }
+  </style>
+</head>
+<body>
+
+<div id="tv-bg"></div>
+
+<!-- ══════════════════════════════════
+     AUTH OVERLAY
+══════════════════════════════════ -->
+<div id="auth-overlay">
+  <div class="auth-box">
+    <h2>📺 TV-Ansicht</h2>
+    <p>Nur für Admins · Admin only</p>
+    <input
+      type="password"
+      id="auth-input"
+      placeholder="Admin-Passwort"
+      autocomplete="current-password"
+      autocapitalize="none"
+    />
+    <button onclick="doAuth()">Zugang</button>
+    <div class="auth-error" id="auth-error">Falsches Passwort</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     TV DISPLAY
+══════════════════════════════════ -->
+<div id="tv-display">
+
+  <!-- IDLE: All players + points -->
+  <div id="idle-overlay">
+    <div class="tv-title">Lalling Games</div>
+    <div class="tv-subtitle">Das Culling Spiel · Das Trinkspiel</div>
+    <div class="player-list-tv" id="player-list-tv"></div>
+  </div>
+
+  <!-- POKER: Pot in red window + current player -->
+  <div id="poker-overlay">
+
+    <!-- Pot overlaid on the red window in the artwork -->
+    <div id="pot-window">
+      <div class="pot-label">Pot</div>
+      <div class="pot-amount" id="pot-amount">0</div>
+      <div class="pot-chips-label">Chips</div>
+    </div>
+
+    <!-- Current player at the bottom -->
+    <div id="current-player-banner">
+      <div class="turn-label" id="turn-label">Am Zug</div>
+      <div class="turn-player-name" id="turn-player-name">–</div>
+      <div class="poker-phase-badge" id="poker-phase-badge">–</div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  const PHASE_LABELS = {
+    preflop:  'Pre-Flop',
+    flop:     'Flop',
+    turn:     'Turn',
+    river:    'River',
+    showdown: 'Showdown',
+    ended:    'Hand beendet',
+    setup:    'Vorbereitung',
+  };
+
+  let pollTimer = null;
+  let lastPot   = null;
+
+  // ── Restore session auth ──
+  const savedPw = sessionStorage.getItem('tv-admin-pw');
+  if (savedPw) showTV();
+
+  document.getElementById('auth-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doAuth();
+  });
+
+  async function doAuth() {
+    const pw = document.getElementById('auth-input').value.trim();
+    if (!pw) return;
+    try {
+      const res = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pw }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) {
+          sessionStorage.setItem('tv-admin-pw', pw);
+          document.getElementById('auth-error').style.display = 'none';
+          showTV();
+          return;
+        }
+      }
+    } catch (_) {}
+    document.getElementById('auth-error').style.display = 'block';
+  }
+
+  function showTV() {
+    document.getElementById('auth-overlay').style.display = 'none';
+    document.getElementById('tv-display').style.display   = 'block';
+    startPolling();
+  }
+
+  function startPolling() {
+    poll();
+    pollTimer = setInterval(poll, 2000);
+  }
+
+  async function poll() {
+    try {
+      const [playersRes, pokerRes] = await Promise.all([
+        fetch('/api/players'),
+        fetch('/api/poker/state'),
+      ]);
+      const players = await playersRes.json();
+      const poker   = pokerRes.ok ? await pokerRes.json() : null;
+      render(players, poker);
+    } catch (_) { /* silently retry */ }
+  }
+
+  // ── Main render ──
+  function render(players, poker) {
+    const activePhases = ['preflop', 'flop', 'turn', 'river', 'showdown'];
+    const hasPoker = poker && activePhases.includes(poker.phase);
+
+    document.getElementById('idle-overlay').style.display  = hasPoker ? 'none'  : 'flex';
+    document.getElementById('poker-overlay').style.display = hasPoker ? 'block' : 'none';
+
+    if (hasPoker) renderPoker(poker);
+    else          renderIdle(players);
+  }
+
+  // ── Idle: leaderboard ──
+  function renderIdle(players) {
+    const sorted = [...players].sort((a, b) => b.points - a.points);
+    const list   = document.getElementById('player-list-tv');
+    list.innerHTML = sorted.map((p, i) => `
+      <div class="player-row-tv ${p.points === 0 ? 'player-eliminated-tv' : ''} ${i === 0 && p.points > 0 ? 'top-player' : ''}">
+        <div class="player-rank-tv">#${i + 1}</div>
+        <div class="player-name-tv">${escHtml(p.name)}</div>
+        <div class="player-points-tv">${p.points}</div>
+      </div>
+    `).join('');
+  }
+
+  // ── Poker: pot + current player ──
+  function renderPoker(poker) {
+    const pot = poker.pot ?? 0;
+
+    // Animate pot if changed
+    const potEl = document.getElementById('pot-amount');
+    if (pot !== lastPot) {
+      potEl.textContent = pot;
+      potEl.classList.remove('pop');
+      void potEl.offsetWidth; // reflow
+      potEl.classList.add('pop');
+      setTimeout(() => potEl.classList.remove('pop'), 200);
+      lastPot = pot;
+    }
+
+    const phase         = poker.phase;
+    const currentPlayer = poker.players?.[poker.currentPlayerIdx];
+    const nameEl        = document.getElementById('turn-player-name');
+    const labelEl       = document.getElementById('turn-label');
+    const bannerEl      = document.getElementById('current-player-banner');
+    const badgeEl       = document.getElementById('poker-phase-badge');
+
+    badgeEl.textContent = PHASE_LABELS[phase] || phase;
+
+    if (phase === 'showdown') {
+      labelEl.textContent = '⚔ Showdown ⚔';
+      nameEl.textContent  = 'Showdown';
+      nameEl.classList.add('showdown-text');
+      bannerEl.style.display = 'flex';
+    } else if (currentPlayer) {
+      labelEl.textContent = 'Am Zug';
+      nameEl.textContent  = currentPlayer.name;
+      nameEl.classList.remove('showdown-text');
+      bannerEl.style.display = 'flex';
+    } else {
+      bannerEl.style.display = 'none';
+    }
+  }
+
+  function escHtml(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+</script>
+</body>
+</html>
