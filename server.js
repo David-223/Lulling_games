@@ -421,6 +421,30 @@ app.post('/api/poker/away', (req, res) => {
   res.json({ success: true });
 });
 
+// ── Wheel entries ──
+
+const WHEEL_FILE = path.join(__dirname, 'data', 'wheel.json');
+
+function readWheel() {
+  if (!fs.existsSync(WHEEL_FILE)) return { entries: [] };
+  return JSON.parse(fs.readFileSync(WHEEL_FILE, 'utf-8'));
+}
+
+function writeWheel(data) {
+  fs.writeFileSync(WHEEL_FILE, JSON.stringify(data, null, 2), 'utf-8');
+}
+
+app.get('/api/wheel', (req, res) => {
+  res.json(readWheel().entries);
+});
+
+app.post('/api/wheel', (req, res) => {
+  const { entries } = req.body;
+  if (!Array.isArray(entries)) return res.status(400).json({ error: 'entries must be array' });
+  writeWheel({ entries: entries.slice(0, 20) });
+  res.json({ success: true });
+});
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`\n⚔  Lalling Games läuft auf Port ${PORT}`);
   console.log(`   Lokal:   http://localhost:${PORT}`);

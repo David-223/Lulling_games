@@ -242,7 +242,7 @@
 
   <script>
     // ── State ──
-    let entries = JSON.parse(localStorage.getItem('wheel-entries') || 'null') || [
+    const DEFAULT_ENTRIES = [
       'Jeder trinkt 2 Schlucke',
       'Links trinkt 3 Schlucke',
       'Rechts trinkt 3 Schlucke',
@@ -250,6 +250,7 @@
       'Du bestimmst wer trinkt',
       'Strafglas für dich',
     ];
+    let entries = [];
 
     let currentAngle = 0;
     let spinning = false;
@@ -433,8 +434,25 @@
     }
 
     // ── Entries ──
-    function saveEntries() {
-      localStorage.setItem('wheel-entries', JSON.stringify(entries));
+    async function loadEntries() {
+      try {
+        const res = await fetch('/api/wheel');
+        const data = await res.json();
+        entries = data.length ? data : [...DEFAULT_ENTRIES];
+      } catch (e) {
+        entries = [...DEFAULT_ENTRIES];
+      }
+      renderEntries();
+    }
+
+    async function saveEntries() {
+      try {
+        await fetch('/api/wheel', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ entries }),
+        });
+      } catch (e) { /* ignore */ }
     }
 
     function renderEntries() {
@@ -538,7 +556,7 @@
 
     // ── Init ──
     applyTheme(localStorage.getItem('lalling-theme') || 'ao');
-    renderEntries();
+    loadEntries();
 
     // ── Dropdown ──
     (function() {
