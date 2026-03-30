@@ -357,125 +357,174 @@
     }
 
     /* ════════════════════════════════════════
-       PLAYER BAND – vertical ticker
+       PLAYER BAND – right side, connected boxes
     ════════════════════════════════════════ */
+
+    /* Outer clip+fade container */
     #player-band {
       position: absolute;
-      left: 2%;
-      top: 8%;
-      width: 44%;
-      height: 84%;
+      right: 0;
+      top: 5%;
+      width: 22%;
+      height: 90%;
       overflow: hidden;
-      /* fade top & bottom edges */
       -webkit-mask-image: linear-gradient(
         to bottom,
         transparent 0%,
-        black 18%,
-        black 82%,
+        black 12%,
+        black 88%,
         transparent 100%
       );
       mask-image: linear-gradient(
         to bottom,
         transparent 0%,
-        black 18%,
-        black 82%,
+        black 12%,
+        black 88%,
         transparent 100%
       );
     }
 
-    #player-band-inner {
-      display: flex;
-      flex-direction: column;
-      will-change: transform;
-      transition: transform 0.75s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Fixed vertical line – sits inside band but outside inner so it doesn't scroll */
+    #band-v-line {
+      position: absolute;
+      left: 14px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(160, 25, 8, 0.7) 12%,
+        rgba(160, 25, 8, 0.7) 88%,
+        transparent 100%
+      );
+      pointer-events: none;
+      z-index: 2;
     }
 
+    /* Scrolling inner list */
+    #player-band-inner {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      will-change: transform;
+      transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Each player row */
     .band-player {
-      height: 64px;
+      height: 78px;
       display: flex;
       align-items: center;
-      gap: 0.9rem;
-      padding: 0 1.2rem;
-      opacity: 0.22;
-      transition: opacity 0.6s ease;
+      padding: 0 10px 0 36px; /* 36px leaves room for line + connector */
+      position: relative;
       flex-shrink: 0;
+      transition: opacity 0.5s;
+      opacity: 0.28;
     }
 
-    .band-player.bp-active {
-      opacity: 1;
+    .band-player.bp-active  { opacity: 1; }
+    .band-player.bp-folded  { opacity: 0.1; }
+    .band-player.bp-allin   { opacity: 0.5; }
+
+    /* Horizontal connector: line → box */
+    .band-player::before {
+      content: '';
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      width: 18px;
+      height: 1px;
+      background: rgba(150, 22, 8, 0.55);
+      transform: translateY(-50%);
+      transition: background 0.5s;
+    }
+    .band-player.bp-active::before {
+      background: rgba(210, 65, 15, 0.9);
+      width: 20px;
     }
 
-    .band-player.bp-folded {
-      opacity: 0.1;
+    /* The box itself */
+    .bp-box {
+      flex: 1;
+      min-width: 0;
+      background: rgba(6, 0, 18, 0.82);
+      border: 1px solid rgba(110, 14, 6, 0.5);
+      border-radius: 6px;
+      padding: 0.38rem 0.6rem;
+      backdrop-filter: blur(8px);
+      transition: border-color 0.5s, box-shadow 0.5s;
     }
 
-    .band-player.bp-allin {
-      opacity: 0.45;
+    .band-player.bp-active .bp-box {
+      border-color: rgba(200, 55, 12, 0.9);
+      box-shadow:
+        0 0 18px rgba(180, 40, 8, 0.45),
+        inset 0 0 10px rgba(140, 20, 0, 0.12);
     }
 
+    .band-player.bp-folded .bp-box {
+      border-color: rgba(80, 80, 80, 0.3);
+    }
+
+    /* Name row inside box */
     .bp-name {
       font-family: Georgia, 'Palatino Linotype', Palatino, serif;
-      font-size: clamp(1rem, 2.6vw, 1.75rem);
+      font-size: clamp(0.75rem, 1.6vw, 1.05rem);
       font-weight: 700;
-      color: rgba(255, 230, 200, 0.6);
-      text-shadow: 1px 1px 4px rgba(0,0,0,0.8);
+      color: rgba(240, 210, 175, 0.65);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      flex: 1;
-      transition: color 0.6s, font-size 0.6s, text-shadow 0.6s;
+      display: block;
+      line-height: 1.2;
+      transition: color 0.5s, text-shadow 0.5s;
     }
 
     .band-player.bp-active .bp-name {
-      font-size: clamp(1.3rem, 3.4vw, 2.3rem);
       color: #ffe8cc;
       text-shadow:
-        0 0 12px rgba(255, 180, 80, 0.8),
-        0 0 30px rgba(220, 70, 20, 0.7),
-        2px 2px 0 rgba(80, 5, 0, 0.5),
-        0 3px 8px rgba(0,0,0,0.9);
+        0 0 8px rgba(255, 170, 70, 0.7),
+        0 0 20px rgba(210, 60, 15, 0.6),
+        1px 1px 0 rgba(60, 4, 0, 0.6);
+    }
+
+    /* Bottom row: chips + badges */
+    .bp-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      margin-top: 0.18rem;
     }
 
     .bp-chips {
       font-family: Georgia, 'Palatino Linotype', Palatino, serif;
-      font-size: clamp(0.75rem, 1.8vw, 1.1rem);
-      color: rgba(200, 150, 100, 0.45);
-      text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
-      min-width: 3.5rem;
-      text-align: right;
-      transition: color 0.6s;
+      font-size: clamp(0.6rem, 1.2vw, 0.8rem);
+      color: rgba(190, 135, 80, 0.5);
+      flex: 1;
+      transition: color 0.5s;
     }
 
     .band-player.bp-active .bp-chips {
-      color: rgba(245, 195, 120, 0.85);
-      text-shadow: 0 0 8px rgba(255, 130, 40, 0.5);
+      color: rgba(240, 185, 100, 0.9);
+      text-shadow: 0 0 6px rgba(240, 130, 30, 0.45);
     }
 
-    .bp-badge {
-      font-size: 0.65rem;
-      padding: 0.1rem 0.4rem;
-      border-radius: 4px;
+    .bp-role {
+      font-size: clamp(0.45rem, 0.9vw, 0.6rem);
+      font-weight: 700;
       font-family: monospace;
-      letter-spacing: 0.05em;
-      opacity: 0.7;
+      padding: 0.08rem 0.35rem;
+      border-radius: 3px;
+      letter-spacing: 0.04em;
+      line-height: 1.4;
+      white-space: nowrap;
     }
 
-    .bp-badge.dealer { background: rgba(255,220,80,0.2);  color: #ffd040; border: 1px solid rgba(255,200,50,0.3); }
-    .bp-badge.fold   { background: rgba(100,100,100,0.2); color: #aaa;    border: 1px solid rgba(150,150,150,0.2); }
-    .bp-badge.allin  { background: rgba(255,50,50,0.2);   color: #ff7060; border: 1px solid rgba(255,80,60,0.3); }
-
-    /* active player marker line */
-    #band-marker {
-      position: absolute;
-      left: 2%;
-      width: 44%;
-      height: 64px;
-      top: 50%;
-      transform: translateY(-50%);
-      border-top: 1px solid rgba(220, 80, 20, 0.35);
-      border-bottom: 1px solid rgba(220, 80, 20, 0.35);
-      pointer-events: none;
-    }
+    .bp-role.r-dealer { background: rgba(220,185,40,0.18); color: #f0c030; border: 1px solid rgba(220,180,30,0.35); }
+    .bp-role.r-sb     { background: rgba(60,120,200,0.18); color: #7ab0ff; border: 1px solid rgba(80,140,220,0.35); }
+    .bp-role.r-bb     { background: rgba(180,40,20,0.22);  color: #ff7860; border: 1px solid rgba(200,60,30,0.4); }
+    .bp-role.r-fold   { background: rgba(80,80,80,0.18);   color: #888;    border: 1px solid rgba(120,120,120,0.2); }
+    .bp-role.r-allin  { background: rgba(200,30,30,0.22);  color: #ff6050; border: 1px solid rgba(220,50,30,0.4); }
   </style>
 </head>
 <body>
@@ -516,9 +565,9 @@
   <!-- POKER: Pot in red window + current player -->
   <div id="poker-overlay">
 
-    <!-- Player band: vertical ticker on the left -->
-    <div id="band-marker"></div>
+    <!-- Player band: right side, boxes connected by vertical line -->
     <div id="player-band">
+      <div id="band-v-line"></div>
       <div id="player-band-inner"></div>
     </div>
 
@@ -633,7 +682,7 @@
   }
 
   // ── Poker: pot + current player ──
-  const ITEM_H = 64; // must match .band-player height in CSS
+  const ITEM_H = 78; // must match .band-player height in CSS
 
   function renderPoker(poker) {
     const pot = poker.pot ?? 0;
@@ -660,32 +709,38 @@
 
     badgeEl.textContent = PHASE_LABELS[phase] || phase;
 
-    // ── Player band ──
+    // ── Player band: connected boxes ──
     const inner = document.getElementById('player-band-inner');
     inner.innerHTML = players.map((p, i) => {
       const isActive = i === activeIdx && phase !== 'showdown';
-      const badges = [];
-      if (i === poker.dealerIdx)  badges.push('<span class="bp-badge dealer">D</span>');
-      if (p.folded)               badges.push('<span class="bp-badge fold">FOLD</span>');
-      if (p.allIn)                badges.push('<span class="bp-badge allin">ALL IN</span>');
+      const roles = [];
+      if (i === poker.dealerIdx) roles.push('<span class="bp-role r-dealer">D</span>');
+      if (i === poker.sbIdx)     roles.push('<span class="bp-role r-sb">SB</span>');
+      if (i === poker.bbIdx)     roles.push('<span class="bp-role r-bb">BB</span>');
+      if (p.folded)              roles.push('<span class="bp-role r-fold">FOLD</span>');
+      if (p.allIn)               roles.push('<span class="bp-role r-allin">ALL IN</span>');
       const cls = [
         'band-player',
-        isActive ? 'bp-active' : '',
-        p.folded ? 'bp-folded' : '',
-        p.allIn  ? 'bp-allin'  : '',
+        isActive  ? 'bp-active' : '',
+        p.folded  ? 'bp-folded' : '',
+        p.allIn   ? 'bp-allin'  : '',
       ].filter(Boolean).join(' ');
       return `<div class="${cls}">
-        <span class="bp-name">${escHtml(p.name)}</span>
-        ${badges.join('')}
-        <span class="bp-chips">${p.chips}</span>
+        <div class="bp-box">
+          <span class="bp-name">${escHtml(p.name)}</span>
+          <div class="bp-meta">
+            <span class="bp-chips">${p.chips}</span>
+            ${roles.join('')}
+          </div>
+        </div>
       </div>`;
     }).join('');
 
-    // Scroll so active player sits at the vertical center of the band
-    const band       = document.getElementById('player-band');
-    const bandH      = band.offsetHeight;
-    const centerPos  = bandH / 2 - ITEM_H / 2;
-    const scrollIdx  = phase === 'showdown' ? Math.floor(players.length / 2) : activeIdx;
+    // Scroll so active player is vertically centred in the band
+    const band      = document.getElementById('player-band');
+    const bandH     = band.offsetHeight;
+    const centerPos = bandH / 2 - ITEM_H / 2;
+    const scrollIdx = phase === 'showdown' ? Math.floor(players.length / 2) : activeIdx;
     inner.style.transform = `translateY(${centerPos - scrollIdx * ITEM_H}px)`;
 
     // ── Bottom name banner ──
