@@ -28,6 +28,26 @@
       z-index: 0;
     }
 
+    /* ── Character animation layer ── */
+    #char-anim {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      /* Match sizing/position to your drawing.
+         Default: full screen, centered, same as background. */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #char-anim img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+
     /* ── Auth overlay ── */
     #auth-overlay {
       position: fixed;
@@ -567,6 +587,7 @@
 </svg>
 
 <div id="tv-bg"></div>
+<div id="char-anim"><img id="char-frame" src="" alt="" /></div>
 
 <!-- ══════════════════════════════════
      AUTH OVERLAY
@@ -627,6 +648,40 @@
 </div>
 
 <script>
+  // ══════════════════════════════════════════════
+  // CHARACTER ANIMATION
+  // ──────────────────────────────────────────────
+  // 1. Draw your idle cycle frames in Krita/Photoshop/Procreate
+  // 2. Export as PNGs with transparency into public/:
+  //      tv-char-1.png, tv-char-2.png, tv-char-3.png …
+  // 3. Set CHAR_FRAMES to however many frames you drew
+  // 4. Adjust CHAR_FPS for speed (8–12 is natural for idle)
+  // ══════════════════════════════════════════════
+  const CHAR_FRAMES = 0;   // ← set to your frame count (0 = disabled)
+  const CHAR_FPS    = 10;  // ← frames per second
+
+  ;(function initCharAnim() {
+    if (CHAR_FRAMES < 1) {
+      document.getElementById('char-anim').style.display = 'none';
+      return;
+    }
+    const img = document.getElementById('char-frame');
+    let frame = 0;
+    // Preload all frames
+    const preloaded = Array.from({ length: CHAR_FRAMES }, (_, i) => {
+      const p = new Image();
+      p.src = `tv-char-${i + 1}.png`;
+      return p;
+    });
+    setInterval(() => {
+      frame = (frame + 1) % CHAR_FRAMES;
+      img.src = preloaded[frame].src;
+    }, 1000 / CHAR_FPS);
+    img.src = preloaded[0].src;
+  })();
+
+  // ══════════════════════════════════════════════
+
   const PHASE_LABELS = {
     preflop:  'Pre-Flop',
     flop:     'Flop',
