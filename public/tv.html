@@ -355,6 +355,127 @@
         0 0 60px rgba(255, 100, 30, 0.5),
         0 4px 10px rgba(0,0,0,0.95) !important;
     }
+
+    /* ════════════════════════════════════════
+       PLAYER BAND – vertical ticker
+    ════════════════════════════════════════ */
+    #player-band {
+      position: absolute;
+      left: 2%;
+      top: 8%;
+      width: 44%;
+      height: 84%;
+      overflow: hidden;
+      /* fade top & bottom edges */
+      -webkit-mask-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        black 18%,
+        black 82%,
+        transparent 100%
+      );
+      mask-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        black 18%,
+        black 82%,
+        transparent 100%
+      );
+    }
+
+    #player-band-inner {
+      display: flex;
+      flex-direction: column;
+      will-change: transform;
+      transition: transform 0.75s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .band-player {
+      height: 64px;
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+      padding: 0 1.2rem;
+      opacity: 0.22;
+      transition: opacity 0.6s ease;
+      flex-shrink: 0;
+    }
+
+    .band-player.bp-active {
+      opacity: 1;
+    }
+
+    .band-player.bp-folded {
+      opacity: 0.1;
+    }
+
+    .band-player.bp-allin {
+      opacity: 0.45;
+    }
+
+    .bp-name {
+      font-family: Georgia, 'Palatino Linotype', Palatino, serif;
+      font-size: clamp(1rem, 2.6vw, 1.75rem);
+      font-weight: 700;
+      color: rgba(255, 230, 200, 0.6);
+      text-shadow: 1px 1px 4px rgba(0,0,0,0.8);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+      transition: color 0.6s, font-size 0.6s, text-shadow 0.6s;
+    }
+
+    .band-player.bp-active .bp-name {
+      font-size: clamp(1.3rem, 3.4vw, 2.3rem);
+      color: #ffe8cc;
+      text-shadow:
+        0 0 12px rgba(255, 180, 80, 0.8),
+        0 0 30px rgba(220, 70, 20, 0.7),
+        2px 2px 0 rgba(80, 5, 0, 0.5),
+        0 3px 8px rgba(0,0,0,0.9);
+    }
+
+    .bp-chips {
+      font-family: Georgia, 'Palatino Linotype', Palatino, serif;
+      font-size: clamp(0.75rem, 1.8vw, 1.1rem);
+      color: rgba(200, 150, 100, 0.45);
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+      min-width: 3.5rem;
+      text-align: right;
+      transition: color 0.6s;
+    }
+
+    .band-player.bp-active .bp-chips {
+      color: rgba(245, 195, 120, 0.85);
+      text-shadow: 0 0 8px rgba(255, 130, 40, 0.5);
+    }
+
+    .bp-badge {
+      font-size: 0.65rem;
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      font-family: monospace;
+      letter-spacing: 0.05em;
+      opacity: 0.7;
+    }
+
+    .bp-badge.dealer { background: rgba(255,220,80,0.2);  color: #ffd040; border: 1px solid rgba(255,200,50,0.3); }
+    .bp-badge.fold   { background: rgba(100,100,100,0.2); color: #aaa;    border: 1px solid rgba(150,150,150,0.2); }
+    .bp-badge.allin  { background: rgba(255,50,50,0.2);   color: #ff7060; border: 1px solid rgba(255,80,60,0.3); }
+
+    /* active player marker line */
+    #band-marker {
+      position: absolute;
+      left: 2%;
+      width: 44%;
+      height: 64px;
+      top: 50%;
+      transform: translateY(-50%);
+      border-top: 1px solid rgba(220, 80, 20, 0.35);
+      border-bottom: 1px solid rgba(220, 80, 20, 0.35);
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
@@ -394,6 +515,12 @@
 
   <!-- POKER: Pot in red window + current player -->
   <div id="poker-overlay">
+
+    <!-- Player band: vertical ticker on the left -->
+    <div id="band-marker"></div>
+    <div id="player-band">
+      <div id="player-band-inner"></div>
+    </div>
 
     <!-- Pot overlaid on the red window in the artwork -->
     <div id="pot-window">
@@ -506,6 +633,8 @@
   }
 
   // ── Poker: pot + current player ──
+  const ITEM_H = 64; // must match .band-player height in CSS
+
   function renderPoker(poker) {
     const pot = poker.pot ?? 0;
 
@@ -514,21 +643,52 @@
     if (pot !== lastPot) {
       potEl.textContent = pot;
       potEl.classList.remove('pop');
-      void potEl.offsetWidth; // reflow
+      void potEl.offsetWidth;
       potEl.classList.add('pop');
       setTimeout(() => potEl.classList.remove('pop'), 200);
       lastPot = pot;
     }
 
     const phase         = poker.phase;
-    const currentPlayer = poker.players?.[poker.currentPlayerIdx];
-    const nameEl        = document.getElementById('turn-player-name');
-    const labelEl       = document.getElementById('turn-label');
-    const bannerEl      = document.getElementById('current-player-banner');
+    const players       = poker.players ?? [];
+    const activeIdx     = poker.currentPlayerIdx ?? 0;
+    const currentPlayer = players[activeIdx];
     const badgeEl       = document.getElementById('poker-phase-badge');
+    const labelEl       = document.getElementById('turn-label');
+    const nameEl        = document.getElementById('turn-player-name');
+    const bannerEl      = document.getElementById('current-player-banner');
 
     badgeEl.textContent = PHASE_LABELS[phase] || phase;
 
+    // ── Player band ──
+    const inner = document.getElementById('player-band-inner');
+    inner.innerHTML = players.map((p, i) => {
+      const isActive = i === activeIdx && phase !== 'showdown';
+      const badges = [];
+      if (i === poker.dealerIdx)  badges.push('<span class="bp-badge dealer">D</span>');
+      if (p.folded)               badges.push('<span class="bp-badge fold">FOLD</span>');
+      if (p.allIn)                badges.push('<span class="bp-badge allin">ALL IN</span>');
+      const cls = [
+        'band-player',
+        isActive ? 'bp-active' : '',
+        p.folded ? 'bp-folded' : '',
+        p.allIn  ? 'bp-allin'  : '',
+      ].filter(Boolean).join(' ');
+      return `<div class="${cls}">
+        <span class="bp-name">${escHtml(p.name)}</span>
+        ${badges.join('')}
+        <span class="bp-chips">${p.chips}</span>
+      </div>`;
+    }).join('');
+
+    // Scroll so active player sits at the vertical center of the band
+    const band       = document.getElementById('player-band');
+    const bandH      = band.offsetHeight;
+    const centerPos  = bandH / 2 - ITEM_H / 2;
+    const scrollIdx  = phase === 'showdown' ? Math.floor(players.length / 2) : activeIdx;
+    inner.style.transform = `translateY(${centerPos - scrollIdx * ITEM_H}px)`;
+
+    // ── Bottom name banner ──
     if (phase === 'showdown') {
       labelEl.textContent = '⚔ Showdown ⚔';
       nameEl.textContent  = 'Showdown';
