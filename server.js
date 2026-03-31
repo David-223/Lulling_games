@@ -445,6 +445,58 @@ app.post('/api/wheel', (req, res) => {
   res.json({ success: true });
 });
 
+// ── Binding Vows ──
+
+const VOWS_FILE = path.join(__dirname, 'data', 'binding-vows.json');
+
+function readVows() {
+  if (!fs.existsSync(VOWS_FILE)) return { vows: [], nextId: 1 };
+  return JSON.parse(fs.readFileSync(VOWS_FILE, 'utf-8'));
+}
+
+function writeVows(data) {
+  fs.writeFileSync(VOWS_FILE, JSON.stringify(data, null, 2), 'utf-8');
+}
+
+app.get('/api/binding-vows', (req, res) => {
+  const { vows } = readVows();
+  const players = readPlayers().players;
+  const enriched = vows.map(v => ({
+    ...v,
+    player1: players.find(p => p.id === v.player1Id) || null,
+    player2: players.find(p => p.id === v.player2Id) || null,
+  }));
+  res.json(enriched);
+});
+
+app.post('/api/binding-vows', (req, res) => {
+  if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
+  const { player1Id, player2Id } = req.body;
+  if (!player1Id || !player2Id) return res.status(400).json({ error: 'Zwei Spieler erforderlich' });
+  if (player1Id === player2Id) return res.status(400).json({ error: 'Spieler muss verschieden sein' });
+  const data = readVows();
+  const already = data.vows.find(v =>
+    (v.player1Id === player1Id && v.player2Id === player2Id) ||
+    (v.player1Id === player2Id && v.player2Id === player1Id)
+  );
+  if (already) return res.status(409).json({ error: 'Gelübde besteht bereits' });
+  const vow = { id: data.nextId++, player1Id: parseInt(player1Id), player2Id: parseInt(player2Id) };
+  data.vows.push(vow);
+  writeVows(data);
+  res.json({ success: true, vow });
+});
+
+app.delete('/api/binding-vows/:id', (req, res) => {
+  if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
+  const id = parseInt(req.params.id);
+  const data = readVows();
+  const idx = data.vows.findIndex(v => v.id === id);
+  if (idx === -1) return res.status(404).json({ error: 'Gelübde nicht gefunden' });
+  data.vows.splice(idx, 1);
+  writeVows(data);
+  res.json({ success: true });
+});
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`\n⚔  Lalling Games läuft auf Port ${PORT}`);
   console.log(`   Lokal:   http://localhost:${PORT}`);

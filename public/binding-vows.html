@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="ao">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Binding Vows · Lalling Games</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+
+    /* ── Hero ── */
+    .vow-hero {
+      text-align: center;
+      padding: 2.5rem 0 2rem;
+      position: relative;
+    }
+
+    .vow-hero::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 300px; height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle,
+        rgba(140, 28, 28, 0.08) 0%,
+        rgba(200, 162, 39, 0.04) 40%,
+        transparent 70%
+      );
+      animation: seal-pulse 6s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes seal-pulse {
+      0%, 100% { transform: translateX(-50%) scale(1);   opacity: 0.5; }
+      50%       { transform: translateX(-50%) scale(1.2); opacity: 1; }
+    }
+
+    .vow-decree {
+      font-size: 0.68rem;
+      letter-spacing: 0.35em;
+      color: var(--accent-glow);
+      text-transform: uppercase;
+      font-family: var(--font-ui);
+      font-weight: 700;
+      margin-bottom: 1rem;
+      opacity: 0.75;
+    }
+
+    .vow-title {
+      font-family: var(--font-title);
+      font-size: 2.6rem;
+      font-weight: 900;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+      text-shadow:
+        0 0 30px rgba(201, 162, 39, 0.45),
+        0 0 80px rgba(140, 28, 28, 0.2);
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+
+    .vow-subtitle {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-family: var(--font-ui);
+      max-width: 420px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* ── Section header ── */
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      margin: 2rem 0 1rem;
+    }
+
+    .section-head::before,
+    .section-head::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border-mid), transparent);
+    }
+
+    .section-head-text {
+      font-family: var(--font-title);
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      color: var(--gold);
+      text-transform: uppercase;
+      opacity: 0.8;
+      white-space: nowrap;
+    }
+
+    /* ── Vow list ── */
+    #vow-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .vow-card {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      background: var(--bg-card);
+      border: 1px solid var(--border-mid);
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+      transition: border-color 0.25s;
+    }
+
+    .vow-card:hover {
+      border-color: var(--accent);
+    }
+
+    /* Player half */
+    .vow-player {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1.2rem 1rem;
+      gap: 0.4rem;
+      min-width: 0;
+    }
+
+    .vow-avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--p-bg);
+      border: 2px solid var(--p-dim);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-title);
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--p-glow);
+      letter-spacing: 0.05em;
+      flex-shrink: 0;
+      text-shadow: 0 0 12px var(--p-glow);
+    }
+
+    .vow-player-name {
+      font-family: var(--font-title);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 0.06em;
+      text-align: center;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 100%;
+    }
+
+    .vow-player-points {
+      font-family: var(--font-ui);
+      font-size: 0.72rem;
+      color: var(--gold);
+      letter-spacing: 0.1em;
+      font-weight: 600;
+    }
+
+    /* Seal divider in the middle */
+    .vow-seal {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 0.6rem;
+      gap: 0.2rem;
+      flex-shrink: 0;
+    }
+
+    .vow-seal-line {
+      width: 1px;
+      height: 18px;
+      background: linear-gradient(to bottom, transparent, var(--accent-glow), transparent);
+    }
+
+    .vow-seal-icon {
+      font-size: 1.3rem;
+      filter: drop-shadow(0 0 6px rgba(200, 50, 50, 0.7));
+      animation: seal-glow 3s ease-in-out infinite;
+    }
+
+    @keyframes seal-glow {
+      0%, 100% { filter: drop-shadow(0 0 4px rgba(200,50,50,0.5)); opacity: 0.8; }
+      50%       { filter: drop-shadow(0 0 10px rgba(220,80,30,0.9)); opacity: 1; }
+    }
+
+    /* Break button */
+    .vow-break-btn {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background: none;
+      border: 1px solid rgba(140, 28, 28, 0.3);
+      border-radius: 4px;
+      color: var(--text-dim);
+      font-size: 0.65rem;
+      font-family: var(--font-ui);
+      letter-spacing: 0.08em;
+      padding: 0.15rem 0.45rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: none;
+    }
+
+    .vow-break-btn:hover {
+      background: rgba(140, 28, 28, 0.3);
+      border-color: var(--accent-glow);
+      color: var(--accent-glow);
+    }
+
+    body.is-admin .vow-break-btn { display: block; }
+
+    .vow-empty {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-dim);
+      font-family: var(--font-ui);
+      font-size: 0.85rem;
+      letter-spacing: 0.1em;
+      border: 1px dashed var(--border-mid);
+      border-radius: 10px;
+    }
+
+    /* ── Create vow form (admin only) ── */
+    #create-vow-section {
+      display: none;
+    }
+
+    body.is-admin #create-vow-section {
+      display: block;
+    }
+
+    .create-vow-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-mid);
+      border-radius: 10px;
+      padding: 1.5rem;
+    }
+
+    .create-vow-selects {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 0.8rem;
+      margin-bottom: 1rem;
+    }
+
+    .create-vow-selects select {
+      width: 100%;
+      padding: 0.65rem 0.8rem;
+      background: var(--bg-card2);
+      border: 1px solid var(--border-mid);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: var(--font-ui);
+      font-size: 0.9rem;
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .create-vow-selects select:focus {
+      border-color: var(--accent);
+    }
+
+    .create-vow-sep {
+      font-size: 1.2rem;
+      color: var(--accent-glow);
+      filter: drop-shadow(0 0 5px rgba(200,50,50,0.6));
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    #create-vow-error {
+      color: var(--accent-glow);
+      font-size: 0.78rem;
+      font-family: var(--font-ui);
+      margin-top: 0.5rem;
+      display: none;
+    }
+
+    /* ── Admin login ── */
+    .admin-login-strip {
+      display: flex;
+      gap: 0.6rem;
+      align-items: center;
+      margin-top: 1.5rem;
+      padding-top: 1.2rem;
+      border-top: 1px solid var(--border-mid);
+    }
+
+    .admin-login-strip input {
+      flex: 1;
+      padding: 0.5rem 0.8rem;
+      background: var(--bg-card2);
+      border: 1px solid var(--border-mid);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: var(--font-ui);
+      font-size: 0.85rem;
+      outline: none;
+    }
+
+    .admin-login-strip input:focus { border-color: var(--accent); }
+
+    #admin-login-err {
+      color: var(--accent-glow);
+      font-size: 0.75rem;
+      font-family: var(--font-ui);
+      margin-top: 0.35rem;
+      display: none;
+    }
+
+    .admin-logged-in-strip {
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 1.2rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border-mid);
+      font-family: var(--font-ui);
+      font-size: 0.78rem;
+      color: var(--text-dim);
+    }
+
+    body.is-admin .admin-login-strip    { display: none; }
+    body.is-admin .admin-logged-in-strip { display: flex; }
+
+    .admin-badge-strip {
+      background: rgba(140,28,28,0.2);
+      border: 1px solid var(--accent);
+      color: var(--accent-glow);
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      padding: 0.1rem 0.45rem;
+      border-radius: 4px;
+      font-family: var(--font-ui);
+    }
+
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="logo-text">Lalling Games</div>
+    <div class="logo-sub">Das Culling Spiel · Das Trinkspiel</div>
+    <nav class="nav-links">
+      <a href="index.html">Regeln</a>
+      <a href="poker.html">Hände</a>
+      <a href="gluecksrad.html">Gamble</a>
+      <a href="poker-game.html">Poker</a>
+      <div class="nav-dropdown">
+        <button class="nav-dropdown-btn active" id="nav-more-btn">Mehr ▾</button>
+        <div class="nav-dropdown-menu" id="nav-more-menu">
+          <a href="lobby.html">Anmelden</a>
+          <a href="spieler.html">Spieler</a>
+          <a href="binding-vows.html" class="active">Binding Vows</a>
+          <a href="admin.html">Admin</a>
+          <a href="brainrot.html">Brainrot</a>
+        </div>
+      </div>
+    </nav>
+    <div class="theme-switcher" id="theme-switcher">
+      <button class="theme-btn" data-scheme="ao"    title="蒼 – Gojo Blue"></button>
+      <button class="theme-btn" data-scheme="shuku" title="赫 – Sukuna Crimson"></button>
+      <button class="theme-btn" data-scheme="yami"  title="闇 – Hollow Purple"></button>
+      <button class="theme-btn" data-scheme="kin"   title="金 – Special Grade"></button>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- Hero -->
+    <div class="vow-hero">
+      <div class="vow-decree">呪いの契約 · Cursed Contract</div>
+      <h1 class="vow-title">Binding Vows</h1>
+      <p class="vow-subtitle">
+        Zwei Seelen, ein Schicksal.<br>
+        Wenn einer trinkt — trinkt der andere mit.
+      </p>
+    </div>
+
+    <!-- Active vows -->
+    <div class="section-head">
+      <span class="section-head-text">Aktive Gelübde</span>
+    </div>
+
+    <div id="vow-list">
+      <div class="vow-empty">Lade Gelübde…</div>
+    </div>
+
+    <!-- Create new vow (admin only) -->
+    <div id="create-vow-section">
+      <div class="section-head">
+        <span class="section-head-text">Neues Gelübde besiegeln</span>
+      </div>
+      <div class="create-vow-card">
+        <div class="create-vow-selects">
+          <select id="select-p1"><option value="">— Spieler 1 —</option></select>
+          <div class="create-vow-sep">⛧</div>
+          <select id="select-p2"><option value="">— Spieler 2 —</option></select>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="createVow()">Gelübde besiegeln</button>
+        <div id="create-vow-error"></div>
+      </div>
+    </div>
+
+    <!-- Admin login strip -->
+    <div class="admin-login-strip">
+      <input type="password" id="admin-pw-input" placeholder="Admin-Passwort für Verwaltung" autocomplete="current-password" />
+      <button class="btn btn-secondary" onclick="adminLogin()">Login</button>
+    </div>
+    <div id="admin-login-err"></div>
+
+    <div class="admin-logged-in-strip">
+      <span class="admin-badge-strip">ADMIN</span>
+      <span>Gelübde können erstellt und gebrochen werden.</span>
+    </div>
+
+  </main>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    // ── Admin auth ──
+    let adminPw = sessionStorage.getItem('bv-admin-pw') || '';
+    if (adminPw) document.body.classList.add('is-admin');
+
+    document.getElementById('admin-pw-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') adminLogin();
+    });
+
+    async function adminLogin() {
+      const pw = document.getElementById('admin-pw-input').value.trim();
+      if (!pw) return;
+      const res = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pw }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        adminPw = pw;
+        sessionStorage.setItem('bv-admin-pw', pw);
+        document.body.classList.add('is-admin');
+        document.getElementById('admin-login-err').style.display = 'none';
+        loadPlayers();
+      } else {
+        const err = document.getElementById('admin-login-err');
+        err.textContent = 'Falsches Passwort.';
+        err.style.display = 'block';
+      }
+    }
+
+    // ── Data ──
+    let players = [];
+
+    async function loadPlayers() {
+      const res = await fetch('/api/players');
+      players = await res.json();
+      renderSelects();
+    }
+
+    function renderSelects() {
+      ['select-p1', 'select-p2'].forEach(id => {
+        const sel = document.getElementById(id);
+        const cur = sel.value;
+        sel.innerHTML = '<option value="">— Spieler wählen —</option>'
+          + players.map(p => `<option value="${p.id}">${escHtml(p.name)}</option>`).join('');
+        sel.value = cur;
+      });
+    }
+
+    async function loadVows() {
+      const res = await fetch('/api/binding-vows');
+      const vows = await res.json();
+      renderVows(vows);
+    }
+
+    function renderVows(vows) {
+      const list = document.getElementById('vow-list');
+      if (!vows.length) {
+        list.innerHTML = '<div class="vow-empty">Noch keine Binding Vows. Ein Admin kann neue Gelübde besiegeln.</div>';
+        return;
+      }
+      list.innerHTML = vows.map(v => {
+        const p1 = v.player1;
+        const p2 = v.player2;
+        if (!p1 || !p2) return '';
+        return `
+          <div class="vow-card">
+            <button class="vow-break-btn" onclick="breakVow(${v.id})">Brechen</button>
+            <div class="vow-player">
+              <div class="vow-avatar">${escHtml(p1.name.charAt(0).toUpperCase())}</div>
+              <div class="vow-player-name">${escHtml(p1.name)}</div>
+              <div class="vow-player-points">${p1.points} Pkt.</div>
+            </div>
+            <div class="vow-seal">
+              <div class="vow-seal-line"></div>
+              <div class="vow-seal-icon">⛧</div>
+              <div class="vow-seal-line"></div>
+            </div>
+            <div class="vow-player">
+              <div class="vow-avatar">${escHtml(p2.name.charAt(0).toUpperCase())}</div>
+              <div class="vow-player-name">${escHtml(p2.name)}</div>
+              <div class="vow-player-points">${p2.points} Pkt.</div>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    async function createVow() {
+      const p1 = parseInt(document.getElementById('select-p1').value);
+      const p2 = parseInt(document.getElementById('select-p2').value);
+      const errEl = document.getElementById('create-vow-error');
+      errEl.style.display = 'none';
+      if (!p1 || !p2) { showErr(errEl, 'Bitte zwei Spieler auswählen.'); return; }
+      if (p1 === p2)   { showErr(errEl, 'Spieler müssen verschieden sein.'); return; }
+      const res = await fetch('/api/binding-vows', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ player1Id: p1, player2Id: p2, password: adminPw }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast('Gelübde besiegelt!', 'success');
+        document.getElementById('select-p1').value = '';
+        document.getElementById('select-p2').value = '';
+        loadVows();
+      } else {
+        showErr(errEl, data.error || 'Fehler.');
+      }
+    }
+
+    async function breakVow(id) {
+      if (!confirm('Gelübde wirklich brechen?')) return;
+      const res = await fetch(`/api/binding-vows/${id}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: adminPw }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast('Gelübde gebrochen.', '');
+        loadVows();
+      } else {
+        showToast(data.error || 'Fehler.', 'error');
+      }
+    }
+
+    function showErr(el, msg) {
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+
+    function showToast(msg, type) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast show' + (type ? ' ' + type : '');
+      setTimeout(() => t.classList.remove('show'), 2800);
+    }
+
+    function escHtml(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // ── Theme ──
+    const THEMES = ['ao','shuku','yami','kin'];
+    function applyTheme(s) {
+      if (!THEMES.includes(s)) s = 'ao';
+      document.documentElement.setAttribute('data-theme', s);
+      document.querySelectorAll('.theme-btn').forEach(b => b.classList.toggle('active', b.dataset.scheme === s));
+      localStorage.setItem('lalling-theme', s);
+    }
+    document.getElementById('theme-switcher').addEventListener('click', e => {
+      const b = e.target.closest('.theme-btn');
+      if (b) applyTheme(b.dataset.scheme);
+    });
+    document.getElementById('nav-more-btn').addEventListener('click', () => {
+      document.getElementById('nav-more-menu').classList.toggle('open');
+    });
+    applyTheme(localStorage.getItem('lalling-theme') || 'ao');
+
+    // ── Init ──
+    loadVows();
+    loadPlayers();
+  </script>
+</body>
+</html>
