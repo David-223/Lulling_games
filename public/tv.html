@@ -176,11 +176,13 @@
 
     .tv-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-      gap: 1rem;
-      align-content: start;
-      overflow: hidden;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 0.55rem;
       flex: 1;
+      overflow: hidden;
+      /* rows share the available height equally so nothing overflows */
+      grid-auto-rows: 1fr;
+      align-items: stretch;
     }
 
     /* ── Player card ── */
@@ -229,7 +231,12 @@
     .tv-card.eliminated::before { background: var(--border-mid); }
 
     .tv-card-inner {
-      padding: 0.8rem 1.1rem 0.8rem 1.3rem;
+      padding: 0.55rem 1rem 0.55rem 1.2rem;
+      height: 100%;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
 
     .tv-card-top {
@@ -241,12 +248,13 @@
 
     .tv-rank-badge {
       font-family: var(--font-title);
-      font-size: 1.5rem;
+      font-size: 1rem;
       font-weight: 900;
       line-height: 1;
-      min-width: 2.2rem;
+      min-width: 2.8rem;
       text-align: center;
       flex-shrink: 0;
+      letter-spacing: 0.05em;
     }
 
     .tv-card.rank-1 .tv-rank-badge { color: var(--gold); text-shadow: 0 0 16px rgba(201,162,39,0.6); }
@@ -455,8 +463,18 @@
       return rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : '';
     }
 
+    function toRoman(n) {
+      const vals = [1000,900,500,400,100,90,50,40,10,9,5,4,1];
+      const syms = ['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];
+      let r = '';
+      for (let i = 0; i < vals.length; i++) {
+        while (n >= vals[i]) { r += syms[i]; n -= vals[i]; }
+      }
+      return r;
+    }
+
     function rankNum(rank) {
-      return rank <= 3 ? ['I','II','III'][rank-1] : rank;
+      return toRoman(rank);
     }
 
     function cardKey(item) {
