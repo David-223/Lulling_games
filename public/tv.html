@@ -438,6 +438,84 @@
     setInterval(tickClock, 1000);
     tickClock();
 
+    // Build a flat ordered list: active players then eliminated, with a sentinel for the divider
+    function buildOrder(players) {
+      const sorted = [...players].sort((a, b) => b.points - a.points);
+      const active = sorted.filter(p => p.points > 0);
+      const elim   = sorted.filter(p => p.points <= 0);
+      const items  = active.map((p, i) => ({ type: 'player', rank: i + 1, player: p }));
+      if (elim.length) {
+        items.push({ type: 'divider' });
+        elim.forEach(p => items.push({ type: 'player', rank: 0, player: p, elim: true }));
+      }
+      return items;
+    }
+
+    function rankClass(rank) {
+      return rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : '';
+    }
+
+    function rankNum(rank) {
+      return rank <= 3 ? ['I','II','III'][rank-1] : rank;
+    }
+
+    function cardKey(item) {
+      return item.type === 'divider' ? '__divider__' : String(item.player.id);
+    }
+
+    // Map of key → DOM element kept across refreshes
+    const nodeMap = new Map();
+
+    function upsertCard(item, maxPts) {
+      const key = cardKey(item);
+
+      if (item.type === 'divider') {
+        if (!nodeMap.has(key)) {
+          const el = document.createElement('div');
+          el.className = 'tv-elim-label';
+          el.textContent = '✕ Ausgeschieden';
+          nodeMap.set(key, el);
+        }
+        return nodeMap.get(key);
+      }
+
+      const { player: p, rank, elim } = item;
+      const pct   = !elim && maxPts > 0 ? Math.min(100, Math.round(p.points / maxPts * 100)) : 0;
+      const icon  = ROLES[p.role] || '○';
+      const rClass = elim ? 'eliminated' : rankClass(rank);
+      const badge  = elim ? '—' : rankNum(rank);
+
+      if (!nodeMap.has(key)) {
+        // Create fresh card
+        const el = document.createElement('div');
+        el.className = `tv-card ${rClass}`;
+        el.innerHTML = `
+          <div class="tv-card-inner">
+            <div class="tv-card-top">
+              <div class="tv-rank-badge">${badge}</div>
+              <div class="tv-name-block">
+                <div class="tv-name">${escHtml(p.name)}</div>
+                <div class="tv-role">${icon} ${escHtml(p.role)}</div>
+              </div>
+              <div class="tv-pts">${p.points}</div>
+            </div>
+            <div class="tv-bar-wrap">
+              <div class="tv-bar" style="width:${pct}%"></div>
+            </div>
+          </div>`;
+        nodeMap.set(key, el);
+      } else {
+        // Patch only what changed — no DOM replacement, no flicker
+        const el = nodeMap.get(key);
+        el.className = `tv-card ${rClass}`;
+        el.querySelector('.tv-rank-badge').textContent = badge;
+        el.querySelector('.tv-pts').textContent = p.points;
+        el.querySelector('.tv-bar').style.width = pct + '%';
+      }
+
+      return nodeMap.get(key);
+    }
+
     async function loadData() {
       try {
         const [pRes, rRes] = await Promise.all([
@@ -447,72 +525,38 @@
         const players = await pRes.json();
         const rules   = await rRes.json();
 
-        const sorted  = [...players].sort((a, b) => b.points - a.points);
-        const active  = sorted.filter(p => p.points > 0);
-        const elim    = sorted.filter(p => p.points <= 0);
-        const maxPts  = active.length ? active[0].points : 100;
+        const items  = buildOrder(players);
+        const active = players.filter(p => p.points > 0);
+        const maxPts = active.length ? Math.max(...active.map(p => p.points)) : 100;
 
         document.getElementById('tv-active-count').textContent = active.length;
         document.getElementById('tv-rules-count').textContent  = rules.length;
+        document.getElementById('tv-loading').style.display    = 'none';
 
-        const grid    = document.getElementById('tv-grid');
-        const loading = document.getElementById('tv-loading');
-        loading.style.display = 'none';
+        const grid = document.getElementById('tv-grid');
 
-        let html = '';
+        // Build desired node order
+        const desired = items.map(item => upsertCard(item, maxPts));
 
-        active.forEach((p, idx) => {
-          const rank    = idx + 1;
-          const pct     = maxPts > 0 ? Math.min(100, Math.round(p.points / maxPts * 100)) : 0;
-          const rClass  = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : '';
-          const rankNum = rank <= 3
-            ? ['I','II','III'][rank-1]
-            : rank;
-          const icon    = ROLES[p.role] || '○';
-          html += `
-            <div class="tv-card ${rClass}">
-              <div class="tv-card-inner">
-                <div class="tv-card-top">
-                  <div class="tv-rank-badge">${rankNum}</div>
-                  <div class="tv-name-block">
-                    <div class="tv-name">${escHtml(p.name)}</div>
-                    <div class="tv-role">${icon} ${escHtml(p.role)}</div>
-                  </div>
-                  <div class="tv-pts">${p.points}</div>
-                </div>
-                <div class="tv-bar-wrap">
-                  <div class="tv-bar" style="width:${pct}%"></div>
-                </div>
-              </div>
-            </div>`;
+        // Remove nodes no longer needed
+        const desiredSet = new Set(desired);
+        [...grid.children].forEach(child => {
+          if (!desiredSet.has(child)) grid.removeChild(child);
         });
 
-        if (elim.length) {
-          html += `<div class="tv-elim-label">✕ Ausgeschieden</div>`;
-          elim.forEach(p => {
-            const icon = ROLES[p.role] || '○';
-            html += `
-              <div class="tv-card eliminated">
-                <div class="tv-card-inner">
-                  <div class="tv-card-top">
-                    <div class="tv-rank-badge">—</div>
-                    <div class="tv-name-block">
-                      <div class="tv-name">${escHtml(p.name)}</div>
-                      <div class="tv-role">${icon} ${escHtml(p.role)}</div>
-                    </div>
-                    <div class="tv-pts">0</div>
-                  </div>
-                  <div class="tv-bar-wrap">
-                    <div class="tv-bar" style="width:0%"></div>
-                  </div>
-                </div>
-              </div>`;
-          });
-        }
+        // Insert/reorder without touching nodes that are already correct
+        desired.forEach((node, i) => {
+          if (grid.children[i] !== node) grid.insertBefore(node, grid.children[i] || null);
+        });
 
-        grid.innerHTML = html;
+        // Remove stale keys from nodeMap
+        const desiredKeys = new Set(items.map(cardKey));
+        for (const k of nodeMap.keys()) {
+          if (!desiredKeys.has(k)) nodeMap.delete(k);
+        }
       } catch (e) {
         document.getElementById('tv-loading').textContent = '⚠ Verbindungsfehler';
+        document.getElementById('tv-loading').style.display = 'flex';
       }
     }
 
