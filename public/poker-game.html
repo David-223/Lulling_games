@@ -639,6 +639,180 @@
     .badge-turn   { color: #4f4;             border-color: #1a441a;         background: rgba(80,220,80,0.1); animation: blink 1s infinite; }
 
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    /* ══════════════════════════════════════
+       BUSTED – INSTAGRAM POPUP
+    ══════════════════════════════════════ */
+    .busted-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: rgba(0, 0, 0, 0.88);
+      align-items: center;
+      justify-content: center;
+    }
+    .busted-overlay.visible {
+      display: flex;
+      animation: busted-bg-in 0.2s ease both;
+    }
+    @keyframes busted-bg-in {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes busted-card-in {
+      from { opacity: 0; transform: scale(0.6) translateY(30px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    @keyframes busted-flash {
+      0%,100% { border-color: #e0186e; box-shadow: 0 0 60px rgba(224,24,110,0.45), inset 0 0 30px rgba(224,24,110,0.08); }
+      50%      { border-color: #ff66bb; box-shadow: 0 0 110px rgba(255,80,180,0.7), inset 0 0 50px rgba(255,80,180,0.12); }
+    }
+    @keyframes busted-icon-bounce {
+      0%,100% { transform: translateY(0) rotate(-6deg); }
+      50%      { transform: translateY(-12px) rotate(6deg); }
+    }
+    .busted-card {
+      background: linear-gradient(160deg, #0d0008 0%, #160010 100%);
+      border: 2px solid #e0186e;
+      border-radius: 16px;
+      padding: 2.2rem 2rem 1.8rem;
+      text-align: center;
+      max-width: 340px;
+      width: 92%;
+      animation:
+        busted-card-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both,
+        busted-flash 0.7s ease-in-out 0.35s 4;
+    }
+    .busted-icon {
+      font-size: 4rem;
+      display: block;
+      margin-bottom: 0.6rem;
+      animation: busted-icon-bounce 0.9s ease-in-out infinite;
+    }
+    .busted-heading {
+      font-family: var(--font-title);
+      font-size: 2.2rem;
+      font-weight: 900;
+      letter-spacing: 0.15em;
+      color: #ff2288;
+      text-shadow: 0 0 24px rgba(255,34,136,0.9), 0 0 60px rgba(255,34,136,0.4);
+      margin-bottom: 1rem;
+    }
+    .busted-name {
+      font-family: var(--font-title);
+      font-size: 1.7rem;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.55rem;
+      text-shadow: 0 2px 16px rgba(255,100,180,0.5);
+    }
+    .busted-text {
+      font-family: var(--font-ui);
+      font-size: 0.95rem;
+      color: rgba(255, 200, 225, 0.85);
+      margin-bottom: 0.35rem;
+    }
+    .busted-phase-wrap {
+      font-family: var(--font-ui);
+      font-size: 0.8rem;
+      color: rgba(255, 150, 190, 0.55);
+      margin-bottom: 1.6rem;
+    }
+    .busted-phase-wrap span { color: #ff66bb; font-weight: 700; }
+    .busted-close {
+      background: linear-gradient(135deg, #c0106a, #8c0040);
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-family: var(--font-ui);
+      font-size: 0.92rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.75rem 1.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .busted-close:hover  { background: linear-gradient(135deg, #e01888, #c00060); box-shadow: 0 0 20px rgba(220,24,100,0.5); }
+    .busted-close:active { transform: scale(0.96); }
+
+    /* ══════════════════════════════════════
+       POKER ANIMATIONS – CURSED ENERGY
+    ══════════════════════════════════════ */
+
+    /* Seat cards deal in on new hand */
+    @keyframes seat-deal-in {
+      from { opacity: 0; transform: scale(0.85) translateY(8px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    /* Pot value pop when it changes */
+    @keyframes pot-pop {
+      0%   { transform: scale(1); }
+      40%  { transform: scale(1.18); color: #e8c84a; }
+      100% { transform: scale(1); }
+    }
+
+    /* Action panel slide in from bottom */
+    @keyframes panel-slide-up {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Winner celebration */
+    @keyframes winner-glow {
+      0%, 100% { box-shadow: 0 0 8px rgba(26,107,58,0.3); }
+      50%       { box-shadow: 0 0 28px rgba(26,200,80,0.6), 0 0 60px rgba(201,162,39,0.2); }
+    }
+
+    /* Phase step highlight sweep */
+    @keyframes phase-sweep {
+      from { background-color: var(--p-bg2); }
+      to   { background-color: var(--p-bg); }
+    }
+
+    /* Poker oval table glow pulse */
+    @keyframes table-glow {
+      0%, 100% { box-shadow: 0 0 0 3px #5c2e0a, inset 0 2px 14px rgba(0,0,0,0.45), 0 8px 28px rgba(0,0,0,0.65); }
+      50%       { box-shadow: 0 0 0 3px #7a3e12, inset 0 2px 14px rgba(0,0,0,0.45), 0 8px 40px rgba(0,0,0,0.7), 0 0 40px rgba(56,134,74,0.12); }
+    }
+
+    /* Player row turn pulse (list view) */
+    @keyframes row-turn-pulse {
+      0%, 100% { box-shadow: 0 0 8px var(--p-bg); }
+      50%       { box-shadow: 0 0 20px var(--p-bg), 0 0 36px rgba(90,138,240,0.15); }
+    }
+
+    /* Apply animations */
+    .table-pot-val.pot-updated {
+      animation: pot-pop 0.35s ease both;
+    }
+
+    .action-panel {
+      animation: panel-slide-up 0.3s ease both;
+    }
+
+    .hand-result {
+      animation: winner-glow 2s ease-in-out infinite;
+    }
+
+    .phase-step.active {
+      animation: phase-sweep 0.3s ease both;
+    }
+
+    .poker-oval {
+      animation: table-glow 4s ease-in-out infinite;
+    }
+
+    .player-row.active-turn {
+      animation: row-turn-pulse 1.8s ease-in-out infinite;
+    }
+
+    /* Stagger seat cards - removed to prevent re-animation on each poll */
+    /* Player row entrance - removed to prevent blinking on each poll */
   </style>
 </head>
 <body>
@@ -648,15 +822,17 @@
     <div class="logo-sub">Das Culling Spiel · Das Trinkspiel</div>
     <nav class="nav-links">
       <a href="index.html">Regeln</a>
-      <a href="lobby.html">Anmelden</a>
+      <a href="poker.html">Hände</a>
       <a href="gluecksrad.html">Gamble</a>
       <a href="poker-game.html" class="active">Poker</a>
       <div class="nav-dropdown">
         <button class="nav-dropdown-btn" id="nav-more-btn">Mehr ▾</button>
         <div class="nav-dropdown-menu" id="nav-more-menu">
-          <a href="poker.html">Hände</a>
+          <a href="lobby.html">Anmelden</a>
           <a href="spieler.html">Spieler</a>
+          <a href="binding-vows.html">Binding Vows</a>
           <a href="admin.html">Admin</a>
+            <a href="brainrot.html">Brainrot</a>
         </div>
       </div>
     </nav>
@@ -787,6 +963,22 @@
         </button>
         <div id="winner-section" style="display:none">
           <div id="winner-checkboxes" style="display:flex;flex-direction:column;gap:0.35rem;margin-bottom:0.5rem"></div>
+          <div style="margin-top:0.5rem">
+            <div style="font-family:var(--font-ui);font-size:0.63rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--text-dim);font-weight:700;margin-bottom:0.3rem">Gewinnende Hand (optional)</div>
+            <select id="winning-hand-select" class="winner-select">
+              <option value="">— Keine Angabe —</option>
+              <option value="royal_flush">Royal Flush</option>
+              <option value="straight_flush">Straight Flush</option>
+              <option value="four_of_a_kind">Vierling (Four of a Kind)</option>
+              <option value="full_house">Full House</option>
+              <option value="flush">Flush</option>
+              <option value="straight">Straße (Straight)</option>
+              <option value="three_of_a_kind">Drilling (Three of a Kind)</option>
+              <option value="two_pair">Zwei Paare (Two Pair)</option>
+              <option value="one_pair">Ein Paar (One Pair)</option>
+              <option value="high_card">High Card</option>
+            </select>
+          </div>
           <button class="btn btn-primary btn-full" id="winner-btn" style="margin-top:0.5rem">
             Pot vergeben
           </button>
@@ -797,6 +989,10 @@
       <div class="hand-result" id="hand-result" style="display:none">
         <div class="winner-name" id="result-name"></div>
         <p id="result-text"></p>
+        <div id="hand-rule-box" style="display:none;margin-top:0.8rem;background:rgba(201,162,39,0.08);border:1px solid var(--gold-dim);border-radius:6px;padding:0.7rem 0.9rem;text-align:left;">
+          <div style="font-family:var(--font-ui);font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-dim);font-weight:700;margin-bottom:0.25rem" id="hand-rule-label"></div>
+          <div style="font-family:var(--font-ui);font-size:0.95rem;color:var(--gold);font-weight:600" id="hand-rule-text"></div>
+        </div>
         <div style="display:flex;gap:0.5rem;margin-top:0.8rem;justify-content:center">
           <button class="btn btn-primary" id="next-hand-btn">Nächste Hand</button>
           <button class="btn btn-secondary" id="end-game-btn">Spiel beenden</button>
@@ -810,6 +1006,18 @@
 
     </div>
   </main>
+
+  <!-- Busted popup overlay -->
+  <div class="busted-overlay" id="busted-overlay">
+    <div class="busted-card">
+      <span class="busted-icon">📱</span>
+      <div class="busted-heading">ERWISCHT!</div>
+      <div class="busted-name" id="busted-name"></div>
+      <div class="busted-text">hat heimlich Instagram gecheckt!</div>
+      <div class="busted-phase-wrap">während <span id="busted-phase"></span></div>
+      <button class="busted-close" id="busted-close-btn">Ok, schäm dich!</button>
+    </div>
+  </div>
 
   <div id="toast"></div>
 
@@ -847,6 +1055,10 @@
     let lastHandNum = parseInt(localStorage.getItem('lalling-poker-redirect-hand') || '-1');
     let prevCurrentPlayerIdx = -2; // -2 = uninitialized
 
+    // ── Busted popup state ──
+    let lastBustedHandNum = -1;
+    let shownBustedCount  = 0;
+
     // ── Vibration helpers ──
     function vibrateNewHand() {
       if ('vibrate' in navigator) navigator.vibrate([200, 100, 200]);
@@ -879,6 +1091,15 @@
         localStorage.setItem('lalling-poker-redirect-hand', g.handNum);
       }
 
+      // ── Instagram busted popup ──
+      const curEvents = (g.awayEvents || []).filter(e => e.handNum === g.handNum);
+      if (g.handNum !== lastBustedHandNum) { lastBustedHandNum = g.handNum; shownBustedCount = 0; }
+      if (curEvents.length > shownBustedCount) {
+        const newEvts = curEvents.slice(shownBustedCount);
+        shownBustedCount = curEvents.length;
+        newEvts.forEach(showBustedPopup);
+      }
+
       // Phase bar
       document.querySelectorAll('.phase-step').forEach(el => {
         const ph = el.dataset.phase;
@@ -887,8 +1108,15 @@
         el.className = 'phase-step' + (ph === g.phase ? ' active' : idx < cur ? ' done' : '');
       });
 
-      // Pot — both views
-      document.getElementById('pot-value').textContent = g.pot;
+      // Pot — both views (animate on change)
+      const potEl = document.getElementById('pot-value');
+      if (potEl.textContent !== String(g.pot)) {
+        potEl.classList.remove('pot-updated');
+        void potEl.offsetWidth; // reflow to restart animation
+        potEl.classList.add('pot-updated');
+        setTimeout(() => potEl.classList.remove('pot-updated'), 400);
+      }
+      potEl.textContent = g.pot;
       document.getElementById('list-pot-value').innerHTML = `${g.pot} <span style="font-size:1rem;color:var(--gold-dim)">Pts</span>`;
 
       // Current bet info inside table oval
@@ -1060,6 +1288,38 @@
         handResult.style.display = '';
         document.getElementById('result-name').textContent = g.winner || '?';
         document.getElementById('result-text').textContent = g.splitPot ? 'Pot aufgeteilt!' : 'Hat den Pot gewonnen!';
+        const ruleBox = document.getElementById('hand-rule-box');
+        if (g.winningHand) {
+          const savedHandRules = JSON.parse(localStorage.getItem('poker-hand-rules') || '{}');
+          const HAND_DEFS = {
+            royal_flush: 'Alle anderen trinken 5 Schlucke. Du bist unantastbar.',
+            straight_flush: 'Verteile 8 Schlucke frei auf beliebige Spieler.',
+            four_of_a_kind: 'Verteile 6 Schlucke frei. Du darfst eine Regel für diese Runde bestimmen.',
+            full_house: 'Verteile 4 Schlucke und trink selbst 1 Schluck.',
+            flush: 'Verteile 3 Schlucke frei.',
+            straight: 'Spieler links und rechts trinken je 2 Schlucke.',
+            three_of_a_kind: 'Wähle einen Spieler aus – dieser trinkt 3 Schlucke.',
+            two_pair: 'Du trinkst 2 Schlucke.',
+            one_pair: 'Du trinkst 1 Schluck.',
+            high_card: 'Du trinkst 2 Schlucke. Pech gehabt.'
+          };
+          const HAND_NAMES = {
+            royal_flush: 'Royaler Flush', straight_flush: 'Straight Flush',
+            four_of_a_kind: 'Vierling', full_house: 'Full House',
+            flush: 'Flush', straight: 'Straße',
+            three_of_a_kind: 'Drilling', two_pair: 'Zwei Paare',
+            one_pair: 'Ein Paar', high_card: 'Höchste Karte'
+          };
+          const ruleText = savedHandRules[g.winningHand] !== undefined
+            ? savedHandRules[g.winningHand]
+            : (HAND_DEFS[g.winningHand] || '');
+          const resolved = ruleText.replace(/\{Spieler\}/gi, g.winner || '?');
+          document.getElementById('hand-rule-label').textContent = HAND_NAMES[g.winningHand] || g.winningHand;
+          document.getElementById('hand-rule-text').textContent = resolved;
+          ruleBox.style.display = '';
+        } else {
+          ruleBox.style.display = 'none';
+        }
 
       } else if (g.phase === 'showdown' && isAdmin()) {
         controlPanel.style.display = '';
@@ -1177,10 +1437,11 @@
       const checked = [...document.querySelectorAll('#winner-checkboxes input:checked')];
       if (!checked.length) { showToast('Gewinner auswählen', 'error'); return; }
       const winnerIds = checked.map(el => parseInt(el.value));
+      const winningHand = document.getElementById('winning-hand-select').value || null;
       try {
         const res = await fetch('/api/poker/winner', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...adminAuthBody(), winnerIds })
+          body: JSON.stringify({ ...adminAuthBody(), winnerIds, winningHand })
         });
         const data = await res.json();
         if (!res.ok) { showToast(data.error || 'Fehler', 'error'); return; }
@@ -1215,6 +1476,111 @@
     document.getElementById('end-game-btn').addEventListener('click', endGame);
     document.getElementById('end-game-btn2').addEventListener('click', endGame);
 
+    // ── Busted sound (Web Audio API – no external files needed) ──
+    function playBustedSound() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const master = ctx.createGain();
+        master.gain.setValueAtTime(0.75, ctx.currentTime);
+        master.connect(ctx.destination);
+        const now = ctx.currentTime;
+        // Police siren: 3 sweeping oscillators
+        for (let i = 0; i < 3; i++) {
+          const osc = ctx.createOscillator();
+          const g   = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.connect(g); g.connect(master);
+          const t = now + i * 0.48;
+          osc.frequency.setValueAtTime(600, t);
+          osc.frequency.linearRampToValueAtTime(1100, t + 0.24);
+          osc.frequency.linearRampToValueAtTime(600,  t + 0.48);
+          g.gain.setValueAtTime(0.5, t);
+          g.gain.setValueAtTime(0.5, t + 0.42);
+          g.gain.linearRampToValueAtTime(0, t + 0.48);
+          osc.start(t); osc.stop(t + 0.5);
+        }
+        // Low "BUSTED" buzz at the end
+        const buzz = ctx.createOscillator();
+        const buzzG = ctx.createGain();
+        buzz.type = 'square';
+        buzz.frequency.setValueAtTime(160, now + 1.5);
+        buzz.connect(buzzG); buzzG.connect(master);
+        buzzG.gain.setValueAtTime(0, now + 1.5);
+        buzzG.gain.linearRampToValueAtTime(0.65, now + 1.58);
+        buzzG.gain.linearRampToValueAtTime(0, now + 2.1);
+        buzz.start(now + 1.5); buzz.stop(now + 2.2);
+        setTimeout(() => { try { ctx.close(); } catch {} }, 3000);
+      } catch (e) {}
+    }
+
+    // ── Busted popup ──
+    const PHASE_SHORT = { preflop: 'Pre-Flop', flop: 'Flop', turn: 'Turn', river: 'River', showdown: 'Showdown' };
+
+    function showBustedPopup(evt) {
+      const overlay = document.getElementById('busted-overlay');
+      document.getElementById('busted-name').textContent  = evt.name;
+      document.getElementById('busted-phase').textContent = PHASE_SHORT[evt.phase] || evt.phase;
+      overlay.classList.add('visible');
+      playBustedSound();
+      clearTimeout(overlay._t);
+      overlay._t = setTimeout(closeBustedPopup, 6000);
+    }
+
+    function closeBustedPopup() {
+      const overlay = document.getElementById('busted-overlay');
+      clearTimeout(overlay._t);
+      overlay.classList.remove('visible');
+    }
+
+    document.getElementById('busted-close-btn').addEventListener('click', closeBustedPopup);
+
+    // ── Instagram / Away detector ──
+    (function() {
+      let lastReport  = 0;
+      let wentAway    = false;
+      let isUnloading = false;
+
+      // beforeunload fires BEFORE visibilitychange on reload / tab-close / navigation.
+      // It does NOT fire on a plain app-switch (home button / switching to Instagram).
+      // We use this to tell the two cases apart.
+      window.addEventListener('beforeunload', () => { isUnloading = true; });
+
+      function reportAway() {
+        if (localStorage.getItem('lalling-handy-detect') !== '1') return; // feature disabled
+        if (isUnloading) return;          // reload or close — ignore
+        if (!game) return;
+        if (!['preflop', 'flop', 'turn', 'river', 'showdown'].includes(game.phase)) return;
+        const me = getMe();
+        if (!me) return;
+        const now = Date.now();
+        if (now - lastReport < 4000) return;
+        lastReport = now;
+        wentAway = true;
+        const body = JSON.stringify({ playerId: me.id });
+        // sendBeacon survives the JS freeze that happens right after app-switching on iOS/Android
+        if (typeof navigator.sendBeacon === 'function') {
+          navigator.sendBeacon('/api/poker/away', new Blob([body], { type: 'application/json' }));
+        } else {
+          fetch('/api/poker/away', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            keepalive: true, body
+          }).catch(() => {});
+        }
+      }
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+          reportAway();
+        } else {
+          isUnloading = false; // page came back — reset flag
+          if (wentAway) {
+            wentAway = false;
+            poll(); // immediate poll so popup shows the moment they return
+          }
+        }
+      });
+    })();
+
     // ── Polling ──
     async function poll() {
       try {
@@ -1222,7 +1588,7 @@
         if (res.status === 404) { stopPolling(); showNoGame(); return; }
         const data = await res.json();
         if (!data || data.phase === 'setup') { stopPolling(); showNoGame(); return; }
-        if (data.phase === 'ended') return;
+        if (data.phase === 'ended') { render(data); stopPolling(); return; }
         render(data);
         // Auto-advance when a betting round is finished
         if (data.toAct.length === 0 && data.currentPlayerIdx === -1

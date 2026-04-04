@@ -151,6 +151,11 @@ app.post('/api/rules/buy', (req, res) => {
   }
   pdata.players[pidx].points -= 100;
   writePlayers(pdata);
+  // Keep in-memory poker chips in sync so the deduction isn't overwritten at showdown
+  if (pokerGame) {
+    const gp = pokerGame.players.find(p => p.id === parseInt(playerId));
+    if (gp) gp.chips = Math.max(0, gp.chips - 100);
+  }
   const rdata = readData();
   const newRule = { id: rdata.nextId, points: null, title: title.trim(), description: description.trim() };
   rdata.rules.push(newRule);
@@ -248,6 +253,7 @@ app.post('/api/poker/new', (req, res) => {
     blindSmall: Math.max(1, parseInt(blindSmall) || 5),
     blindBig: Math.max(2, parseInt(blindBig) || 10),
     handNum: 0, winner: null, winnerId: null,
+    awayEvents: [],
   };
   res.json(pokerGame);
 });
@@ -263,6 +269,7 @@ app.post('/api/poker/deal', (req, res) => {
   }
   g.handNum++;
   g.pot = 0; g.currentBet = 0; g.winner = null; g.winnerId = null; g.phase = 'preflop';
+  g.awayEvents = [];
   g.players.forEach(p => { p.roundBet = 0; p.totalBet = 0; p.folded = p.chips <= 0; p.allIn = false; });
 
   let sbIdx = (g.dealerIdx + 1) % n;
@@ -375,6 +382,7 @@ app.post('/api/poker/winner', (req, res) => {
   g.winnerId = winners[0].id;
   g.splitPot = winners.length > 1;
   g.pot = 0; g.phase = 'ended';
+  g.winningHand = req.body.winningHand || null;
   const pdata = readPlayers();
   g.players.forEach(gp => { const pp = pdata.players.find(p => p.id === gp.id); if (pp) pp.points = gp.chips; });
   writePlayers(pdata);
@@ -389,6 +397,103 @@ app.post('/api/poker/end', (req, res) => {
     writePlayers(pdata);
   }
   pokerGame = null;
+  res.json({ success: true });
+});
+
+// ── Poker: Away-from-table event (Instagram detector) ──
+app.post('/api/poker/away', (req, res) => {
+  if (!pokerGame) return res.status(400).json({ error: 'Kein Spiel' });
+  const g = pokerGame;
+  if (!['preflop', 'flop', 'turn', 'river', 'showdown'].includes(g.phase))
+    return res.status(400).json({ error: 'Keine aktive Hand' });
+  const { playerId } = req.body;
+  if (!playerId) return res.status(400).json({ error: 'Spieler erforderlich' });
+  const player = g.players.find(p => p.id === parseInt(playerId));
+  if (!player) return res.status(404).json({ error: 'Spieler nicht gefunden' });
+  if (!g.awayEvents) g.awayEvents = [];
+  // Throttle: max one entry per player per 4 seconds
+  const now = Date.now();
+  const last = g.awayEvents.filter(e => e.playerId === player.id).pop();
+  if (last && now - last.at < 4000) return res.json({ success: true, skipped: true });
+  g.awayEvents.push({ playerId: player.id, name: player.name, handNum: g.handNum, phase: g.phase, at: now });
+  // Keep log to last 20 entries total
+  if (g.awayEvents.length > 20) g.awayEvents.shift();
+  res.json({ success: true });
+});
+
+// ── Wheel entries ──
+
+const WHEEL_FILE = path.join(__dirname, 'data', 'wheel.json');
+
+function readWheel() {
+  if (!fs.existsSync(WHEEL_FILE)) return { entries: [] };
+  return JSON.parse(fs.readFileSync(WHEEL_FILE, 'utf-8'));
+}
+
+function writeWheel(data) {
+  fs.writeFileSync(WHEEL_FILE, JSON.stringify(data, null, 2), 'utf-8');
+}
+
+app.get('/api/wheel', (req, res) => {
+  res.json(readWheel().entries);
+});
+
+app.post('/api/wheel', (req, res) => {
+  const { entries } = req.body;
+  if (!Array.isArray(entries)) return res.status(400).json({ error: 'entries must be array' });
+  writeWheel({ entries: entries.slice(0, 20) });
+  res.json({ success: true });
+});
+
+// ── Binding Vows ──
+
+const VOWS_FILE = path.join(__dirname, 'data', 'binding-vows.json');
+
+function readVows() {
+  if (!fs.existsSync(VOWS_FILE)) return { vows: [], nextId: 1 };
+  return JSON.parse(fs.readFileSync(VOWS_FILE, 'utf-8'));
+}
+
+function writeVows(data) {
+  fs.writeFileSync(VOWS_FILE, JSON.stringify(data, null, 2), 'utf-8');
+}
+
+app.get('/api/binding-vows', (req, res) => {
+  const { vows } = readVows();
+  const players = readPlayers().players;
+  const enriched = vows.map(v => ({
+    ...v,
+    player1: players.find(p => p.id === v.player1Id) || null,
+    player2: players.find(p => p.id === v.player2Id) || null,
+  }));
+  res.json(enriched);
+});
+
+app.post('/api/binding-vows', (req, res) => {
+  if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
+  const { player1Id, player2Id } = req.body;
+  if (!player1Id || !player2Id) return res.status(400).json({ error: 'Zwei Spieler erforderlich' });
+  if (player1Id === player2Id) return res.status(400).json({ error: 'Spieler muss verschieden sein' });
+  const data = readVows();
+  const already = data.vows.find(v =>
+    (v.player1Id === player1Id && v.player2Id === player2Id) ||
+    (v.player1Id === player2Id && v.player2Id === player1Id)
+  );
+  if (already) return res.status(409).json({ error: 'Gelübde besteht bereits' });
+  const vow = { id: data.nextId++, player1Id: parseInt(player1Id), player2Id: parseInt(player2Id) };
+  data.vows.push(vow);
+  writeVows(data);
+  res.json({ success: true, vow });
+});
+
+app.delete('/api/binding-vows/:id', (req, res) => {
+  if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
+  const id = parseInt(req.params.id);
+  const data = readVows();
+  const idx = data.vows.findIndex(v => v.id === id);
+  if (idx === -1) return res.status(404).json({ error: 'Gelübde nicht gefunden' });
+  data.vows.splice(idx, 1);
+  writeVows(data);
   res.json({ success: true });
 });
 

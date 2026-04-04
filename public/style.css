@@ -6,26 +6,17 @@
    ROOT – STATIC COLOURS
 ────────────────────────────────────────────── */
 :root {
-  /* ── Base backgrounds: dark blue-black with clear value steps ── */
+  /* ── Base backgrounds ── */
   --bg-dark:   #05050c;
   --bg-card:   #0a0a15;
   --bg-card2:  #0f0f1e;
 
-  /* ── Danger / accent – rich blood crimson, not harsh red ── */
+  /* ── Danger / accent ── */
   --accent:      #8c1c1c;
   --accent-glow: #cc3535;
   --accent-dim:  #420e0e;
 
-  /* ── Curse energy colours (used in hero, consistent with ao theme) ── */
-  --curse-blue:       #1e3aaa;
-  --curse-blue-glow:  #5a8af0;
-  --curse-blue-dim:   #0e2062;
-
-  --curse-purple:      #5522a0;
-  --curse-purple-glow: #9060d8;
-  --curse-purple-dim:  #280e50;
-
-  /* ── Gold: warmer, more vibrant – complementary to blue & purple ── */
+  /* ── Gold ── */
   --gold:        #c9a227;
   --gold-dim:    #7a6218;
   --gold-bright: #e0b830;
@@ -34,7 +25,6 @@
   --text-dim: #7a748f;
   --text-mid: #bab4cc;
 
-  /* ── Borders: blue-tinted dark to match default ao tone ── */
   --border:      #111128;
   --border-mid:  #1e1e38;
   --border-gold: #281f08;
@@ -46,72 +36,125 @@
   --font-body:  'Rajdhani', 'Segoe UI', system-ui, sans-serif;
   --font-ui:    'Rajdhani', 'Segoe UI', system-ui, sans-serif;
 
-  /* ── Theme primary – defaults to Gojo Blue ── */
-  --p:            #1e3aaa;
-  --p-glow:       #5a8af0;
-  --p-dim:        #0e2062;
-  --p-bg:         rgba(30, 58, 170, 0.12);
-  --p-bg2:        rgba(30, 58, 170, 0.06);
-  --p-hover-glow: #c9a227;
+  /* ── Theme primary (defaults to ao) ── */
+  --p:       #1a44dd;
+  --p-glow:  #3aadff;
+  --p-dim:   #0a1a6e;
+  --p-bg:    rgba(26, 68, 221, 0.15);
+  --p-bg2:   rgba(26, 68, 221, 0.07);
+
+  /* ── Theme secondary accent ── */
+  --p2:      #00c8ee;
+  --p2-glow: #66e4ff;
+  --p2-dim:  #003a55;
+  --p2-bg:   rgba(0, 200, 238, 0.10);
+
+  --p-hover-glow: #00c8ee;
 }
 
 /* ──────────────────────────────────────────────
    THEMES  (set via data-theme on <html>)
 ────────────────────────────────────────────── */
 
-/* 蒼  – Gojo Blue (default – explicit for completeness) */
+/* 蒼 – Gojo Blue + Ice  ·  Six Eyes: electric precision */
 [data-theme="ao"] {
-  --p:            #1e3aaa;
-  --p-glow:       #5a8af0;
-  --p-dim:        #0e2062;
-  --p-bg:         rgba(30, 58, 170, 0.12);
-  --p-bg2:        rgba(30, 58, 170, 0.06);
-  --p-hover-glow: #c9a227;
+  --bg-dark:   #03040e;
+  --bg-card:   #07091a;
+  --bg-card2:  #0c0e24;
+  --border-mid: #181e44;
+
+  --p:       #1a44dd;
+  --p-glow:  #3aadff;
+  --p-dim:   #0a1a6e;
+  --p-bg:    rgba(26, 68, 221, 0.16);
+  --p-bg2:   rgba(26, 68, 221, 0.07);
+
+  --p2:      #00c8ee;
+  --p2-glow: #66e4ff;
+  --p2-dim:  #003a55;
+  --p2-bg:   rgba(0, 200, 238, 0.11);
+
+  --p-hover-glow: #00c8ee;
+  --gold:    #c9a227;
+  --gold-dim: #7a6218;
 }
 
-/* 赫  – Sukuna Crimson */
-/* Backgrounds: warm red-dark — R > G ≈ B — no purple bleed */
+/* 赫 – Sukuna Crimson + Cursed Flame  ·  King of Curses */
 [data-theme="shuku"] {
-  --bg-dark:     #0c0404;
-  --bg-card:     #130508;
-  --bg-card2:    #1c060a;
-  --p:           #8c1c1c;
-  --p-glow:      #cc3535;
-  --p-dim:       #420e0e;
-  --p-bg:        rgba(140, 28, 28, 0.14);
-  --p-bg2:       rgba(140, 28, 28, 0.07);
-  --border-mid:  #220a0a;
-  --p-hover-glow: #c9a227;
+  --bg-dark:   #070202;
+  --bg-card:   #0f0303;
+  --bg-card2:  #170404;
+  --border-mid: #2a0808;
+  --text:      #eeddd9;
+  --text-mid:  #ccb5b0;
+  --text-dim:  #8f7472;
+
+  --p:       #bb1818;
+  --p-glow:  #ff3322;
+  --p-dim:   #550808;
+  --p-bg:    rgba(187, 24, 24, 0.18);
+  --p-bg2:   rgba(187, 24, 24, 0.08);
+
+  --p2:      #cc6010;
+  --p2-glow: #ff9933;
+  --p2-dim:  #5a2208;
+  --p2-bg:   rgba(204, 96, 16, 0.12);
+
+  --p-hover-glow: #ff9933;
+  --gold:    #e8aa30;
+  --gold-dim: #8a6020;
 }
 
-/* 闇  – Hollow Purple Void */
-/* Backgrounds: pure violet-dark — B > R, G ≈ 0 — true void purple */
+/* 闇 – Hollow Purple  ·  Infinity ∞ Blue + Divergent Fist Red = Void */
 [data-theme="yami"] {
-  --bg-dark:     #060009;
-  --bg-card:     #0c0012;
-  --bg-card2:    #12001c;
-  --p:           #5522a0;
-  --p-glow:      #9060d8;
-  --p-dim:       #280e50;
-  --p-bg:        rgba(85, 34, 160, 0.14);
-  --p-bg2:       rgba(85, 34, 160, 0.07);
-  --border-mid:  #180830;
-  --p-hover-glow: #5a8af0;
+  --bg-dark:   #040008;
+  --bg-card:   #080010;
+  --bg-card2:  #0e001c;
+  --border-mid: #1a0638;
+  --text:      #e8d9f0;
+  --text-mid:  #c0a8d4;
+  --text-dim:  #7a6690;
+
+  --p:       #7a1edd;
+  --p-glow:  #bb55ff;
+  --p-dim:   #2e0a66;
+  --p-bg:    rgba(122, 30, 221, 0.18);
+  --p-bg2:   rgba(122, 30, 221, 0.08);
+
+  --p2:      #1a33cc;
+  --p2-glow: #4477ff;
+  --p2-dim:  #0a1266;
+  --p2-bg:   rgba(26, 51, 204, 0.12);
+
+  --p-hover-glow: #4477ff;
+  --gold:    #c9a227;
+  --gold-dim: #7a6218;
 }
 
-/* 金  – Special Grade Gold */
-/* Backgrounds: warm amber-dark — R > G > B — no cool bleed */
+/* 金 – Special Grade Gold + Cursed Copper  ·  Ancient divine power */
 [data-theme="kin"] {
-  --bg-dark:     #090700;
-  --bg-card:     #110e00;
-  --bg-card2:    #191500;
-  --p:           #8a6e1a;
-  --p-glow:      #c9a227;
-  --p-dim:       #3c2e0c;
-  --p-bg:        rgba(138, 110, 26, 0.14);
-  --p-bg2:       rgba(138, 110, 26, 0.07);
-  --border-mid:  #221a00;
-  --p-hover-glow: #cc3535;
+  --bg-dark:   #060400;
+  --bg-card:   #0e0900;
+  --bg-card2:  #160d00;
+  --border-mid: #241800;
+  --text:      #f0e8d0;
+  --text-mid:  #d4c090;
+  --text-dim:  #907850;
+
+  --p:       #a07e10;
+  --p-glow:  #e8c020;
+  --p-dim:   #3e2e08;
+  --p-bg:    rgba(160, 126, 16, 0.18);
+  --p-bg2:   rgba(160, 126, 16, 0.08);
+
+  --p2:      #c04820;
+  --p2-glow: #ff7733;
+  --p2-dim:  #501808;
+  --p2-bg:   rgba(192, 72, 32, 0.12);
+
+  --p-hover-glow: #ff7733;
+  --gold:    #e8c020;
+  --gold-dim: #8a6818;
 }
 
 /* ──────────────────────────────────────────────
@@ -138,11 +181,12 @@ body::before {
   position: fixed;
   inset: 0;
   background-image:
-    radial-gradient(ellipse at 15% 60%, rgba(0,30,130,0.04)  0%, transparent 55%),
-    radial-gradient(ellipse at 85% 25%, rgba(70,0,150,0.03)  0%, transparent 50%),
-    radial-gradient(ellipse at 50% 90%, rgba(100,0,0,0.03)   0%, transparent 55%);
+    radial-gradient(ellipse 80% 60% at 10% 75%, var(--p-bg)  0%, transparent 70%),
+    radial-gradient(ellipse 70% 55% at 90% 20%, var(--p2-bg) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 40% at 55% 95%, var(--p2-bg) 0%, transparent 60%);
   pointer-events: none;
   z-index: 0;
+  transition: background-image 0.5s;
 }
 
 body > * { position: relative; z-index: 1; }
@@ -165,13 +209,18 @@ body > * { position: relative; z-index: 1; }
 .site-header::after {
   content: '';
   position: absolute;
-  bottom: -1px; left: 10%; right: 10%;
+  bottom: -1px; left: 5%; right: 5%;
   height: 1px;
   background: linear-gradient(
     90deg,
-    transparent, var(--p-dim), transparent
+    transparent 0%,
+    var(--p-dim) 30%,
+    var(--p-glow) 48%,
+    var(--p2-glow) 52%,
+    var(--p2-dim) 70%,
+    transparent 100%
   );
-  opacity: 0.6;
+  opacity: 0.9;
   transition: background 0.5s;
 }
 
@@ -188,11 +237,14 @@ body > * { position: relative; z-index: 1; }
   font-size: 0.7rem;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: var(--p-glow);
-  opacity: 0.7;
+  background: linear-gradient(90deg, var(--p-glow), var(--p2-glow));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  opacity: 0.9;
   margin-top: 0.2rem;
   font-family: var(--font-ui);
-  transition: color 0.5s;
+  transition: background 0.5s;
 }
 
 /* ── Nav ── */
@@ -218,10 +270,10 @@ body > * { position: relative; z-index: 1; }
 }
 
 .nav-links a:hover {
-  color: var(--p-glow);
-  border-color: var(--p-dim);
-  background: var(--p-bg);
-  box-shadow: 0 0 12px var(--p-bg);
+  color: var(--p2-glow);
+  border-color: var(--p2-dim);
+  background: linear-gradient(135deg, var(--p-bg), var(--p2-bg));
+  box-shadow: 0 0 12px var(--p2-bg);
 }
 
 .nav-links a.active {
@@ -330,10 +382,10 @@ body > * { position: relative; z-index: 1; }
 .theme-btn:hover  { transform: scale(1.2); }
 .theme-btn.active { transform: scale(1.25); box-shadow: 0 0 8px currentColor; }
 
-.theme-btn[data-scheme="ao"]    { background: linear-gradient(135deg, #0e2062, #5a8af0); color: #5a8af0; }
-.theme-btn[data-scheme="shuku"] { background: linear-gradient(135deg, #420e0e, #cc3535); color: #cc3535; }
-.theme-btn[data-scheme="yami"]  { background: linear-gradient(135deg, #280e50, #9060d8); color: #9060d8; }
-.theme-btn[data-scheme="kin"]   { background: linear-gradient(135deg, #3c2e0c, #c9a227); color: #c9a227; }
+.theme-btn[data-scheme="ao"]    { background: linear-gradient(135deg, #0a1a6e 0%, #1a44dd 45%, #00c8ee 100%); color: #3aadff; }
+.theme-btn[data-scheme="shuku"] { background: linear-gradient(135deg, #550808 0%, #bb1818 45%, #ff9933 100%); color: #ff3322; }
+.theme-btn[data-scheme="yami"]  { background: linear-gradient(135deg, #2e0a66 0%, #7a1edd 45%, #4477ff 100%); color: #bb55ff; }
+.theme-btn[data-scheme="kin"]   { background: linear-gradient(135deg, #3e2e08 0%, #a07e10 45%, #ff7733 100%); color: #e8c020; }
 
 .theme-btn-label {
   font-size: 0.6rem;
@@ -379,10 +431,11 @@ main {
 
 .section-title::before {
   content: '呪';
-  color: var(--accent-glow);
+  color: var(--p2-glow);
   font-size: 1em;
-  opacity: 0.65;
+  opacity: 0.8;
   font-family: serif;
+  transition: color 0.5s;
 }
 
 /* ──────────────────────────────────────────────
@@ -404,7 +457,7 @@ main {
   content: '';
   position: absolute;
   top: 0; left: -3px; bottom: 0; width: 3px;
-  background: linear-gradient(180deg, var(--p-glow), var(--p), var(--p-dim));
+  background: linear-gradient(180deg, var(--p2-glow) 0%, var(--p-glow) 40%, var(--p) 70%, var(--p-dim) 100%);
   transition: background 0.5s;
 }
 
@@ -429,7 +482,7 @@ main {
 }
 
 .rule-card-wrap:hover {
-  filter: drop-shadow(0 4px 14px rgba(0,0,0,0.6));
+  filter: drop-shadow(0 4px 18px rgba(0,0,0,0.7)) drop-shadow(0 0 8px var(--p-bg));
   transform: translateY(-1px);
 }
 
@@ -450,7 +503,7 @@ main {
 }
 
 .rule-number-bar {
-  background: linear-gradient(90deg, var(--p-bg) 0%, transparent 65%);
+  background: linear-gradient(90deg, var(--p-bg) 0%, var(--p2-bg) 50%, transparent 80%);
   border-bottom: 1px solid var(--border-mid);
   padding: 0.45rem 2rem 0.45rem 2rem;
   display: flex;
@@ -612,8 +665,8 @@ main {
 .form-group input:focus,
 .form-group textarea:focus,
 .form-group select:focus {
-  border-color: var(--p);
-  box-shadow: 0 0 0 3px var(--p-bg);
+  border-color: var(--p2);
+  box-shadow: 0 0 0 3px var(--p2-bg), 0 0 0 1px var(--p-dim);
 }
 
 .form-group textarea { resize: vertical; min-height: 90px; }
@@ -635,11 +688,16 @@ main {
 .form-card {
   background: var(--bg-card);
   border: 1px solid var(--border-mid);
+  border-left: 2px solid var(--p-dim);
   border-radius: 8px;
   padding: 1.3rem 1.1rem;
   margin-bottom: 1.5rem;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5), inset 1px 0 0 var(--p-bg);
   transition: background 0.5s, border-color 0.5s;
+}
+
+.form-card:hover {
+  border-left-color: var(--p2-dim);
 }
 
 /* ──────────────────────────────────────────────
@@ -711,14 +769,15 @@ main {
 .modal {
   background: var(--bg-card);
   border: 1px solid var(--p-dim);
-  border-top: 2px solid var(--p);
+  border-top: 2px solid transparent;
+  border-image: linear-gradient(90deg, var(--p), var(--p2)) 1;
   border-radius: 12px 12px 0 0;
   width: 100%;
   max-width: 620px;
   padding: 1.5rem 1.1rem 2rem;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 -8px 40px var(--p-bg);
+  box-shadow: 0 -8px 40px var(--p-bg), 0 -4px 20px var(--p2-bg);
   transition: border-color 0.5s;
 }
 
@@ -777,11 +836,182 @@ main {
 
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: var(--bg-dark); }
-::-webkit-scrollbar-thumb { background: var(--p-dim); border-radius: 2px; }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--p-dim), var(--p2-dim));
+  border-radius: 2px;
+}
+
+/* ──────────────────────────────────────────────
+   ANIMATIONS – MODERN CURSED ENERGY
+────────────────────────────────────────────── */
+
+/* Page-level entrance */
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slide-in-left {
+  from { opacity: 0; transform: translateX(-18px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Shimmer sweep (button hover enhancement) */
+@keyframes shimmer-sweep {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+/* Floating drift for decorative elements */
+@keyframes float-drift {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33%       { transform: translateY(-5px) rotate(0.5deg); }
+  66%       { transform: translateY(3px) rotate(-0.5deg); }
+}
+
+/* Glow pulse for highlighted elements */
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 8px var(--p-bg), 0 0 0px var(--p2-bg); }
+  50%       { box-shadow: 0 0 18px var(--p-bg), 0 0 28px var(--p2-bg); }
+}
+
+/* Border light sweep */
+@keyframes border-sweep {
+  0%   { opacity: 0; transform: scaleX(0); transform-origin: left; }
+  50%  { opacity: 1; transform: scaleX(1); transform-origin: left; }
+  51%  { transform-origin: right; }
+  100% { opacity: 0; transform: scaleX(0); transform-origin: right; }
+}
+
+/* Cursed energy flicker */
+@keyframes curse-flicker {
+  0%, 95%, 100% { opacity: 1; }
+  96%            { opacity: 0.7; }
+  97%            { opacity: 1; }
+  98%            { opacity: 0.85; }
+}
+
+/* ── Apply entrance animations ── */
+main {
+  animation: fade-in 0.4s ease both;
+}
+
+.site-header {
+  animation: fade-in 0.3s ease both;
+}
+
+.intro-card {
+  animation: slide-in-left 0.45s ease both;
+  animation-delay: 0.05s;
+}
+
+.section-title {
+  animation: fade-in-up 0.4s ease both;
+  animation-delay: 0.1s;
+}
+
+.rules-count {
+  animation: fade-in 0.4s ease both;
+  animation-delay: 0.15s;
+}
+
+/* Staggered rule cards */
+.rule-card-wrap {
+  animation: fade-in-up 0.4s ease both;
+}
+.rule-card-wrap:nth-child(1)  { animation-delay: 0.10s; }
+.rule-card-wrap:nth-child(2)  { animation-delay: 0.16s; }
+.rule-card-wrap:nth-child(3)  { animation-delay: 0.22s; }
+.rule-card-wrap:nth-child(4)  { animation-delay: 0.28s; }
+.rule-card-wrap:nth-child(5)  { animation-delay: 0.34s; }
+.rule-card-wrap:nth-child(6)  { animation-delay: 0.40s; }
+.rule-card-wrap:nth-child(7)  { animation-delay: 0.46s; }
+.rule-card-wrap:nth-child(8)  { animation-delay: 0.50s; }
+.rule-card-wrap:nth-child(n+9){ animation-delay: 0.54s; }
+
+/* ── Enhanced dual-color primary button ── */
+.btn-primary {
+  background-size: 220% auto;
+  background-image: linear-gradient(
+    125deg,
+    var(--p-dim)  0%,
+    var(--p)      25%,
+    var(--p-glow) 50%,
+    var(--p2)     75%,
+    var(--p2-glow) 100%
+  );
+  border-color: var(--p);
+  transition: background-position 0.6s ease, box-shadow 0.3s, border-color 0.3s;
+}
+
+.btn-primary:hover {
+  background-position: right center;
+  border-color: var(--p2);
+  box-shadow: 0 0 20px var(--p-bg), 0 0 40px var(--p2-bg), 0 2px 8px rgba(0,0,0,0.5);
+}
+
+/* ── Floating logo ── */
+.site-header .logo-text {
+  animation: curse-flicker 8s ease-in-out infinite;
+}
+
+/* ── Section title sweep line ── */
+.section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--p-dim), var(--p2-dim), transparent);
+  animation: border-sweep 4s ease-in-out infinite;
+  margin-left: 0.4rem;
+}
+
+/* ── Form card entrance ── */
+.form-card {
+  animation: fade-in-up 0.4s ease both;
+  animation-delay: 0.1s;
+}
+
+/* ── Login icon float ── */
+.login-icon {
+  animation: float-drift 4s ease-in-out infinite;
+}
+
+/* ── Modal slide-up ── */
+.modal-overlay.open .modal {
+  animation: fade-in-up 0.3s ease both;
+}
+
+/* ── Toast bounce-in ── */
+#toast.show {
+  animation: fade-in-up 0.3s ease both;
+}
+
+/* ── Active nav link pulse glow ── */
+.nav-links a.active {
+  animation: glow-pulse 3s ease-in-out infinite;
+}
 
 /* ──────────────────────────────────────────────
    RESPONSIVE
 ────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .nav-links {
+    gap: 0.25rem;
+    flex-wrap: wrap;
+  }
+  .nav-links a,
+  .nav-dropdown-btn {
+    padding: 0.3rem 0.55rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+  }
+}
+
 @media (max-width: 380px) {
   .site-header .logo-text { font-size: 1.3rem; }
   .rule-title { font-size: 0.97rem; }
