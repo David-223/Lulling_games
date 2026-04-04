@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="ao">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1920" />
+  <title>TV – Lalling Games</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ── TV fullscreen reset ── */
+    html, body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-dark);
+    }
+
+    /* ── Animated cursed-energy background ── */
+    .tv-bg {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .tv-bg::before,
+    .tv-bg::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      animation: orb-drift 12s ease-in-out infinite alternate;
+    }
+
+    .tv-bg::before {
+      width: 70vw; height: 70vw;
+      top: -25vw; left: -20vw;
+      background: radial-gradient(circle,
+        rgba(30,58,170,0.07) 0%,
+        rgba(30,58,170,0.03) 45%,
+        transparent 70%);
+      animation-duration: 14s;
+    }
+
+    .tv-bg::after {
+      width: 60vw; height: 60vw;
+      bottom: -20vw; right: -15vw;
+      background: radial-gradient(circle,
+        rgba(100,0,200,0.06) 0%,
+        rgba(100,0,200,0.02) 45%,
+        transparent 70%);
+      animation-duration: 18s;
+      animation-direction: alternate-reverse;
+    }
+
+    @keyframes orb-drift {
+      0%   { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(4vw, 3vw) scale(1.08); }
+    }
+
+    /* ── Scanline overlay ── */
+    .tv-scanlines {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 3px,
+        rgba(0,0,0,0.04) 3px,
+        rgba(0,0,0,0.04) 4px
+      );
+    }
+
+    /* ── Header bar ── */
+    .tv-header {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.4rem 3.5rem 1rem;
+      border-bottom: 1px solid var(--border-mid);
+      background: linear-gradient(180deg, rgba(10,10,21,0.9) 0%, transparent 100%);
+      flex-shrink: 0;
+    }
+
+    .tv-logo-block {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tv-logo {
+      font-family: var(--font-title);
+      font-size: 2.2rem;
+      font-weight: 900;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      text-shadow:
+        0 0 24px rgba(201,162,39,0.55),
+        0 0 60px rgba(34,102,255,0.2);
+      line-height: 1;
+      animation: logo-breathe 6s ease-in-out infinite;
+    }
+
+    @keyframes logo-breathe {
+      0%,100% { text-shadow: 0 0 24px rgba(201,162,39,0.55), 0 0 60px rgba(34,102,255,0.2); }
+      50%      { text-shadow: 0 0 40px rgba(201,162,39,0.75), 0 0 100px rgba(34,102,255,0.3); }
+    }
+
+    .tv-logo-sub {
+      font-family: var(--font-ui);
+      font-size: 0.72rem;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-top: 0.25rem;
+    }
+
+    .tv-decree {
+      font-family: var(--font-ui);
+      font-size: 0.65rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--p-glow);
+      opacity: 0.7;
+      text-align: right;
+    }
+
+    /* ── Divider rune line ── */
+    .tv-divider {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.6rem 3.5rem 0;
+      position: relative;
+      z-index: 10;
+      flex-shrink: 0;
+    }
+
+    .tv-divider::before,
+    .tv-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--p-dim), transparent);
+    }
+
+    .tv-divider-text {
+      font-family: var(--font-title);
+      font-size: 0.6rem;
+      letter-spacing: 0.4em;
+      color: var(--p-glow);
+      opacity: 0.5;
+      text-transform: uppercase;
+    }
+
+    /* ── Main scoreboard area ── */
+    .tv-main {
+      position: relative;
+      z-index: 10;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 1.2rem 3.5rem 1.8rem;
+      overflow: hidden;
+    }
+
+    .tv-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 1rem;
+      align-content: start;
+      overflow: hidden;
+      flex: 1;
+    }
+
+    /* ── Player card ── */
+    .tv-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-mid);
+      border-radius: 4px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.4s, box-shadow 0.4s;
+      animation: card-in 0.4s ease both;
+    }
+
+    @keyframes card-in {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* rank-1 gold glow, rank-2 silver, rank-3 bronze */
+    .tv-card.rank-1 {
+      border-color: var(--gold-dim);
+      box-shadow: 0 0 18px rgba(201,162,39,0.18), inset 0 0 18px rgba(201,162,39,0.04);
+    }
+    .tv-card.rank-2 {
+      border-color: #55607a;
+      box-shadow: 0 0 12px rgba(160,170,200,0.1);
+    }
+    .tv-card.rank-3 {
+      border-color: #5a3a1a;
+      box-shadow: 0 0 12px rgba(180,100,30,0.1);
+    }
+
+    /* left accent stripe */
+    .tv-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: var(--p);
+      transition: background 0.5s;
+    }
+
+    .tv-card.rank-1::before { background: var(--gold); }
+    .tv-card.rank-2::before { background: #8090b0; }
+    .tv-card.rank-3::before { background: #a06030; }
+    .tv-card.eliminated::before { background: var(--border-mid); }
+
+    .tv-card-inner {
+      padding: 0.8rem 1.1rem 0.8rem 1.3rem;
+    }
+
+    .tv-card-top {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      margin-bottom: 0.55rem;
+    }
+
+    .tv-rank-badge {
+      font-family: var(--font-title);
+      font-size: 1.5rem;
+      font-weight: 900;
+      line-height: 1;
+      min-width: 2.2rem;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .tv-card.rank-1 .tv-rank-badge { color: var(--gold); text-shadow: 0 0 16px rgba(201,162,39,0.6); }
+    .tv-card.rank-2 .tv-rank-badge { color: #aabbd0; }
+    .tv-card.rank-3 .tv-rank-badge { color: #c07840; }
+    .tv-card.eliminated .tv-rank-badge { color: var(--text-dim); }
+
+    .tv-name-block {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .tv-name {
+      font-family: var(--font-title);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      letter-spacing: 0.02em;
+    }
+
+    .tv-card.eliminated .tv-name {
+      color: var(--text-dim);
+      text-decoration: line-through;
+    }
+
+    .tv-role {
+      font-family: var(--font-ui);
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-top: 0.1rem;
+    }
+
+    .tv-pts {
+      font-family: var(--font-title);
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: var(--p-glow);
+      line-height: 1;
+      flex-shrink: 0;
+      transition: color 0.4s;
+    }
+
+    .tv-card.rank-1 .tv-pts { color: var(--gold); }
+    .tv-card.eliminated .tv-pts { color: var(--text-dim); }
+
+    /* ── Points bar ── */
+    .tv-bar-wrap {
+      height: 3px;
+      background: rgba(0,0,0,0.4);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .tv-bar {
+      height: 100%;
+      border-radius: 2px;
+      background: linear-gradient(90deg, var(--p), var(--p-glow));
+      box-shadow: 0 0 6px var(--p-glow);
+      transition: width 1s ease;
+    }
+
+    .tv-card.rank-1  .tv-bar { background: linear-gradient(90deg, var(--gold-dim), var(--gold)); box-shadow: 0 0 8px rgba(201,162,39,0.5); }
+    .tv-card.eliminated .tv-bar { background: var(--border-mid); box-shadow: none; }
+
+    /* ── Footer ── */
+    .tv-footer {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 3.5rem 1rem;
+      border-top: 1px solid var(--border-mid);
+      flex-shrink: 0;
+    }
+
+    .tv-stat {
+      font-family: var(--font-ui);
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      letter-spacing: 0.08em;
+    }
+
+    .tv-stat span {
+      color: var(--p-glow);
+      font-weight: 700;
+    }
+
+    .tv-refresh-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--p-glow);
+      box-shadow: 0 0 8px var(--p-glow);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%,100% { opacity: 0.4; transform: scale(1); }
+      50%      { opacity: 1;   transform: scale(1.3); }
+    }
+
+    /* ── Eliminated section ── */
+    .tv-elim-label {
+      grid-column: 1 / -1;
+      font-family: var(--font-ui);
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      opacity: 0.5;
+      padding: 0.5rem 0 0.1rem;
+      border-top: 1px solid var(--border-mid);
+    }
+
+    /* ── Loading ── */
+    .tv-loading {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-ui);
+      font-size: 1.1rem;
+      letter-spacing: 0.3em;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      z-index: 20;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="tv-bg"></div>
+  <div class="tv-scanlines"></div>
+
+  <header class="tv-header">
+    <div class="tv-logo-block">
+      <div class="tv-logo">Lalling Games</div>
+      <div class="tv-logo-sub">呪術廻戦 · Das Culling Spiel · Das Trinkspiel</div>
+    </div>
+    <div class="tv-decree">
+      — 術式発動 · Technique Activated —<br>
+      <span id="tv-time" style="font-size:1.1rem;letter-spacing:0.15em;color:var(--text-mid);"></span>
+    </div>
+  </header>
+
+  <div class="tv-divider">
+    <span class="tv-divider-text">呪 · Teilnehmer · 術</span>
+  </div>
+
+  <main class="tv-main">
+    <div class="tv-loading" id="tv-loading">Lade Teilnehmer…</div>
+    <div class="tv-grid" id="tv-grid"></div>
+  </main>
+
+  <footer class="tv-footer">
+    <div class="tv-stat">Aktive Teilnehmer: <span id="tv-active-count">—</span></div>
+    <div class="tv-refresh-dot" title="Live"></div>
+    <div class="tv-stat">Regeln: <span id="tv-rules-count">—</span></div>
+  </footer>
+
+  <script>
+    const ROLES = {
+      'Jujutsu Zauberer':  '⚔',
+      'Sonderklasse':      '★',
+      'Verfluchter Geist': '👁',
+      'Fluchnutzer':       '🔥',
+      'Normaler Mensch':   '○',
+    };
+
+    function escHtml(s) {
+      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    // clock
+    function tickClock() {
+      const now = new Date();
+      const h = String(now.getHours()).padStart(2,'0');
+      const m = String(now.getMinutes()).padStart(2,'0');
+      const s = String(now.getSeconds()).padStart(2,'0');
+      document.getElementById('tv-time').textContent = `${h}:${m}:${s}`;
+    }
+    setInterval(tickClock, 1000);
+    tickClock();
+
+    async function loadData() {
+      try {
+        const [pRes, rRes] = await Promise.all([
+          fetch('/api/players'),
+          fetch('/api/rules')
+        ]);
+        const players = await pRes.json();
+        const rules   = await rRes.json();
+
+        const sorted  = [...players].sort((a, b) => b.points - a.points);
+        const active  = sorted.filter(p => p.points > 0);
+        const elim    = sorted.filter(p => p.points <= 0);
+        const maxPts  = active.length ? active[0].points : 100;
+
+        document.getElementById('tv-active-count').textContent = active.length;
+        document.getElementById('tv-rules-count').textContent  = rules.length;
+
+        const grid    = document.getElementById('tv-grid');
+        const loading = document.getElementById('tv-loading');
+        loading.style.display = 'none';
+
+        let html = '';
+
+        active.forEach((p, idx) => {
+          const rank    = idx + 1;
+          const pct     = maxPts > 0 ? Math.min(100, Math.round(p.points / maxPts * 100)) : 0;
+          const rClass  = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : '';
+          const rankNum = rank <= 3
+            ? ['I','II','III'][rank-1]
+            : rank;
+          const icon    = ROLES[p.role] || '○';
+          html += `
+            <div class="tv-card ${rClass}">
+              <div class="tv-card-inner">
+                <div class="tv-card-top">
+                  <div class="tv-rank-badge">${rankNum}</div>
+                  <div class="tv-name-block">
+                    <div class="tv-name">${escHtml(p.name)}</div>
+                    <div class="tv-role">${icon} ${escHtml(p.role)}</div>
+                  </div>
+                  <div class="tv-pts">${p.points}</div>
+                </div>
+                <div class="tv-bar-wrap">
+                  <div class="tv-bar" style="width:${pct}%"></div>
+                </div>
+              </div>
+            </div>`;
+        });
+
+        if (elim.length) {
+          html += `<div class="tv-elim-label">✕ Ausgeschieden</div>`;
+          elim.forEach(p => {
+            const icon = ROLES[p.role] || '○';
+            html += `
+              <div class="tv-card eliminated">
+                <div class="tv-card-inner">
+                  <div class="tv-card-top">
+                    <div class="tv-rank-badge">—</div>
+                    <div class="tv-name-block">
+                      <div class="tv-name">${escHtml(p.name)}</div>
+                      <div class="tv-role">${icon} ${escHtml(p.role)}</div>
+                    </div>
+                    <div class="tv-pts">0</div>
+                  </div>
+                  <div class="tv-bar-wrap">
+                    <div class="tv-bar" style="width:0%"></div>
+                  </div>
+                </div>
+              </div>`;
+          });
+        }
+
+        grid.innerHTML = html;
+      } catch (e) {
+        document.getElementById('tv-loading').textContent = '⚠ Verbindungsfehler';
+      }
+    }
+
+    loadData();
+    setInterval(loadData, 5000);
+
+    // persist theme
+    const saved = localStorage.getItem('lalling-theme') || 'ao';
+    document.documentElement.setAttribute('data-theme', saved);
+  </script>
+</body>
+</html>
