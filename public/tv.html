@@ -6,7 +6,6 @@
   <title>TV – Lalling Games</title>
   <link rel="stylesheet" href="style.css" />
   <style>
-    /* ── TV fullscreen reset ── */
     html, body {
       width: 100vw;
       height: 100vh;
@@ -21,7 +20,7 @@
       background: var(--bg-dark);
     }
 
-    /* ── Animated cursed-energy background ── */
+    /* ── Animated background orbs ── */
     .tv-bg {
       position: fixed;
       inset: 0;
@@ -35,79 +34,61 @@
       content: '';
       position: absolute;
       border-radius: 50%;
-      animation: orb-drift 12s ease-in-out infinite alternate;
     }
 
     .tv-bg::before {
-      width: 70vw; height: 70vw;
-      top: -25vw; left: -20vw;
+      width: 60vw; height: 60vw;
+      top: -20vw; left: -15vw;
       background: radial-gradient(circle,
-        rgba(30,58,170,0.07) 0%,
-        rgba(30,58,170,0.03) 45%,
-        transparent 70%);
-      animation-duration: 14s;
+        rgba(30,58,170,0.06) 0%, transparent 70%);
+      animation: orb-drift 14s ease-in-out infinite alternate;
     }
 
     .tv-bg::after {
-      width: 60vw; height: 60vw;
-      bottom: -20vw; right: -15vw;
+      width: 50vw; height: 50vw;
+      bottom: -15vw; right: -10vw;
       background: radial-gradient(circle,
-        rgba(100,0,200,0.06) 0%,
-        rgba(100,0,200,0.02) 45%,
-        transparent 70%);
-      animation-duration: 18s;
-      animation-direction: alternate-reverse;
+        rgba(100,0,200,0.05) 0%, transparent 70%);
+      animation: orb-drift 18s ease-in-out infinite alternate-reverse;
     }
 
     @keyframes orb-drift {
       0%   { transform: translate(0, 0) scale(1); }
-      100% { transform: translate(4vw, 3vw) scale(1.08); }
+      100% { transform: translate(3vw, 2vw) scale(1.06); }
     }
 
-    /* ── Scanline overlay ── */
     .tv-scanlines {
       position: fixed;
       inset: 0;
       pointer-events: none;
       z-index: 1;
       background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 3px,
-        rgba(0,0,0,0.04) 3px,
-        rgba(0,0,0,0.04) 4px
+        0deg, transparent, transparent 3px,
+        rgba(0,0,0,0.04) 3px, rgba(0,0,0,0.04) 4px
       );
     }
 
-    /* ── Header bar ── */
+    /* ── Header ── */
     .tv-header {
       position: relative;
       z-index: 10;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 1.4rem 3.5rem 1rem;
+      padding: 0.9rem 2.5rem 0.7rem;
       border-bottom: 1px solid var(--border-mid);
-      background: linear-gradient(180deg, rgba(10,10,21,0.9) 0%, transparent 100%);
+      background: linear-gradient(180deg, rgba(10,10,21,0.95) 0%, transparent 100%);
       flex-shrink: 0;
-    }
-
-    .tv-logo-block {
-      display: flex;
-      flex-direction: column;
     }
 
     .tv-logo {
       font-family: var(--font-title);
-      font-size: 2.2rem;
+      font-size: 1.7rem;
       font-weight: 900;
       letter-spacing: 0.14em;
       text-transform: uppercase;
       color: var(--gold);
-      text-shadow:
-        0 0 24px rgba(201,162,39,0.55),
-        0 0 60px rgba(34,102,255,0.2);
-      line-height: 1;
+      text-shadow: 0 0 24px rgba(201,162,39,0.55), 0 0 60px rgba(34,102,255,0.2);
       animation: logo-breathe 6s ease-in-out infinite;
     }
 
@@ -118,120 +99,110 @@
 
     .tv-logo-sub {
       font-family: var(--font-ui);
-      font-size: 0.72rem;
-      letter-spacing: 0.32em;
-      text-transform: uppercase;
-      color: var(--text-dim);
-      margin-top: 0.25rem;
-    }
-
-    .tv-decree {
-      font-family: var(--font-ui);
-      font-size: 0.65rem;
+      font-size: 0.6rem;
       letter-spacing: 0.28em;
       text-transform: uppercase;
-      color: var(--p-glow);
-      opacity: 0.7;
-      text-align: right;
+      color: var(--text-dim);
+      margin-top: 0.2rem;
     }
 
-    /* ── Divider rune line ── */
-    .tv-divider {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      padding: 0.6rem 3.5rem 0;
-      position: relative;
-      z-index: 10;
-      flex-shrink: 0;
-    }
-
-    .tv-divider::before,
-    .tv-divider::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--p-dim), transparent);
-    }
-
-    .tv-divider-text {
+    .tv-clock {
       font-family: var(--font-title);
-      font-size: 0.6rem;
-      letter-spacing: 0.4em;
-      color: var(--p-glow);
-      opacity: 0.5;
-      text-transform: uppercase;
+      font-size: 1.6rem;
+      letter-spacing: 0.12em;
+      color: var(--text-mid);
     }
 
-    /* ── Main scoreboard area ── */
-    .tv-main {
+    /* ── 3-column body ── */
+    .tv-body {
       position: relative;
       z-index: 10;
       flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1.3fr 1fr;
+      gap: 0;
+      overflow: hidden;
+    }
+
+    .tv-col {
       display: flex;
       flex-direction: column;
-      padding: 1.2rem 3.5rem 1.8rem;
       overflow: hidden;
+      border-right: 1px solid var(--border-mid);
     }
 
-    .tv-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 0.55rem;
+    .tv-col:last-child { border-right: none; }
+
+    .tv-col-header {
+      flex-shrink: 0;
+      padding: 0.55rem 1.2rem;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border-mid);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .tv-col-title {
+      font-family: var(--font-ui);
+      font-size: 0.6rem;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--p-glow);
+      font-weight: 700;
+    }
+
+    .tv-col-count {
+      font-family: var(--font-ui);
+      font-size: 0.6rem;
+      color: var(--text-dim);
+      letter-spacing: 0.08em;
+    }
+
+    .tv-col-count span { color: var(--p-glow); font-weight: 700; }
+
+    .tv-col-scroll {
       flex: 1;
       overflow: hidden;
-      /* rows share the available height equally so nothing overflows */
-      grid-auto-rows: 1fr;
-      align-items: stretch;
+      display: flex;
+      flex-direction: column;
+      padding: 0.5rem 0.7rem;
+      gap: 0.4rem;
     }
 
-    /* ── Player card ── */
+    /* ══════════════════ PLAYER COLUMN ══════════════════ */
+    .tv-grid {
+      display: grid;
+      gap: 0.4rem;
+      flex: 1;
+      overflow: hidden;
+      grid-auto-rows: 1fr;
+    }
+
     .tv-card {
       background: var(--bg-card);
       border: 1px solid var(--border-mid);
       border-radius: 4px;
       position: relative;
       overflow: hidden;
-      transition: border-color 0.4s, box-shadow 0.4s;
-      animation: card-in 0.4s ease both;
     }
 
-    @keyframes card-in {
-      from { opacity: 0; transform: translateY(12px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    /* rank-1 gold glow, rank-2 silver, rank-3 bronze */
-    .tv-card.rank-1 {
-      border-color: var(--gold-dim);
-      box-shadow: 0 0 18px rgba(201,162,39,0.18), inset 0 0 18px rgba(201,162,39,0.04);
-    }
-    .tv-card.rank-2 {
-      border-color: #55607a;
-      box-shadow: 0 0 12px rgba(160,170,200,0.1);
-    }
-    .tv-card.rank-3 {
-      border-color: #5a3a1a;
-      box-shadow: 0 0 12px rgba(180,100,30,0.1);
-    }
-
-    /* left accent stripe */
     .tv-card::before {
       content: '';
       position: absolute;
       left: 0; top: 0; bottom: 0;
       width: 3px;
       background: var(--p);
-      transition: background 0.5s;
     }
 
+    .tv-card.rank-1 { border-color: var(--gold-dim); box-shadow: 0 0 10px rgba(201,162,39,0.12); }
     .tv-card.rank-1::before { background: var(--gold); }
     .tv-card.rank-2::before { background: #8090b0; }
     .tv-card.rank-3::before { background: #a06030; }
     .tv-card.eliminated::before { background: var(--border-mid); }
 
     .tv-card-inner {
-      padding: 0.55rem 1rem 0.55rem 1.2rem;
+      padding: 0.3rem 0.8rem 0.3rem 1rem;
       height: 100%;
       box-sizing: border-box;
       display: flex;
@@ -242,87 +213,186 @@
     .tv-card-top {
       display: flex;
       align-items: center;
-      gap: 0.8rem;
-      margin-bottom: 0.55rem;
+      gap: 0.6rem;
     }
 
     .tv-rank-badge {
       font-family: var(--font-title);
-      font-size: 1rem;
+      font-size: 0.85rem;
       font-weight: 900;
       line-height: 1;
-      min-width: 2.8rem;
+      min-width: 2.5rem;
       text-align: center;
       flex-shrink: 0;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.04em;
     }
 
-    .tv-card.rank-1 .tv-rank-badge { color: var(--gold); text-shadow: 0 0 16px rgba(201,162,39,0.6); }
+    .tv-card.rank-1 .tv-rank-badge { color: var(--gold); text-shadow: 0 0 10px rgba(201,162,39,0.5); }
     .tv-card.rank-2 .tv-rank-badge { color: #aabbd0; }
     .tv-card.rank-3 .tv-rank-badge { color: #c07840; }
     .tv-card.eliminated .tv-rank-badge { color: var(--text-dim); }
 
-    .tv-name-block {
-      flex: 1;
-      min-width: 0;
-    }
+    .tv-name-block { flex: 1; min-width: 0; }
 
     .tv-name {
       font-family: var(--font-title);
-      font-size: 1.15rem;
+      font-size: 0.9rem;
       font-weight: 700;
       color: var(--text);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      letter-spacing: 0.02em;
     }
 
-    .tv-card.eliminated .tv-name {
-      color: var(--text-dim);
-      text-decoration: line-through;
-    }
+    .tv-card.eliminated .tv-name { color: var(--text-dim); text-decoration: line-through; }
 
     .tv-role {
       font-family: var(--font-ui);
-      font-size: 0.7rem;
+      font-size: 0.58rem;
       letter-spacing: 0.1em;
       text-transform: uppercase;
       color: var(--text-dim);
-      margin-top: 0.1rem;
     }
 
     .tv-pts {
       font-family: var(--font-title);
-      font-size: 1.6rem;
+      font-size: 1.2rem;
       font-weight: 900;
       color: var(--p-glow);
       line-height: 1;
       flex-shrink: 0;
-      transition: color 0.4s;
     }
 
     .tv-card.rank-1 .tv-pts { color: var(--gold); }
     .tv-card.eliminated .tv-pts { color: var(--text-dim); }
 
-    /* ── Points bar ── */
     .tv-bar-wrap {
-      height: 3px;
+      height: 2px;
       background: rgba(0,0,0,0.4);
       border-radius: 2px;
       overflow: hidden;
+      margin-top: 0.25rem;
     }
 
     .tv-bar {
       height: 100%;
       border-radius: 2px;
       background: linear-gradient(90deg, var(--p), var(--p-glow));
-      box-shadow: 0 0 6px var(--p-glow);
       transition: width 1s ease;
     }
 
-    .tv-card.rank-1  .tv-bar { background: linear-gradient(90deg, var(--gold-dim), var(--gold)); box-shadow: 0 0 8px rgba(201,162,39,0.5); }
-    .tv-card.eliminated .tv-bar { background: var(--border-mid); box-shadow: none; }
+    .tv-card.rank-1 .tv-bar { background: linear-gradient(90deg, var(--gold-dim), var(--gold)); }
+    .tv-card.eliminated .tv-bar { background: var(--border-mid); }
+
+    .tv-elim-label {
+      font-family: var(--font-ui);
+      font-size: 0.58rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      opacity: 0.5;
+      padding: 0.3rem 0 0.1rem;
+      border-top: 1px solid var(--border-mid);
+    }
+
+    /* ══════════════════ RULES COLUMN ══════════════════ */
+    .rule-row {
+      background: var(--bg-card);
+      border: 1px solid var(--border-mid);
+      border-left: 3px solid var(--p);
+      border-radius: 4px;
+      padding: 0.45rem 0.8rem;
+      flex-shrink: 0;
+    }
+
+    .rule-row-num {
+      font-family: var(--font-title);
+      font-size: 0.58rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--p-glow);
+      margin-bottom: 0.15rem;
+    }
+
+    .rule-row-title {
+      font-family: var(--font-ui);
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.15rem;
+    }
+
+    .rule-row-desc {
+      font-family: var(--font-ui);
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      line-height: 1.4;
+    }
+
+    .rule-row-pts {
+      font-family: var(--font-ui);
+      font-size: 0.6rem;
+      color: var(--gold-dim);
+      margin-top: 0.2rem;
+    }
+
+    /* ══════════════════ HAND COLUMN ══════════════════ */
+    .hand-row {
+      background: var(--bg-card);
+      border: 1px solid var(--border-mid);
+      border-left: 3px solid var(--p-dim);
+      border-radius: 4px;
+      padding: 0.45rem 0.8rem;
+      flex-shrink: 0;
+    }
+
+    .hand-row-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.15rem;
+    }
+
+    .hand-row-rank {
+      font-family: var(--font-title);
+      font-size: 0.58rem;
+      letter-spacing: 0.15em;
+      color: var(--text-dim);
+    }
+
+    .hand-row-name {
+      font-family: var(--font-ui);
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .hand-row-cards {
+      display: flex;
+      gap: 0.2rem;
+      margin-bottom: 0.2rem;
+      flex-wrap: wrap;
+    }
+
+    .hcard {
+      font-family: var(--font-ui);
+      font-size: 0.6rem;
+      font-weight: 700;
+      padding: 0.1rem 0.3rem;
+      border-radius: 3px;
+      border: 1px solid var(--border-mid);
+      background: var(--bg-card2);
+      color: var(--text-mid);
+    }
+
+    .hcard.red { color: #e05555; border-color: #3a1010; }
+
+    .hand-row-rule {
+      font-family: var(--font-ui);
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      line-height: 1.4;
+    }
 
     /* ── Footer ── */
     .tv-footer {
@@ -331,63 +401,31 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0.6rem 3.5rem 1rem;
+      padding: 0.4rem 2.5rem;
       border-top: 1px solid var(--border-mid);
       flex-shrink: 0;
     }
 
     .tv-stat {
       font-family: var(--font-ui);
-      font-size: 0.78rem;
+      font-size: 0.65rem;
       color: var(--text-dim);
       letter-spacing: 0.08em;
     }
 
-    .tv-stat span {
-      color: var(--p-glow);
-      font-weight: 700;
-    }
+    .tv-stat span { color: var(--p-glow); font-weight: 700; }
 
     .tv-refresh-dot {
-      width: 7px;
-      height: 7px;
+      width: 6px; height: 6px;
       border-radius: 50%;
       background: var(--p-glow);
-      box-shadow: 0 0 8px var(--p-glow);
+      box-shadow: 0 0 6px var(--p-glow);
       animation: pulse-dot 2s ease-in-out infinite;
     }
 
     @keyframes pulse-dot {
       0%,100% { opacity: 0.4; transform: scale(1); }
       50%      { opacity: 1;   transform: scale(1.3); }
-    }
-
-    /* ── Eliminated section ── */
-    .tv-elim-label {
-      grid-column: 1 / -1;
-      font-family: var(--font-ui);
-      font-size: 0.65rem;
-      letter-spacing: 0.3em;
-      text-transform: uppercase;
-      color: var(--text-dim);
-      opacity: 0.5;
-      padding: 0.5rem 0 0.1rem;
-      border-top: 1px solid var(--border-mid);
-    }
-
-    /* ── Loading ── */
-    .tv-loading {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: var(--font-ui);
-      font-size: 1.1rem;
-      letter-spacing: 0.3em;
-      color: var(--text-dim);
-      text-transform: uppercase;
-      z-index: 20;
     }
   </style>
 </head>
@@ -397,29 +435,50 @@
   <div class="tv-scanlines"></div>
 
   <header class="tv-header">
-    <div class="tv-logo-block">
+    <div>
       <div class="tv-logo">Lalling Games</div>
       <div class="tv-logo-sub">呪術廻戦 · Das Culling Spiel · Das Trinkspiel</div>
     </div>
-    <div class="tv-decree">
-      — 術式発動 · Technique Activated —<br>
-      <span id="tv-time" style="font-size:1.1rem;letter-spacing:0.15em;color:var(--text-mid);"></span>
-    </div>
+    <div class="tv-clock" id="tv-time"></div>
   </header>
 
-  <div class="tv-divider">
-    <span class="tv-divider-text">呪 · Teilnehmer · 術</span>
+  <div class="tv-body">
+
+    <!-- ── LEFT: Players ── -->
+    <div class="tv-col">
+      <div class="tv-col-header">
+        <span class="tv-col-title">⚔ Teilnehmer</span>
+        <span class="tv-col-count">Aktiv: <span id="tv-active-count">—</span></span>
+      </div>
+      <div class="tv-col-scroll">
+        <div class="tv-grid" id="tv-grid"></div>
+      </div>
+    </div>
+
+    <!-- ── MIDDLE: Game rules ── -->
+    <div class="tv-col">
+      <div class="tv-col-header">
+        <span class="tv-col-title">📜 Spielregeln</span>
+        <span class="tv-col-count">Regeln: <span id="tv-rules-count">—</span></span>
+      </div>
+      <div class="tv-col-scroll" id="rules-col"></div>
+    </div>
+
+    <!-- ── RIGHT: Poker hand rules ── -->
+    <div class="tv-col">
+      <div class="tv-col-header">
+        <span class="tv-col-title">🃏 Hände</span>
+        <span class="tv-col-count">10 Hände</span>
+      </div>
+      <div class="tv-col-scroll" id="hands-col"></div>
+    </div>
+
   </div>
 
-  <main class="tv-main">
-    <div class="tv-loading" id="tv-loading">Lade Teilnehmer…</div>
-    <div class="tv-grid" id="tv-grid"></div>
-  </main>
-
   <footer class="tv-footer">
-    <div class="tv-stat">Aktive Teilnehmer: <span id="tv-active-count">—</span></div>
-    <div class="tv-refresh-dot" title="Live"></div>
-    <div class="tv-stat">Regeln: <span id="tv-rules-count">—</span></div>
+    <div class="tv-stat">— 術式発動 · Technique Activated —</div>
+    <div class="tv-refresh-dot"></div>
+    <div class="tv-stat">呪術廻戦 · Lalling Games</div>
   </footer>
 
   <script>
@@ -431,80 +490,124 @@
       'Normaler Mensch':   '○',
     };
 
+    const HANDS = [
+      { id:'royal_flush',      rank:'Rang I',    name:'Royaler Flush',    en:'Royal Flush',
+        cards:[{v:'A♠'},{v:'K♠'},{v:'Q♠'},{v:'J♠'},{v:'10♠'}],
+        def:'Alle anderen trinken 5 Schlucke. Du bist unantastbar.' },
+      { id:'straight_flush',   rank:'Rang II',   name:'Straight Flush',   en:'Straight Flush',
+        cards:[{v:'9♥',r:1},{v:'8♥',r:1},{v:'7♥',r:1},{v:'6♥',r:1},{v:'5♥',r:1}],
+        def:'Verteile 8 Schlucke frei auf beliebige Spieler.' },
+      { id:'four_of_a_kind',   rank:'Rang III',  name:'Vierling',         en:'Four of a Kind',
+        cards:[{v:'A♠'},{v:'A♥',r:1},{v:'A♦',r:1},{v:'A♣'},{v:'K♠'}],
+        def:'Verteile 6 Schlucke frei. Du darfst eine Regel bestimmen.' },
+      { id:'full_house',       rank:'Rang IV',   name:'Full House',       en:'Full House',
+        cards:[{v:'K♠'},{v:'K♥',r:1},{v:'K♦',r:1},{v:'J♠'},{v:'J♥',r:1}],
+        def:'Verteile 4 Schlucke und trink selbst 1 Schluck.' },
+      { id:'flush',            rank:'Rang V',    name:'Flush',            en:'Flush',
+        cards:[{v:'A♣'},{v:'J♣'},{v:'8♣'},{v:'6♣'},{v:'3♣'}],
+        def:'Verteile 3 Schlucke frei.' },
+      { id:'straight',         rank:'Rang VI',   name:'Straße',           en:'Straight',
+        cards:[{v:'9♠'},{v:'8♥',r:1},{v:'7♦',r:1},{v:'6♣'},{v:'5♠'}],
+        def:'Spieler links und rechts trinken je 2 Schlucke.' },
+      { id:'three_of_a_kind',  rank:'Rang VII',  name:'Drilling',         en:'Three of a Kind',
+        cards:[{v:'Q♠'},{v:'Q♥',r:1},{v:'Q♦',r:1},{v:'9♠'},{v:'4♥',r:1}],
+        def:'Wähle einen Spieler aus – dieser trinkt 3 Schlucke.' },
+      { id:'two_pair',         rank:'Rang VIII', name:'Zwei Paare',       en:'Two Pair',
+        cards:[{v:'J♠'},{v:'J♥',r:1},{v:'8♦',r:1},{v:'8♣'},{v:'A♠'}],
+        def:'Du trinkst 2 Schlucke.' },
+      { id:'one_pair',         rank:'Rang IX',   name:'Ein Paar',         en:'One Pair',
+        cards:[{v:'10♠'},{v:'10♥',r:1},{v:'A♦',r:1},{v:'K♣'},{v:'Q♠'}],
+        def:'Du trinkst 1 Schluck.' },
+      { id:'high_card',        rank:'Rang X',    name:'Höchste Karte',    en:'High Card',
+        cards:[{v:'A♠'},{v:'J♦',r:1},{v:'9♣'},{v:'7♥',r:1},{v:'3♠'}],
+        def:'Du trinkst 2 Schlucke. Pech gehabt.' },
+    ];
+
     function escHtml(s) {
       return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
 
+    function toRoman(n) {
+      const vals=[1000,900,500,400,100,90,50,40,10,9,5,4,1];
+      const syms=['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];
+      let r='';
+      for(let i=0;i<vals.length;i++) while(n>=vals[i]){r+=syms[i];n-=vals[i];}
+      return r;
+    }
+
     // clock
     function tickClock() {
-      const now = new Date();
-      const h = String(now.getHours()).padStart(2,'0');
-      const m = String(now.getMinutes()).padStart(2,'0');
-      const s = String(now.getSeconds()).padStart(2,'0');
-      document.getElementById('tv-time').textContent = `${h}:${m}:${s}`;
+      const d=new Date();
+      document.getElementById('tv-time').textContent =
+        String(d.getHours()).padStart(2,'0')+':'+
+        String(d.getMinutes()).padStart(2,'0')+':'+
+        String(d.getSeconds()).padStart(2,'0');
     }
     setInterval(tickClock, 1000);
     tickClock();
 
-    // Build a flat ordered list: active players then eliminated, with a sentinel for the divider
-    function buildOrder(players) {
-      const sorted = [...players].sort((a, b) => b.points - a.points);
-      const active = sorted.filter(p => p.points > 0);
-      const elim   = sorted.filter(p => p.points <= 0);
-      const items  = active.map((p, i) => ({ type: 'player', rank: i + 1, player: p }));
-      if (elim.length) {
-        items.push({ type: 'divider' });
-        elim.forEach(p => items.push({ type: 'player', rank: 0, player: p, elim: true }));
-      }
-      return items;
+    // ── HANDS column (static, from localStorage) ──
+    function renderHands() {
+      const saved = JSON.parse(localStorage.getItem('poker-hand-rules') || '{}');
+      const col = document.getElementById('hands-col');
+      col.innerHTML = HANDS.map(h => {
+        const rule = saved[h.id] !== undefined ? saved[h.id] : h.def;
+        const cards = h.cards.map(c =>
+          `<span class="hcard${c.r ? ' red' : ''}">${c.v}</span>`
+        ).join('');
+        return `
+          <div class="hand-row">
+            <div class="hand-row-header">
+              <span class="hand-row-rank">${h.rank}</span>
+              <span class="hand-row-name">${escHtml(h.name)}</span>
+            </div>
+            <div class="hand-row-cards">${cards}</div>
+            <div class="hand-row-rule">${escHtml(rule)}</div>
+          </div>`;
+      }).join('');
     }
+
+    // ── RULES column (live from API) ──
+    const rulesNodeMap = new Map();
+
+    function toRomanRules(n) { return toRoman(n); }
+
+    function upsertRule(id, numeral, title, desc, pts) {
+      const key = String(id);
+      if (!rulesNodeMap.has(key)) {
+        const el = document.createElement('div');
+        el.className = 'rule-row';
+        el.innerHTML = `
+          <div class="rule-row-num">Regel ${numeral}</div>
+          <div class="rule-row-title"></div>
+          <div class="rule-row-desc"></div>
+          ${pts != null ? `<div class="rule-row-pts"></div>` : ''}`;
+        rulesNodeMap.set(key, el);
+      }
+      const el = rulesNodeMap.get(key);
+      el.querySelector('.rule-row-num').textContent  = `Regel ${numeral}`;
+      el.querySelector('.rule-row-title').textContent = title;
+      el.querySelector('.rule-row-desc').textContent  = desc;
+      const ptsEl = el.querySelector('.rule-row-pts');
+      if (ptsEl) ptsEl.textContent = pts != null ? `− ${pts} Pts` : '';
+      return el;
+    }
+
+    // ── PLAYERS column (live, no-flicker) ──
+    const playerNodeMap = new Map();
 
     function rankClass(rank) {
-      return rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : '';
+      return rank===1?'rank-1':rank===2?'rank-2':rank===3?'rank-3':'';
     }
 
-    function toRoman(n) {
-      const vals = [1000,900,500,400,100,90,50,40,10,9,5,4,1];
-      const syms = ['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];
-      let r = '';
-      for (let i = 0; i < vals.length; i++) {
-        while (n >= vals[i]) { r += syms[i]; n -= vals[i]; }
-      }
-      return r;
-    }
-
-    function rankNum(rank) {
-      return toRoman(rank);
-    }
-
-    function cardKey(item) {
-      return item.type === 'divider' ? '__divider__' : String(item.player.id);
-    }
-
-    // Map of key → DOM element kept across refreshes
-    const nodeMap = new Map();
-
-    function upsertCard(item, maxPts) {
-      const key = cardKey(item);
-
-      if (item.type === 'divider') {
-        if (!nodeMap.has(key)) {
-          const el = document.createElement('div');
-          el.className = 'tv-elim-label';
-          el.textContent = '✕ Ausgeschieden';
-          nodeMap.set(key, el);
-        }
-        return nodeMap.get(key);
-      }
-
-      const { player: p, rank, elim } = item;
-      const pct   = !elim && maxPts > 0 ? Math.min(100, Math.round(p.points / maxPts * 100)) : 0;
-      const icon  = ROLES[p.role] || '○';
+    function upsertPlayer(player, rank, elim, maxPts) {
+      const key = String(player.id);
+      const pct  = !elim && maxPts>0 ? Math.min(100,Math.round(player.points/maxPts*100)) : 0;
       const rClass = elim ? 'eliminated' : rankClass(rank);
-      const badge  = elim ? '—' : rankNum(rank);
+      const badge  = elim ? '—' : toRoman(rank);
+      const icon   = ROLES[player.role] || '○';
 
-      if (!nodeMap.has(key)) {
-        // Create fresh card
+      if (!playerNodeMap.has(key)) {
         const el = document.createElement('div');
         el.className = `tv-card ${rClass}`;
         el.innerHTML = `
@@ -512,26 +615,22 @@
             <div class="tv-card-top">
               <div class="tv-rank-badge">${badge}</div>
               <div class="tv-name-block">
-                <div class="tv-name">${escHtml(p.name)}</div>
-                <div class="tv-role">${icon} ${escHtml(p.role)}</div>
+                <div class="tv-name">${escHtml(player.name)}</div>
+                <div class="tv-role">${icon} ${escHtml(player.role)}</div>
               </div>
-              <div class="tv-pts">${p.points}</div>
+              <div class="tv-pts">${player.points}</div>
             </div>
-            <div class="tv-bar-wrap">
-              <div class="tv-bar" style="width:${pct}%"></div>
-            </div>
+            <div class="tv-bar-wrap"><div class="tv-bar" style="width:${pct}%"></div></div>
           </div>`;
-        nodeMap.set(key, el);
+        playerNodeMap.set(key, el);
       } else {
-        // Patch only what changed — no DOM replacement, no flicker
-        const el = nodeMap.get(key);
+        const el = playerNodeMap.get(key);
         el.className = `tv-card ${rClass}`;
         el.querySelector('.tv-rank-badge').textContent = badge;
-        el.querySelector('.tv-pts').textContent = p.points;
+        el.querySelector('.tv-pts').textContent = player.points;
         el.querySelector('.tv-bar').style.width = pct + '%';
       }
-
-      return nodeMap.get(key);
+      return playerNodeMap.get(key);
     }
 
     async function loadData() {
@@ -543,45 +642,67 @@
         const players = await pRes.json();
         const rules   = await rRes.json();
 
-        const items  = buildOrder(players);
-        const active = players.filter(p => p.points > 0);
-        const maxPts = active.length ? Math.max(...active.map(p => p.points)) : 100;
+        // ── Players ──
+        const sorted = [...players].sort((a,b) => b.points - a.points);
+        const active = sorted.filter(p => p.points > 0);
+        const elim   = sorted.filter(p => p.points <= 0);
+        const maxPts = active.length ? active[0].points : 100;
 
         document.getElementById('tv-active-count').textContent = active.length;
-        document.getElementById('tv-rules-count').textContent  = rules.length;
-        document.getElementById('tv-loading').style.display    = 'none';
 
         const grid = document.getElementById('tv-grid');
+        const divKey = '__divider__';
+        const desired = [];
 
-        // Build desired node order
-        const desired = items.map(item => upsertCard(item, maxPts));
+        active.forEach((p,i) => desired.push(upsertPlayer(p, i+1, false, maxPts)));
 
-        // Remove nodes no longer needed
+        if (elim.length) {
+          if (!playerNodeMap.has(divKey)) {
+            const d = document.createElement('div');
+            d.className = 'tv-elim-label';
+            d.textContent = '✕ Ausgeschieden';
+            playerNodeMap.set(divKey, d);
+          }
+          desired.push(playerNodeMap.get(divKey));
+          elim.forEach(p => desired.push(upsertPlayer(p, 0, true, maxPts)));
+        }
+
         const desiredSet = new Set(desired);
-        [...grid.children].forEach(child => {
-          if (!desiredSet.has(child)) grid.removeChild(child);
-        });
-
-        // Insert/reorder without touching nodes that are already correct
+        [...grid.children].forEach(c => { if (!desiredSet.has(c)) grid.removeChild(c); });
         desired.forEach((node, i) => {
           if (grid.children[i] !== node) grid.insertBefore(node, grid.children[i] || null);
         });
 
-        // Remove stale keys from nodeMap
-        const desiredKeys = new Set(items.map(cardKey));
-        for (const k of nodeMap.keys()) {
-          if (!desiredKeys.has(k)) nodeMap.delete(k);
+        // Clean stale player keys
+        const liveKeys = new Set([...active,...elim].map(p => String(p.id)));
+        liveKeys.add(divKey);
+        for (const k of playerNodeMap.keys()) {
+          if (!liveKeys.has(k)) playerNodeMap.delete(k);
         }
-      } catch (e) {
-        document.getElementById('tv-loading').textContent = '⚠ Verbindungsfehler';
-        document.getElementById('tv-loading').style.display = 'flex';
-      }
+
+        // ── Rules ──
+        document.getElementById('tv-rules-count').textContent = rules.length;
+        const rulesCol = document.getElementById('rules-col');
+        const rDesired = rules.map((rule, idx) =>
+          upsertRule(rule.id, toRoman(idx+1), rule.title, rule.description, rule.points)
+        );
+        const rSet = new Set(rDesired);
+        [...rulesCol.children].forEach(c => { if (!rSet.has(c)) rulesCol.removeChild(c); });
+        rDesired.forEach((node, i) => {
+          if (rulesCol.children[i] !== node) rulesCol.insertBefore(node, rulesCol.children[i] || null);
+        });
+        const liveRuleKeys = new Set(rules.map(r => String(r.id)));
+        for (const k of rulesNodeMap.keys()) {
+          if (!liveRuleKeys.has(k)) rulesNodeMap.delete(k);
+        }
+
+      } catch (e) { /* silent — keep showing last data */ }
     }
 
+    renderHands();
     loadData();
     setInterval(loadData, 5000);
 
-    // persist theme
     const saved = localStorage.getItem('lalling-theme') || 'ao';
     document.documentElement.setAttribute('data-theme', saved);
   </script>
