@@ -296,6 +296,87 @@
       margin-top: 0.2rem;
     }
 
+    /* ── Activation HUD ── */
+    .domain-hud {
+      position: fixed;
+      bottom: 7rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 20;
+      width: min(90vw, 360px);
+      background: rgba(0,0,0,0.72);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+      backdrop-filter: blur(8px);
+    }
+
+    .hud-coins {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      opacity: 0.8;
+    }
+
+    .hud-coin-icon {
+      font-size: 1rem;
+    }
+
+    .hud-coin-count {
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .hud-status {
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      opacity: 0.6;
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    .hud-status.status-active {
+      opacity: 1;
+      color: #7fff7f;
+    }
+
+    .hud-status.status-blocked {
+      opacity: 1;
+      color: #ffaa44;
+    }
+
+    .hud-btn {
+      width: 100%;
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+
+    .hud-btn:active { transform: scale(0.97); }
+    .hud-btn:disabled { opacity: 0.35; cursor: default; transform: none; }
+
+    .hud-btn-activate {
+      background: currentColor;
+      color: #000;
+    }
+
+    .hud-btn-cancel {
+      background: rgba(255,60,60,0.18);
+      border: 1px solid rgba(255,80,80,0.4);
+      color: #ff8080;
+    }
+
     /* ── Not logged in ── */
     .not-logged {
       position: fixed; inset: 0;
@@ -330,6 +411,19 @@
       <div class="domain-separator"></div>
       <div class="domain-desc" id="domain-desc"></div>
     </div>
+
+    <!-- Activation HUD -->
+    <div class="domain-hud" id="domain-hud">
+      <div class="hud-coins">
+        <span class="hud-coin-icon">🪙</span>
+        <span>Domain-Münzen:</span>
+        <span class="hud-coin-count" id="hud-coin-count">—</span>
+      </div>
+      <div class="hud-status" id="hud-status">Lädt…</div>
+      <button class="hud-btn hud-btn-activate" id="hud-activate-btn" disabled>Domain aktivieren (1 Münze)</button>
+      <button class="hud-btn hud-btn-cancel"   id="hud-cancel-btn"   style="display:none">Aktivierung aufheben</button>
+    </div>
+
     <div class="player-label">
       <div class="player-label-name" id="player-name"></div>
       <div class="player-label-role" id="player-role"></div>
@@ -339,66 +433,61 @@
   <script>
     const DOMAINS = [
       {
-        cls:   'domain-void',
-        jp:    '無量空処',
-        en:    'Infinite Void',
-        desc:  'Alles. Nichts. Unendlichkeit.',
-        color: '#a0dcff',
+        cls: 'domain-void', jp: '無量空処', en: 'Infinite Void',
+        desc: 'Alles. Nichts. Unendlichkeit.',
+        color: '#a0dcff', theme: 'ao', caster: 'Gojo Satoru',
+        expansionId: 'infinite_void',
       },
       {
-        cls:   'domain-shrine',
-        jp:    '伏魔御廚子',
-        en:    'Malevolent Shrine',
-        desc:  'Zerstörung kennt keine Grenzen.',
-        color: '#ff6060',
+        cls: 'domain-shrine', jp: '伏魔御廚子', en: 'Malevolent Shrine',
+        desc: 'Zerstörung kennt keine Grenzen.',
+        color: '#ff6060', theme: 'shuku', caster: 'Ryomen Sukuna',
+        expansionId: 'malevolent_shrine',
       },
       {
-        cls:   'domain-shadow',
-        jp:    '嵌合暗翳庭',
-        en:    'Chimera Shadow Garden',
-        desc:  'Schatten verschlingen alles.',
-        color: '#9d60ff',
+        cls: 'domain-shadow', jp: '嵌合暗翳庭', en: 'Chimera Shadow Garden',
+        desc: 'Schatten verschlingen alles.',
+        color: '#9d60ff', theme: 'yami', caster: 'Fushiguro Megumi',
+        expansionId: 'chimera_shadow',
       },
       {
-        cls:   'domain-mahito',
-        jp:    '自閉円頓裹',
-        en:    'Self-Embodiment of Perfection',
-        desc:  'Die Seele verformt sich nach deinem Willen.',
-        color: '#e060c0',
+        cls: 'domain-mahito', jp: '自閉円頓裹', en: 'Self-Embodiment of Perfection',
+        desc: 'Die Seele verformt sich nach deinem Willen.',
+        color: '#e060c0', theme: 'shuku', caster: 'Mahito',
+        expansionId: 'self_embodiment',
       },
       {
-        cls:   'domain-geto',
-        jp:    '嶄新な慄き',
-        en:    'Horizon of the Captivating Skandha',
-        desc:  'Zwischen den Welten schweben.',
-        color: '#b49fff',
+        cls: 'domain-geto', jp: '嶄新な慄き', en: 'Horizon of the Captivating Skandha',
+        desc: 'Zwischen den Welten schweben.',
+        color: '#b49fff', theme: 'yami', caster: 'Geto Suguru',
+        expansionId: 'horizon_captivating',
       },
       {
-        cls:   'domain-dagon',
-        jp:    '蕩蕩跋扈魑魅魍魎',
-        en:    'Womb Profusion',
-        desc:  'Tiefe ohne Ende.',
-        color: '#40a0e0',
+        cls: 'domain-dagon', jp: '蕩蕩跋扈魑魅魍魎', en: 'Womb Profusion',
+        desc: 'Tiefe ohne Ende.',
+        color: '#40a0e0', theme: 'ao', caster: 'Dagon',
+        expansionId: null,
       },
       {
-        cls:   'domain-tengen',
-        jp:    '無為転変',
-        en:    'Idle Death Gamble',
-        desc:  'Ewiges Licht übersteigt jeden Fluch.',
-        color: '#ffd060',
+        cls: 'domain-tengen', jp: '無為転変', en: 'Idle Death Gamble',
+        desc: 'Ewiges Licht übersteigt jeden Fluch.',
+        color: '#ffd060', theme: 'kin', caster: 'Tengen',
+        expansionId: null,
       },
       {
-        cls:   'domain-naoya',
-        jp:    '死刑宣告',
-        en:    'Deadly Sentencing',
-        desc:  'Das Urteil ist unausweichlich.',
-        color: '#c8c020',
+        cls: 'domain-naoya', jp: '死刑宣告', en: 'Deadly Sentencing',
+        desc: 'Das Urteil ist unausweichlich.',
+        color: '#c8c020', theme: 'kin', caster: 'Naoya Zenin',
+        expansionId: null,
       },
     ];
 
     function getMe() {
       try { return JSON.parse(localStorage.getItem('lalling-me')); } catch { return null; }
     }
+
+    let myDomain = null;
+    let allExpansions = [];
 
     async function init() {
       const me = getMe();
@@ -407,26 +496,132 @@
         return;
       }
 
-      // Use domainIdx stored in player object (set at checkin from roster)
-      // Fallback to ID-based assignment if not set
       const domainIdx = (me.domainIdx !== undefined) ? me.domainIdx % DOMAINS.length : me.id % DOMAINS.length;
-      const d = DOMAINS[domainIdx];
+      myDomain = DOMAINS[domainIdx];
 
-      // Apply domain class and color
+      // Load expansion effects from server
+      try {
+        const r = await fetch('/api/domain-expansion');
+        if (r.ok) { const d = await r.json(); allExpansions = d.expansions || []; }
+      } catch {}
+
       const domainEl = document.getElementById('domain');
-      domainEl.classList.add(d.cls);
-      domainEl.style.color = d.color;
+      domainEl.classList.add(myDomain.cls);
+      domainEl.style.color = myDomain.color;
       domainEl.style.display = '';
 
-      // Fill content
-      document.getElementById('domain-jp').textContent   = d.jp;
-      document.getElementById('domain-en').textContent   = d.en;
-      document.getElementById('domain-desc').textContent = d.desc;
+      document.getElementById('domain-jp').textContent   = myDomain.jp;
+      document.getElementById('domain-en').textContent   = myDomain.en;
+      document.getElementById('domain-desc').textContent = myDomain.desc;
       document.getElementById('player-name').textContent = me.name;
       document.getElementById('player-role').textContent = me.role || '';
+      document.title = myDomain.en + ' — ' + me.name;
 
-      // Set page title
-      document.title = d.en + ' — ' + me.name;
+      // Button style uses domain color
+      document.getElementById('hud-activate-btn').style.background = myDomain.color;
+
+      // Wire up buttons
+      document.getElementById('hud-activate-btn').addEventListener('click', activateDomain);
+      document.getElementById('hud-cancel-btn').addEventListener('click', cancelDomain);
+
+      // Start polling
+      await pollStatus();
+      setInterval(pollStatus, 3000);
+    }
+
+    async function pollStatus() {
+      const me = getMe();
+      if (!me) return;
+      try {
+        const r = await fetch('/api/domain-activation?playerId=' + me.id);
+        if (!r.ok) return;
+        const data = await r.json();
+        updateHUD(me, data);
+      } catch {}
+    }
+
+    function buildDomainObj() {
+      if (!myDomain) return null;
+      const expansion = myDomain.expansionId
+        ? allExpansions.find(e => e.id === myDomain.expansionId)
+        : null;
+      return {
+        name:    myDomain.jp,
+        subname: myDomain.en,
+        caster:  myDomain.caster,
+        theme:   myDomain.theme,
+        effect:  expansion ? expansion.effect : myDomain.desc,
+      };
+    }
+
+    async function activateDomain() {
+      const me = getMe();
+      if (!me) return;
+      const domainObj = buildDomainObj();
+      if (!domainObj) return;
+
+      const btn = document.getElementById('hud-activate-btn');
+      btn.disabled = true;
+      try {
+        const r = await fetch('/api/domain-activation', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ playerId: me.id, domain: domainObj }),
+        });
+        const data = await r.json();
+        if (!r.ok) { alert(data.error || 'Fehler'); btn.disabled = false; return; }
+        updateHUD(me, data);
+      } catch { btn.disabled = false; }
+    }
+
+    async function cancelDomain() {
+      const me = getMe();
+      if (!me) return;
+      const btn = document.getElementById('hud-cancel-btn');
+      btn.disabled = true;
+      try {
+        const r = await fetch('/api/domain-activation', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ playerId: me.id }),
+        });
+        const data = await r.json();
+        if (!r.ok) { alert(data.error || 'Fehler'); btn.disabled = false; return; }
+        updateHUD(me, data);
+      } catch { btn.disabled = false; }
+    }
+
+    function updateHUD(me, data) {
+      const coins        = data.myCoins ?? 0;
+      const pending      = data.pending;
+      const isMyPending  = pending && pending.playerId === me.id;
+      const someoneElse  = pending && !isMyPending;
+
+      document.getElementById('hud-coin-count').textContent = coins;
+
+      const statusEl = document.getElementById('hud-status');
+      const activateBtn = document.getElementById('hud-activate-btn');
+      const cancelBtn   = document.getElementById('hud-cancel-btn');
+
+      if (isMyPending) {
+        statusEl.textContent = '⚡ Deine Domain ist für die nächste Hand aktiviert!';
+        statusEl.className   = 'hud-status status-active';
+        activateBtn.style.display = 'none';
+        cancelBtn.style.display   = '';
+        cancelBtn.disabled = false;
+      } else if (someoneElse) {
+        statusEl.textContent = '🔒 ' + pending.playerName + ' hat bereits eine Domain aktiviert.';
+        statusEl.className   = 'hud-status status-blocked';
+        activateBtn.style.display = '';
+        activateBtn.disabled = true;
+        cancelBtn.style.display = 'none';
+      } else {
+        statusEl.textContent = 'Keine Domain aktiviert — du kannst deine für die nächste Hand einsetzen.';
+        statusEl.className   = 'hud-status';
+        activateBtn.style.display = '';
+        activateBtn.disabled = coins < 1;
+        cancelBtn.style.display = 'none';
+      }
     }
 
     init();

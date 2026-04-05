@@ -91,6 +91,7 @@ app.post('/api/roster/checkin', (req, res) => {
       name: entry.name,
       role: 'Normaler Mensch',
       points: 1000,
+      domainCoins: 3,
       isAdmin,
       domainIdx: entry.domainIdx,
       rosterPlayerId: entry.id,
@@ -286,6 +287,7 @@ app.post('/api/auth', (req, res) => {
 // ── Poker ──
 
 let pokerGame = null;
+let pendingDomainActivation = null; // { playerId, playerName, domain }
 
 function pokerBuildToAct(game, startIdx) {
   const n = game.players.length;
@@ -405,13 +407,18 @@ app.post('/api/poker/deal', (req, res) => {
     g._communityCards = [deck.pop(), deck.pop(), deck.pop(), deck.pop(), deck.pop()];
   }
 
-  // Domain Expansion roll — each expansion has its own chance
+  // Domain Expansion: manual activation takes priority over random roll
   g.domainExpansion = null;
-  const de = readDE();
-  if (de.enabled) {
-    const triggered = de.expansions.filter(e => e.enabled && Math.random() * 100 < (e.chance || 0));
-    if (triggered.length > 0)
-      g.domainExpansion = triggered[Math.floor(Math.random() * triggered.length)];
+  if (pendingDomainActivation) {
+    g.domainExpansion = pendingDomainActivation.domain;
+    pendingDomainActivation = null;
+  } else {
+    const de = readDE();
+    if (de.enabled) {
+      const triggered = de.expansions.filter(e => e.enabled && Math.random() * 100 < (e.chance || 0));
+      if (triggered.length > 0)
+        g.domainExpansion = triggered[Math.floor(Math.random() * triggered.length)];
+    }
   }
 
   res.json(g);
@@ -518,6 +525,11 @@ app.post('/api/poker/winner', (req, res) => {
   g.winningHand = req.body.winningHand || null;
   const pdata = readPlayers();
   g.players.forEach(gp => { const pp = pdata.players.find(p => p.id === gp.id); if (pp) pp.points = gp.chips; });
+  // Grant 1 domain coin to each winner
+  winners.forEach(w => {
+    const pp = pdata.players.find(p => p.id === w.id);
+    if (pp) pp.domainCoins = (pp.domainCoins ?? 0) + 1;
+  });
   writePlayers(pdata);
   res.json(g);
 });
@@ -530,6 +542,7 @@ app.post('/api/poker/end', (req, res) => {
     writePlayers(pdata);
   }
   pokerGame = null;
+  pendingDomainActivation = null;
   res.json({ success: true });
 });
 
@@ -767,6 +780,45 @@ app.delete('/api/domain-expansion/:id', (req, res) => {
   current.expansions = current.expansions.filter(e => e.id !== req.params.id);
   writeDE(current);
   res.json(current);
+});
+
+// ── Domain Activation (manual, costs 1 domain coin) ──
+
+app.get('/api/domain-activation', (req, res) => {
+  const playerId = parseInt(req.query.playerId);
+  let myCoins = null;
+  if (playerId) {
+    const pdata = readPlayers();
+    const player = pdata.players.find(p => p.id === playerId);
+    myCoins = player ? (player.domainCoins ?? 0) : 0;
+  }
+  res.json({ pending: pendingDomainActivation, myCoins });
+});
+
+app.post('/api/domain-activation', (req, res) => {
+  const { playerId, domain } = req.body;
+  if (!playerId || !domain) return res.status(400).json({ error: 'playerId und domain erforderlich' });
+  if (pendingDomainActivation) return res.status(409).json({ error: 'Bereits eine Domain aktiviert' });
+  const pdata = readPlayers();
+  const player = pdata.players.find(p => p.id === parseInt(playerId));
+  if (!player) return res.status(404).json({ error: 'Spieler nicht gefunden' });
+  if ((player.domainCoins ?? 0) < 1) return res.status(402).json({ error: 'Nicht genug Domain-Münzen' });
+  player.domainCoins = (player.domainCoins ?? 0) - 1;
+  writePlayers(pdata);
+  pendingDomainActivation = { playerId: player.id, playerName: player.name, domain };
+  res.json({ success: true, myCoins: player.domainCoins, pending: pendingDomainActivation });
+});
+
+app.delete('/api/domain-activation', (req, res) => {
+  const { playerId } = req.body;
+  if (!pendingDomainActivation) return res.status(404).json({ error: 'Keine aktive Reservierung' });
+  if (pendingDomainActivation.playerId !== parseInt(playerId))
+    return res.status(403).json({ error: 'Nicht deine Domain-Reservierung' });
+  const pdata = readPlayers();
+  const player = pdata.players.find(p => p.id === parseInt(playerId));
+  if (player) { player.domainCoins = (player.domainCoins ?? 0) + 1; writePlayers(pdata); }
+  pendingDomainActivation = null;
+  res.json({ success: true, myCoins: player ? player.domainCoins : null });
 });
 
 // ── Hand rules (server-side, shared across all devices) ──
