@@ -213,6 +213,16 @@
       <button class="btn btn-primary spin-btn" id="spin-btn" onclick="spin()">
         ⚔ Drehen
       </button>
+
+      <!-- Spin counter -->
+      <div id="spin-counter-box" style="display:flex;align-items:center;gap:0.6rem;margin-top:0.5rem;">
+        <button class="btn btn-secondary" style="padding:0.25rem 0.7rem;font-size:1rem;" onclick="changeSpins(-1)">−</button>
+        <div style="font-family:var(--font-ui);font-size:0.82rem;letter-spacing:0.1em;color:var(--text-dim);min-width:7rem;text-align:center;">
+          Drehungen: <span id="spins-left" style="color:var(--gold);font-weight:700;">1</span>
+        </div>
+        <button class="btn btn-secondary" style="padding:0.25rem 0.7rem;font-size:1rem;" onclick="changeSpins(1)">+</button>
+      </div>
+
       <div id="no-spin-msg" style="display:none; font-size:0.82rem; color:var(--text-dim); font-family:var(--font-ui); letter-spacing:0.08em; margin-top:0.3rem;">
         Nur Admins dürfen drehen
       </div>
@@ -271,9 +281,20 @@
       'Dreh noch 2 mal',
     ];
     let entries = [];
-
     let currentAngle = 0;
     let spinning = false;
+    let spinsLeft = 1;
+
+    function updateSpinCounter() {
+      document.getElementById('spins-left').textContent = spinsLeft;
+      document.getElementById('spin-btn').disabled = spinsLeft <= 0 || spinning;
+      document.getElementById('spin-btn').textContent = spinsLeft <= 0 ? '— Keine Drehungen mehr —' : '⚔ Drehen';
+    }
+
+    function changeSpins(delta) {
+      spinsLeft = Math.max(0, Math.min(10, spinsLeft + delta));
+      updateSpinCounter();
+    }
 
     // ── Segment colours ──
     // Generated from the theme's primary colour family
@@ -403,6 +424,10 @@
         if (entries.length < 2) showToast('Mindestens 2 Einträge erforderlich.', 'error');
         return;
       }
+      if (spinsLeft <= 0) return;
+
+      spinsLeft--;
+      updateSpinCounter();
 
       closeResult();
       spinning = true;
@@ -427,7 +452,7 @@
           requestAnimationFrame(animate);
         } else {
           spinning = false;
-          document.getElementById('spin-btn').disabled = false;
+          updateSpinCounter();
           showResult();
         }
       }
