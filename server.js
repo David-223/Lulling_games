@@ -525,11 +525,6 @@ app.post('/api/poker/winner', (req, res) => {
   g.winningHand = req.body.winningHand || null;
   const pdata = readPlayers();
   g.players.forEach(gp => { const pp = pdata.players.find(p => p.id === gp.id); if (pp) pp.points = gp.chips; });
-  // Grant 1 domain coin to each winner
-  winners.forEach(w => {
-    const pp = pdata.players.find(p => p.id === w.id);
-    if (pp) pp.domainCoins = (pp.domainCoins ?? 0) + 1;
-  });
   writePlayers(pdata);
   res.json(g);
 });
@@ -814,11 +809,11 @@ app.delete('/api/domain-activation', (req, res) => {
   if (!pendingDomainActivation) return res.status(404).json({ error: 'Keine aktive Reservierung' });
   if (pendingDomainActivation.playerId !== parseInt(playerId))
     return res.status(403).json({ error: 'Nicht deine Domain-Reservierung' });
+  // Coin is NOT refunded — spent permanently
   const pdata = readPlayers();
   const player = pdata.players.find(p => p.id === parseInt(playerId));
-  if (player) { player.domainCoins = (player.domainCoins ?? 0) + 1; writePlayers(pdata); }
   pendingDomainActivation = null;
-  res.json({ success: true, myCoins: player ? player.domainCoins : null });
+  res.json({ success: true, myCoins: player ? (player.domainCoins ?? 0) : null });
 });
 
 // ── Hand rules (server-side, shared across all devices) ──
