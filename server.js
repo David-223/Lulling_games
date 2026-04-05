@@ -11,41 +11,22 @@ const PLAYERS_FILE = path.join(__dirname, 'data', 'players.json');
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ── Safe atomic file I/O ──
-// Writes to a .tmp file first, then renames atomically → no partial writes.
-// Reads fall back to .bak if the main file is missing or corrupt.
-function safeWrite(filePath, data) {
-  const tmp = filePath + '.tmp';
-  const bak = filePath + '.bak';
-  const json = JSON.stringify(data, null, 2);
-  fs.writeFileSync(tmp, json, 'utf-8');
-  // promote: if main file exists, back it up first
-  if (fs.existsSync(filePath)) fs.copyFileSync(filePath, bak);
-  fs.renameSync(tmp, filePath);
-}
-
-function safeRead(filePath, fallback) {
-  for (const candidate of [filePath, filePath + '.bak']) {
-    if (!fs.existsSync(candidate)) continue;
-    try { return JSON.parse(fs.readFileSync(candidate, 'utf-8')); } catch {}
-  }
-  return typeof fallback === 'function' ? fallback() : fallback;
-}
-
 function readData() {
-  return safeRead(DATA_FILE, () => { throw new Error('rules.json missing'); });
+  const raw = fs.readFileSync(DATA_FILE, 'utf-8');
+  return JSON.parse(raw);
 }
 
 function writeData(data) {
-  safeWrite(DATA_FILE, data);
+  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf-8');
 }
 
 function readPlayers() {
-  return safeRead(PLAYERS_FILE, { players: [], nextId: 1 });
+  if (!fs.existsSync(PLAYERS_FILE)) return { players: [], nextId: 1 };
+  return JSON.parse(fs.readFileSync(PLAYERS_FILE, 'utf-8'));
 }
 
 function writePlayers(data) {
-  safeWrite(PLAYERS_FILE, data);
+  fs.writeFileSync(PLAYERS_FILE, JSON.stringify(data, null, 2), 'utf-8');
 }
 
 // ── Admin auth helper ──
@@ -486,11 +467,12 @@ app.post('/api/poker/away', (req, res) => {
 const WHEEL_FILE = path.join(__dirname, 'data', 'wheel.json');
 
 function readWheel() {
-  return safeRead(WHEEL_FILE, { entries: [] });
+  if (!fs.existsSync(WHEEL_FILE)) return { entries: [] };
+  return JSON.parse(fs.readFileSync(WHEEL_FILE, 'utf-8'));
 }
 
 function writeWheel(data) {
-  safeWrite(WHEEL_FILE, data);
+  fs.writeFileSync(WHEEL_FILE, JSON.stringify(data, null, 2), 'utf-8');
 }
 
 app.get('/api/wheel', (req, res) => {
@@ -509,11 +491,12 @@ app.post('/api/wheel', (req, res) => {
 const VOWS_FILE = path.join(__dirname, 'data', 'binding-vows.json');
 
 function readVows() {
-  return safeRead(VOWS_FILE, { vows: [], nextId: 1 });
+  if (!fs.existsSync(VOWS_FILE)) return { vows: [], nextId: 1 };
+  return JSON.parse(fs.readFileSync(VOWS_FILE, 'utf-8'));
 }
 
 function writeVows(data) {
-  safeWrite(VOWS_FILE, data);
+  fs.writeFileSync(VOWS_FILE, JSON.stringify(data, null, 2), 'utf-8');
 }
 
 app.get('/api/binding-vows', (req, res) => {
@@ -560,11 +543,12 @@ app.delete('/api/binding-vows/:id', (req, res) => {
 const SETTINGS_FILE = path.join(__dirname, 'data', 'settings.json');
 
 function readSettings() {
-  return safeRead(SETTINGS_FILE, { cardsEnabled: false });
+  if (!fs.existsSync(SETTINGS_FILE)) return { cardsEnabled: false };
+  return JSON.parse(fs.readFileSync(SETTINGS_FILE, 'utf-8'));
 }
 
 function writeSettings(data) {
-  safeWrite(SETTINGS_FILE, data);
+  fs.writeFileSync(SETTINGS_FILE, JSON.stringify(data, null, 2), 'utf-8');
 }
 
 app.get('/api/settings', (req, res) => res.json(readSettings()));
@@ -605,11 +589,12 @@ function communityRevealCount(phase) {
 const DE_FILE = path.join(__dirname, 'data', 'domain-expansions.json');
 
 function readDE() {
-  return safeRead(DE_FILE, { enabled: false, chance: 20, expansions: [] });
+  if (!fs.existsSync(DE_FILE)) return { enabled: false, chance: 20, expansions: [] };
+  return JSON.parse(fs.readFileSync(DE_FILE, 'utf-8'));
 }
 
 function writeDE(data) {
-  safeWrite(DE_FILE, data);
+  fs.writeFileSync(DE_FILE, JSON.stringify(data, null, 2), 'utf-8');
 }
 
 app.get('/api/domain-expansion', (req, res) => {
