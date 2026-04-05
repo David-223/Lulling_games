@@ -547,6 +547,20 @@
             <span class="toggle-knob"></span>
           </button>
         </div>
+
+        <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border-mid);">
+          <div style="font-family:var(--font-ui);font-size:0.88rem;color:var(--text);letter-spacing:0.04em;margin-bottom:0.5rem;">💾 Datensicherung</div>
+          <div style="font-size:0.74rem;color:var(--text-dim);font-family:var(--font-ui);margin-bottom:0.9rem;line-height:1.4;">
+            Alle Spieler, Regeln und Einstellungen sichern oder nach einem Neustart wiederherstellen.
+          </div>
+          <div style="display:flex;gap:0.7rem;flex-wrap:wrap;">
+            <button class="btn" onclick="downloadBackup()" style="flex:1;min-width:120px;">⬇ Backup herunterladen</button>
+            <label class="btn" style="flex:1;min-width:120px;text-align:center;cursor:pointer;">
+              ⬆ Backup wiederherstellen
+              <input type="file" accept=".json" style="display:none" onchange="restoreBackup(this)">
+            </label>
+          </div>
+        </div>
       </div>
 
     </main>
@@ -654,6 +668,42 @@
         document.getElementById('cards-toggle-btn').classList.toggle('on', next);
         showToast(next ? 'Digitale Karten aktiviert' : 'Digitale Karten deaktiviert', 'success');
       } catch { showToast('Fehler', 'error'); }
+    }
+
+    async function downloadBackup() {
+      try {
+        const auth = adminAuthBody();
+        const params = new URLSearchParams(auth).toString();
+        const res = await fetch('/api/backup?' + params);
+        if (!res.ok) { showToast('Keine Berechtigung', 'error'); return; }
+        const data = await res.json();
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'lulling-backup-' + new Date().toISOString().slice(0,10) + '.json';
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('Backup heruntergeladen', 'success');
+      } catch { showToast('Fehler beim Backup', 'error'); }
+    }
+
+    async function restoreBackup(input) {
+      const file = input.files[0];
+      if (!file) return;
+      input.value = '';
+      try {
+        const text = await file.text();
+        const data = JSON.parse(text);
+        const res = await fetch('/api/restore', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...adminAuthBody(), ...data })
+        });
+        if (!res.ok) { showToast('Keine Berechtigung', 'error'); return; }
+        showToast('Backup wiederhergestellt – Seite neu laden', 'success');
+        setTimeout(() => location.reload(), 1500);
+      } catch { showToast('Ungültige Backup-Datei', 'error'); }
     }
 
     function toRoman(n) {

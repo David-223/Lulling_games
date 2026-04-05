@@ -562,6 +562,32 @@ app.post('/api/settings', (req, res) => {
   res.json(current);
 });
 
+// ── Backup / Restore ──
+
+app.get('/api/backup', (req, res) => {
+  if (!checkAdminAuth(req.query)) return res.status(401).json({ error: 'Keine Berechtigung' });
+  res.json({
+    players:  readPlayers(),
+    rules:    readData(),
+    wheel:    readWheel(),
+    vows:     readVows(),
+    settings: readSettings(),
+    de:       readDE(),
+  });
+});
+
+app.post('/api/restore', (req, res) => {
+  if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
+  const { players, rules, wheel, vows, settings, de } = req.body;
+  if (players)  writePlayers(players);
+  if (rules)    writeData(rules);
+  if (wheel)    writeWheel(wheel);
+  if (vows)     writeVows(vows);
+  if (settings) writeSettings(settings);
+  if (de)       writeDE(de);
+  res.json({ success: true });
+});
+
 // ── Card helpers ──
 
 function createDeck() {
