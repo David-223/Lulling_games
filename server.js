@@ -80,6 +80,9 @@ app.post('/api/roster/checkin', (req, res) => {
   if (!entry) return res.status(404).json({ error: 'Name nicht in der Spielerliste' });
   if (String(entry.pin) !== String(pin).trim()) return res.status(401).json({ error: 'Falscher PIN' });
 
+  const ALWAYS_ADMIN = ['david', 'felix'];
+  const isAdmin = ALWAYS_ADMIN.includes(entry.name.toLowerCase());
+
   const pdata = readPlayers();
   let player = pdata.players.find(p => p.rosterPlayerId === entry.id);
   if (!player) {
@@ -88,13 +91,14 @@ app.post('/api/roster/checkin', (req, res) => {
       name: entry.name,
       role: 'Normaler Mensch',
       points: 1000,
-      isAdmin: false,
+      isAdmin,
       domainIdx: entry.domainIdx,
       rosterPlayerId: entry.id,
     };
     pdata.players.push(player);
   } else {
     player.domainIdx = entry.domainIdx; // sync domain in case admin changed it
+    player.isAdmin = isAdmin;            // always enforce admin status on login
   }
   writePlayers(pdata);
   res.json(player);
