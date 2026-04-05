@@ -649,7 +649,7 @@
         await fetch('/api/settings', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...getAdminAuth(), cardsEnabled: next })
+          body: JSON.stringify({ ...adminAuthBody(), cardsEnabled: next })
         });
         document.getElementById('cards-toggle-btn').classList.toggle('on', next);
         showToast(next ? 'Digitale Karten aktiviert' : 'Digitale Karten deaktiviert', 'success');
@@ -1209,7 +1209,7 @@
         const res = await fetch('/api/domain-expansion', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...getAdminAuth(), ...deSettings })
+          body: JSON.stringify({ ...adminAuthBody(), ...deSettings })
         });
         deSettings = await res.json();
         renderDE();
@@ -1234,7 +1234,7 @@
         const res = await fetch('/api/domain-expansion/' + id, {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(getAdminAuth())
+          body: JSON.stringify(adminAuthBody())
         });
         deSettings = await res.json();
         renderDE();
@@ -1254,7 +1254,7 @@
         const res = await fetch('/api/domain-expansion/add', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...getAdminAuth(), name, subname, caster, theme, effect, chance })
+          body: JSON.stringify({ ...adminAuthBody(), name, subname, caster, theme, effect, chance })
         });
         if (!res.ok) { const d = await res.json(); showToast(d.error || 'Fehler', 'error'); return; }
         deSettings = await res.json();
