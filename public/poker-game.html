@@ -1236,7 +1236,7 @@
       }
 
       // Render each player into their seat slot (skip busted players with 0 chips)
-      ordered.filter(p => p.chips > 0 || p.allIn).forEach((p, seatIdx) => {
+      ordered.filter(p => g.phase !== 'ended' || p.chips > 0).forEach((p, seatIdx) => {
         if (seatIdx >= 8) return;
         const slot = document.getElementById(`seat-${seatIdx}`);
         if (!slot) return;
@@ -1281,7 +1281,7 @@
 
       // ── List view player rows (skip busted players with 0 chips) ──
       document.getElementById('player-rows').innerHTML = g.players
-        .filter(p => p.chips > 0 || p.allIn)
+        .filter(p => g.phase !== 'ended' || p.chips > 0)
         .map(p => {
           const i = g.players.indexOf(p); // original index for dealer/blind/turn comparisons
           const isMe2 = me && p.id === me.id;
