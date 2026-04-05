@@ -1116,6 +1116,89 @@
       opacity: 0.35;
       flex-shrink: 0;
     }
+
+    /* ══════════════════════════════════════
+       WHEEL RESULT OVERLAY
+    ══════════════════════════════════════ */
+    #tv-wheel-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      background: rgba(0, 0, 0, 0.88);
+      animation: wheel-overlay-in 0.5s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    #tv-wheel-overlay.visible { display: flex; }
+
+    @keyframes wheel-overlay-in {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    .wheel-ov-symbol {
+      font-family: var(--font-title);
+      font-size: 6vw;
+      font-weight: 900;
+      color: var(--gold);
+      text-shadow: 0 0 40px rgba(201,162,39,0.7), 0 0 100px rgba(201,162,39,0.3);
+      animation: wheel-sym-in 0.6s 0.1s cubic-bezier(0.22,1,0.36,1) both;
+      letter-spacing: 0.1em;
+    }
+
+    @keyframes wheel-sym-in {
+      from { opacity: 0; transform: scale(0.6) rotate(-10deg); }
+      to   { opacity: 1; transform: scale(1) rotate(0deg); }
+    }
+
+    .wheel-ov-label {
+      font-family: var(--font-ui);
+      font-size: 0.7vw;
+      letter-spacing: 0.45em;
+      text-transform: uppercase;
+      color: var(--p-glow);
+      opacity: 0.7;
+      margin: 1.2rem 0 0.8rem;
+      animation: wheel-ov-text-in 0.4s 0.3s ease both;
+    }
+
+    .wheel-ov-text {
+      font-family: var(--font-title);
+      font-size: 3.8vw;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: 0.05em;
+      text-align: center;
+      max-width: 80vw;
+      line-height: 1.25;
+      text-shadow: 0 0 30px rgba(255,255,255,0.2);
+      animation: wheel-ov-text-in 0.5s 0.4s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    .wheel-ov-divider {
+      width: 30vw;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      margin: 1.4rem auto 0;
+      animation: wheel-ov-text-in 0.4s 0.6s ease both;
+    }
+
+    @keyframes wheel-ov-text-in {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .wheel-ov-fade-out {
+      animation: wheel-ov-out 0.7s ease forwards !important;
+    }
+
+    @keyframes wheel-ov-out {
+      from { opacity: 1; }
+      to   { opacity: 0; }
+    }
   </style>
 </head>
 <body>
@@ -1233,6 +1316,14 @@
         <!-- seats injected by JS -->
       </div>
     </div>
+  </div>
+
+  <!-- ═══ WHEEL RESULT OVERLAY ═══ -->
+  <div id="tv-wheel-overlay">
+    <div class="wheel-ov-symbol">呪</div>
+    <div class="wheel-ov-label">— Glücksrad · Ergebnis —</div>
+    <div class="wheel-ov-text" id="wheel-ov-text"></div>
+    <div class="wheel-ov-divider"></div>
   </div>
 
   <script src="hands-data.js"></script>
@@ -1748,6 +1839,40 @@
     setInterval(renderHands, 10000); // re-sync hand rules every 10s
     loadData();
     setInterval(loadData, 5000);
+
+    // ── Wheel result polling ──
+    let lastWheelTimestamp = 0;
+
+    function showWheelResult(text) {
+      const overlay = document.getElementById('tv-wheel-overlay');
+      document.getElementById('wheel-ov-text').textContent = text;
+      overlay.classList.remove('wheel-ov-fade-out');
+      overlay.classList.add('visible');
+      clearTimeout(overlay._hideTimer);
+      overlay._hideTimer = setTimeout(() => {
+        overlay.classList.add('wheel-ov-fade-out');
+        setTimeout(() => overlay.classList.remove('visible', 'wheel-ov-fade-out'), 700);
+      }, 6000);
+    }
+
+    async function pollWheelResult() {
+      try {
+        const res = await fetch('/api/wheel/result');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data && data.timestamp && data.timestamp > lastWheelTimestamp) {
+          lastWheelTimestamp = data.timestamp;
+          showWheelResult(data.text);
+        }
+      } catch { /* silent */ }
+    }
+
+    // Seed last timestamp on load to avoid showing stale results
+    fetch('/api/wheel/result').then(r => r.json()).then(d => {
+      if (d && d.timestamp) lastWheelTimestamp = d.timestamp;
+    }).catch(() => {});
+
+    setInterval(pollWheelResult, 2000);
 
     const saved = localStorage.getItem('lalling-theme') || 'ao';
     document.documentElement.setAttribute('data-theme', saved);

@@ -574,6 +574,22 @@ app.post('/api/wheel', (req, res) => {
   res.json({ success: true });
 });
 
+// ── Wheel last result (for TV display) ──
+const WHEEL_RESULT_FILE = path.join(__dirname, 'data', 'wheel-result.json');
+
+app.get('/api/wheel/result', (req, res) => {
+  if (!fs.existsSync(WHEEL_RESULT_FILE)) return res.json(null);
+  res.json(JSON.parse(fs.readFileSync(WHEEL_RESULT_FILE, 'utf-8')));
+});
+
+app.post('/api/wheel/result', (req, res) => {
+  const { text } = req.body;
+  if (!text) return res.status(400).json({ error: 'text required' });
+  const data = { text, timestamp: Date.now() };
+  fs.writeFileSync(WHEEL_RESULT_FILE, JSON.stringify(data), 'utf-8');
+  res.json(data);
+});
+
 // ── Binding Vows ──
 
 const VOWS_FILE = path.join(__dirname, 'data', 'binding-vows.json');

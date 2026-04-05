@@ -437,8 +437,15 @@
 
     function showResult() {
       const idx = getWinner();
-      document.getElementById('result-text').textContent = entries[idx];
+      const text = entries[idx];
+      document.getElementById('result-text').textContent = text;
       document.getElementById('result-panel').classList.add('visible');
+      // Broadcast result to TV
+      fetch('/api/wheel/result', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text }),
+      }).catch(() => {});
     }
 
     function closeResult() {
