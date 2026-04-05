@@ -903,7 +903,101 @@
       to   { opacity: 0; }
     }
 
-    /* Theme colour vars injected inline per expansion */
+    /* ── Domain-themed background on the poker overlay ── */
+    #tv-poker-overlay {
+      transition: background 1s ease;
+    }
+
+    #tv-poker-overlay.de-bg-ao {
+      background: radial-gradient(ellipse 120% 80% at 50% 110%,
+        rgba(30,58,170,0.35) 0%, rgba(10,10,30,0.95) 55%, #05050c 100%);
+    }
+
+    #tv-poker-overlay.de-bg-shuku {
+      background: radial-gradient(ellipse 120% 80% at 50% 110%,
+        rgba(140,28,28,0.45) 0%, rgba(20,5,5,0.95) 55%, #0c0404 100%);
+    }
+
+    #tv-poker-overlay.de-bg-yami {
+      background: radial-gradient(ellipse 120% 80% at 50% 110%,
+        rgba(85,34,160,0.4) 0%, rgba(10,0,18,0.95) 55%, #060009 100%);
+    }
+
+    #tv-poker-overlay.de-bg-kin {
+      background: radial-gradient(ellipse 120% 80% at 50% 110%,
+        rgba(138,110,26,0.38) 0%, rgba(15,12,0,0.95) 55%, #090700 100%);
+    }
+
+    /* ── Persistent domain banner ── */
+    #ptv-de-banner {
+      flex-shrink: 0;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      padding: 0.5rem 2.5rem;
+      border-bottom: 1px solid var(--de-color, var(--border-mid));
+      background: linear-gradient(90deg,
+        rgba(0,0,0,0) 0%,
+        rgba(0,0,0,0.25) 50%,
+        rgba(0,0,0,0) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* subtle colour wash behind the banner */
+    #ptv-de-banner::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg,
+        transparent 0%,
+        color-mix(in srgb, var(--de-color, transparent) 12%, transparent) 50%,
+        transparent 100%);
+      pointer-events: none;
+    }
+
+    #ptv-de-banner.visible { display: flex; }
+
+    .ptv-de-name {
+      font-family: var(--font-title);
+      font-size: 1.1rem;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      color: var(--de-color, var(--p-glow));
+      text-shadow: 0 0 14px var(--de-color, var(--p-glow));
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .ptv-de-sub {
+      font-family: var(--font-ui);
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .ptv-de-effect {
+      flex: 1;
+      font-family: var(--font-ui);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.04em;
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    .ptv-de-divider {
+      width: 1px;
+      height: 1.8rem;
+      background: var(--de-color, var(--border-mid));
+      opacity: 0.35;
+      flex-shrink: 0;
+    }
   </style>
 </head>
 <body>
@@ -982,6 +1076,17 @@
       <div class="ptv-logo">Lalling Games · Poker</div>
       <div class="ptv-phase-pill" id="ptv-phase-pill">—</div>
     </div>
+
+    <!-- persistent domain banner -->
+    <div id="ptv-de-banner">
+      <div class="ptv-de-name" id="ptv-de-name"></div>
+      <div class="ptv-de-sub"  id="ptv-de-sub"></div>
+      <div class="ptv-de-divider"></div>
+      <div class="ptv-de-effect" id="ptv-de-effect"></div>
+      <div class="ptv-de-divider"></div>
+      <div class="ptv-de-sub" id="ptv-de-caster"></div>
+    </div>
+
     <div class="ptv-arena">
       <div class="ptv-table-wrap" id="ptv-table-wrap">
         <div class="ptv-oval">
@@ -1299,6 +1404,24 @@
       document.getElementById('ptv-pot-val').textContent = state.pot;
       document.getElementById('ptv-cur-bet').textContent =
         state.currentBet > 0 ? 'Aktueller Einsatz: ' + state.currentBet : '';
+
+      // Domain expansion background + persistent banner
+      const de     = state.domainExpansion;
+      const banner = document.getElementById('ptv-de-banner');
+      overlay.classList.remove('de-bg-ao', 'de-bg-shuku', 'de-bg-yami', 'de-bg-kin');
+      if (de) {
+        const color = DE_COLORS[de.theme] || DE_COLORS.ao;
+        overlay.style.setProperty('--de-color', color);
+        overlay.classList.add('de-bg-' + (de.theme || 'ao'));
+        document.getElementById('ptv-de-name').textContent   = de.name;
+        document.getElementById('ptv-de-sub').textContent    = de.subname;
+        document.getElementById('ptv-de-effect').textContent = de.effect;
+        document.getElementById('ptv-de-caster').textContent = de.caster;
+        banner.classList.add('visible');
+      } else {
+        overlay.style.removeProperty('--de-color');
+        banner.classList.remove('visible');
+      }
 
       // Upsert seats
       const players = state.players;
