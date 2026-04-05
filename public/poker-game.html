@@ -1235,8 +1235,8 @@
         if (slot) slot.innerHTML = '';
       }
 
-      // Render each player into their seat slot
-      ordered.forEach((p, seatIdx) => {
+      // Render each player into their seat slot (skip busted players with 0 chips)
+      ordered.filter(p => p.chips > 0).forEach((p, seatIdx) => {
         if (seatIdx >= 8) return;
         const slot = document.getElementById(`seat-${seatIdx}`);
         if (!slot) return;
@@ -1279,26 +1279,29 @@
           </div>`;
       });
 
-      // ── List view player rows ──
-      document.getElementById('player-rows').innerHTML = g.players.map((p, i) => {
-        const isMe2 = me && p.id === me.id;
-        const isTurn2 = i === g.currentPlayerIdx;
-        const badges2 = [];
-        if (i === g.dealerIdx && !['ended','setup'].includes(g.phase)) badges2.push('<span class="pr-badge badge-dealer">D</span>');
-        if (i === g.sbIdx && g.phase !== 'ended') badges2.push('<span class="pr-badge badge-sb">SB</span>');
-        if (i === g.bbIdx && g.phase !== 'ended') badges2.push('<span class="pr-badge badge-bb">BB</span>');
-        if (isMe2) badges2.push('<span class="pr-badge badge-you">Du</span>');
-        if (isTurn2) badges2.push('<span class="pr-badge badge-turn">am Zug</span>');
-        if (p.folded) badges2.push('<span class="pr-badge badge-folded">Fold</span>');
-        if (p.allIn)  badges2.push('<span class="pr-badge badge-allin">All-In</span>');
-        return `<div class="player-row${isTurn2 ? ' active-turn' : ''}${p.folded ? ' folded-row' : ''}">
-          <div class="pr-avatar">${escHtml(p.name.charAt(0).toUpperCase())}</div>
-          <div class="pr-name">${escHtml(p.name)}</div>
-          <div class="pr-bet">${p.roundBet > 0 ? '+' + p.roundBet : ''}</div>
-          <div class="pr-chips">${p.chips} Pts</div>
-          <div class="pr-badges">${badges2.join('')}</div>
-        </div>`;
-      }).join('');
+      // ── List view player rows (skip busted players with 0 chips) ──
+      document.getElementById('player-rows').innerHTML = g.players
+        .filter(p => p.chips > 0)
+        .map(p => {
+          const i = g.players.indexOf(p); // original index for dealer/blind/turn comparisons
+          const isMe2 = me && p.id === me.id;
+          const isTurn2 = i === g.currentPlayerIdx;
+          const badges2 = [];
+          if (i === g.dealerIdx && !['ended','setup'].includes(g.phase)) badges2.push('<span class="pr-badge badge-dealer">D</span>');
+          if (i === g.sbIdx && g.phase !== 'ended') badges2.push('<span class="pr-badge badge-sb">SB</span>');
+          if (i === g.bbIdx && g.phase !== 'ended') badges2.push('<span class="pr-badge badge-bb">BB</span>');
+          if (isMe2) badges2.push('<span class="pr-badge badge-you">Du</span>');
+          if (isTurn2) badges2.push('<span class="pr-badge badge-turn">am Zug</span>');
+          if (p.folded) badges2.push('<span class="pr-badge badge-folded">Fold</span>');
+          if (p.allIn)  badges2.push('<span class="pr-badge badge-allin">All-In</span>');
+          return `<div class="player-row${isTurn2 ? ' active-turn' : ''}${p.folded ? ' folded-row' : ''}">
+            <div class="pr-avatar">${escHtml(p.name.charAt(0).toUpperCase())}</div>
+            <div class="pr-name">${escHtml(p.name)}</div>
+            <div class="pr-bet">${p.roundBet > 0 ? '+' + p.roundBet : ''}</div>
+            <div class="pr-chips">${p.chips} Pts</div>
+            <div class="pr-badges">${badges2.join('')}</div>
+          </div>`;
+        }).join('');
 
       // ── Action panel (my turn) ──
       const actionPanel = document.getElementById('action-panel');
