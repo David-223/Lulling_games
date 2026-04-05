@@ -295,6 +295,17 @@ app.post('/api/poker/deal', (req, res) => {
   }
   g.toAct = toAct;
   g.currentPlayerIdx = toAct[0] ?? -1;
+
+  // Domain Expansion roll
+  g.domainExpansion = null;
+  const de = readDE();
+  if (de.enabled) {
+    const eligible = de.expansions.filter(e => e.enabled);
+    if (eligible.length > 0 && Math.random() * 100 < de.chance) {
+      g.domainExpansion = eligible[Math.floor(Math.random() * eligible.length)];
+    }
+  }
+
   res.json(g);
 });
 
@@ -495,6 +506,34 @@ app.delete('/api/binding-vows/:id', (req, res) => {
   data.vows.splice(idx, 1);
   writeVows(data);
   res.json({ success: true });
+});
+
+// ── Domain Expansions ──
+
+const DE_FILE = path.join(__dirname, 'data', 'domain-expansions.json');
+
+function readDE() {
+  if (!fs.existsSync(DE_FILE)) return { enabled: false, chance: 20, expansions: [] };
+  return JSON.parse(fs.readFileSync(DE_FILE, 'utf-8'));
+}
+
+function writeDE(data) {
+  fs.writeFileSync(DE_FILE, JSON.stringify(data, null, 2), 'utf-8');
+}
+
+app.get('/api/domain-expansion', (req, res) => {
+  res.json(readDE());
+});
+
+app.post('/api/domain-expansion', (req, res) => {
+  if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
+  const current = readDE();
+  const { enabled, chance, expansions } = req.body;
+  if (enabled !== undefined) current.enabled = !!enabled;
+  if (chance !== undefined) current.chance = Math.min(100, Math.max(0, parseInt(chance) || 0));
+  if (Array.isArray(expansions)) current.expansions = expansions;
+  writeDE(current);
+  res.json(current);
 });
 
 app.listen(PORT, '0.0.0.0', () => {

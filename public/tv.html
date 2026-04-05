@@ -742,6 +742,168 @@
       85%  { transform: scaleY(1.06) scaleX(0.96) rotate(-1deg);   opacity: 0.9;  }
       100% { transform: scaleY(0.98) scaleX(1.01) rotate(1.5deg);  opacity: 0.92; }
     }
+    /* ══════════════════════════════════════
+       DOMAIN EXPANSION OVERLAY
+    ══════════════════════════════════════ */
+    #tv-de-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      background: #000;
+      overflow: hidden;
+    }
+
+    #tv-de-overlay.visible { display: flex; }
+
+    /* Shockwave ring */
+    .de-shockwave {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .de-ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 3px solid var(--de-color, #5a8af0);
+      opacity: 0;
+      animation: de-ring-expand 1.8s ease-out forwards;
+    }
+
+    .de-ring:nth-child(1) { width: 10vw; height: 10vw; animation-delay: 0s; }
+    .de-ring:nth-child(2) { width: 10vw; height: 10vw; animation-delay: 0.25s; }
+    .de-ring:nth-child(3) { width: 10vw; height: 10vw; animation-delay: 0.5s; }
+
+    @keyframes de-ring-expand {
+      0%   { width: 5vw;  height: 5vw;  opacity: 0.9; border-width: 4px; }
+      100% { width: 180vw; height: 180vw; opacity: 0; border-width: 1px; }
+    }
+
+    /* Flash burst */
+    .de-flash {
+      position: absolute;
+      inset: 0;
+      background: var(--de-color, #5a8af0);
+      animation: de-flash-out 0.6s ease-out forwards;
+    }
+
+    @keyframes de-flash-out {
+      0%   { opacity: 0.35; }
+      100% { opacity: 0; }
+    }
+
+    /* Energy cracks radiating from centre */
+    .de-cracks {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0;
+      animation: de-cracks-in 0.4s 0.1s ease-out forwards;
+    }
+
+    @keyframes de-cracks-in {
+      from { opacity: 0; transform: scale(0.6); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    /* Main text block */
+    .de-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      animation: de-content-rise 0.5s 0.2s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    @keyframes de-content-rise {
+      from { opacity: 0; transform: scale(0.85) translateY(20px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .de-kanji {
+      font-family: var(--font-title);
+      font-size: 12vw;
+      font-weight: 900;
+      color: var(--de-color, #5a8af0);
+      line-height: 1;
+      letter-spacing: 0.08em;
+      text-shadow:
+        0 0 40px var(--de-color, #5a8af0),
+        0 0 120px var(--de-color, #5a8af0),
+        0 0 200px rgba(0,0,0,0.4);
+      animation: de-kanji-pulse 0.6s 0.3s ease-out both;
+    }
+
+    @keyframes de-kanji-pulse {
+      0%   { letter-spacing: 0.4em; opacity: 0; }
+      60%  { letter-spacing: 0.04em; opacity: 1; }
+      100% { letter-spacing: 0.08em; opacity: 1; }
+    }
+
+    .de-subname {
+      font-family: var(--font-ui);
+      font-size: 2.2vw;
+      font-weight: 700;
+      letter-spacing: 0.45em;
+      text-transform: uppercase;
+      color: #fff;
+      opacity: 0.85;
+      margin-top: 0.4rem;
+      animation: de-fade-in 0.4s 0.6s ease both;
+    }
+
+    .de-caster {
+      font-family: var(--font-ui);
+      font-size: 1.1vw;
+      letter-spacing: 0.5em;
+      text-transform: uppercase;
+      color: var(--de-color, #5a8af0);
+      opacity: 0.65;
+      margin-top: 0.6rem;
+      animation: de-fade-in 0.4s 0.8s ease both;
+    }
+
+    .de-divider {
+      width: 40vw;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--de-color, #5a8af0), transparent);
+      margin: 1.5rem auto;
+      animation: de-fade-in 0.4s 0.9s ease both;
+    }
+
+    .de-effect {
+      font-family: var(--font-title);
+      font-size: 2vw;
+      color: var(--gold);
+      letter-spacing: 0.06em;
+      max-width: 70vw;
+      line-height: 1.5;
+      text-shadow: 0 0 20px rgba(201,162,39,0.4);
+      animation: de-fade-in 0.5s 1s ease both;
+    }
+
+    @keyframes de-fade-in {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Whole overlay fade out at the end */
+    .de-fade-out {
+      animation: de-overlay-out 0.8s ease forwards !important;
+    }
+
+    @keyframes de-overlay-out {
+      from { opacity: 1; }
+      to   { opacity: 0; }
+    }
+
+    /* Theme colour vars injected inline per expansion */
   </style>
 </head>
 <body>
@@ -795,6 +957,20 @@
     <div class="tv-refresh-dot"></div>
     <div class="tv-stat">呪術廻戦 · Lalling Games</div>
   </footer>
+
+  <!-- ═══ DOMAIN EXPANSION OVERLAY ═══ -->
+  <div id="tv-de-overlay">
+    <div class="de-flash" id="de-flash"></div>
+    <div class="de-shockwave" id="de-shockwave"></div>
+    <svg class="de-cracks" id="de-cracks" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice"></svg>
+    <div class="de-content">
+      <div class="de-kanji"   id="de-kanji"></div>
+      <div class="de-subname" id="de-subname"></div>
+      <div class="de-caster"  id="de-caster"></div>
+      <div class="de-divider"></div>
+      <div class="de-effect"  id="de-effect"></div>
+    </div>
+  </div>
 
   <!-- ═══ FLAMES ═══ -->
   <div class="tv-flames" id="tv-flames"></div>
@@ -1146,6 +1322,70 @@
     }
 
     let pokerActive = false;
+    let lastDEHandNum = -1;
+
+    // Domain expansion colour themes
+    const DE_COLORS = {
+      ao:    '#5a8af0',
+      shuku: '#cc3535',
+      yami:  '#9060d8',
+      kin:   '#c9a227',
+    };
+
+    function showDomainExpansion(de) {
+      const overlay = document.getElementById('tv-de-overlay');
+      const color   = DE_COLORS[de.theme] || '#5a8af0';
+
+      // Set CSS var so all children inherit the theme colour
+      overlay.style.setProperty('--de-color', color);
+
+      // Fill text
+      document.getElementById('de-kanji').textContent   = de.name;
+      document.getElementById('de-subname').textContent = de.subname;
+      document.getElementById('de-caster').textContent  = de.caster;
+      document.getElementById('de-effect').textContent  = de.effect;
+
+      // Rebuild shockwave rings (re-trigger animation by replacing nodes)
+      const sw = document.getElementById('de-shockwave');
+      sw.innerHTML = '<div class="de-ring"></div><div class="de-ring"></div><div class="de-ring"></div>';
+      sw.querySelectorAll('.de-ring').forEach(r => r.style.borderColor = color);
+
+      // Draw SVG cracks
+      const svg = document.getElementById('de-cracks');
+      const cx = 960, cy = 540;
+      let paths = '';
+      for (let i = 0; i < 14; i++) {
+        const angle = (i / 14) * Math.PI * 2;
+        const len   = 350 + (Math.sin(i * 7.3) + 1) * 350;
+        const sway1 = (Math.sin(i * 3.1) * 120);
+        const sway2 = (Math.cos(i * 5.7) * 80);
+        const ex = cx + Math.cos(angle) * len;
+        const ey = cy + Math.sin(angle) * len;
+        const mx = cx + Math.cos(angle + 0.3) * (len * 0.5) + sway1;
+        const my = cy + Math.sin(angle + 0.3) * (len * 0.5) + sway2;
+        paths += `<path d="M${cx},${cy} Q${mx},${my} ${ex},${ey}"
+          stroke="${color}" stroke-width="${1 + Math.abs(Math.sin(i * 2.4))}"
+          fill="none" opacity="${0.3 + Math.abs(Math.sin(i * 1.9)) * 0.4}"/>`;
+      }
+      svg.innerHTML = paths;
+
+      // Reset flash
+      const flash = document.getElementById('de-flash');
+      flash.style.background = color;
+      flash.style.animation = 'none';
+      flash.offsetHeight; // reflow
+      flash.style.animation = '';
+
+      overlay.classList.remove('de-fade-out');
+      overlay.classList.add('visible');
+
+      // Auto-hide after 5s
+      clearTimeout(overlay._hideTimer);
+      overlay._hideTimer = setTimeout(() => {
+        overlay.classList.add('de-fade-out');
+        setTimeout(() => overlay.classList.remove('visible', 'de-fade-out'), 800);
+      }, 5000);
+    }
 
     async function pollPoker() {
       try {
@@ -1156,7 +1396,14 @@
         const state = await res.json();
         const active = state && state.phase && state.phase !== 'setup';
         setPokerView(active);
-        if (active) renderPokerView(state);
+        if (active) {
+          renderPokerView(state);
+          // Trigger domain expansion overlay on new hand
+          if (state.domainExpansion && state.handNum !== lastDEHandNum) {
+            lastDEHandNum = state.handNum;
+            showDomainExpansion(state.domainExpansion);
+          }
+        }
       } catch {
         setPokerView(false);
       }

@@ -462,6 +462,38 @@
 
       <hr class="divider" style="margin-top:2rem;" />
 
+      <!-- Domain Expansions -->
+      <h2 class="section-title">Domain Expansion</h2>
+      <div class="form-card" style="margin-top:0;" id="de-card">
+
+        <!-- Master toggle + chance -->
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1rem;">
+          <div>
+            <div style="font-family:var(--font-ui);font-size:0.88rem;color:var(--text);letter-spacing:0.04em;">術式展開 · Domain Expansion aktivieren</div>
+            <div style="font-size:0.74rem;color:var(--text-dim);font-family:var(--font-ui);margin-top:0.3rem;line-height:1.4;">
+              Zufällige Domain Expansion bei jedem Poker-Hand-Start.
+            </div>
+          </div>
+          <button id="de-enabled-btn" class="toggle-switch" onclick="deToggleEnabled()" title="Domain Expansion ein/ausschalten">
+            <span class="toggle-knob"></span>
+          </button>
+        </div>
+
+        <div id="de-controls">
+          <div style="display:flex;align-items:center;gap:0.8rem;margin-bottom:1.2rem;">
+            <label style="font-family:var(--font-ui);font-size:0.78rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;white-space:nowrap;">Chance</label>
+            <input id="de-chance-input" type="range" min="0" max="100" step="5" value="25"
+              style="flex:1;accent-color:var(--p-glow);" oninput="deUpdateChanceLabel(this.value)" onchange="deSaveSettings()" />
+            <span id="de-chance-label" style="font-family:var(--font-title);font-size:1rem;font-weight:700;color:var(--p-glow);min-width:3rem;text-align:right;">25%</span>
+          </div>
+
+          <div style="font-family:var(--font-ui);font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.6rem;">Verfügbare Expansions</div>
+          <div id="de-list" style="display:flex;flex-direction:column;gap:0.5rem;"></div>
+        </div>
+      </div>
+
+      <hr class="divider" style="margin-top:2rem;" />
+
       <!-- Einstellungen -->
       <h2 class="section-title">Einstellungen</h2>
       <div class="form-card" style="margin-top:0;">
@@ -1043,6 +1075,91 @@
     function escHtml(str) {
       return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
+
+    // ── Domain Expansion ──
+
+    let deSettings = null;
+
+    async function loadDE() {
+      try {
+        const res = await fetch('/api/domain-expansion');
+        deSettings = await res.json();
+        renderDE();
+      } catch { /* silent */ }
+    }
+
+    function renderDE() {
+      if (!deSettings) return;
+      const enabledBtn = document.getElementById('de-enabled-btn');
+      const controls   = document.getElementById('de-controls');
+      const chanceIn   = document.getElementById('de-chance-input');
+      const chanceLabel = document.getElementById('de-chance-label');
+
+      enabledBtn.classList.toggle('on', !!deSettings.enabled);
+      controls.style.opacity  = deSettings.enabled ? '1' : '0.4';
+      controls.style.pointerEvents = deSettings.enabled ? '' : 'none';
+
+      chanceIn.value = deSettings.chance;
+      chanceLabel.textContent = deSettings.chance + '%';
+
+      const list = document.getElementById('de-list');
+      list.innerHTML = (deSettings.expansions || []).map((e, i) => `
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:0.8rem;
+          background:var(--bg-card2);border:1px solid var(--border-mid);border-radius:6px;padding:0.6rem 0.9rem;">
+          <div style="flex:1;min-width:0;">
+            <div style="font-family:var(--font-title);font-size:0.88rem;color:var(--text);font-weight:700;">
+              ${escHtml(e.name)} <span style="font-size:0.72rem;color:var(--text-dim);font-family:var(--font-ui);font-weight:400;">· ${escHtml(e.subname)}</span>
+            </div>
+            <div style="font-size:0.7rem;color:var(--text-dim);font-family:var(--font-ui);margin-top:0.15rem;">${escHtml(e.caster)}</div>
+            <div style="font-size:0.75rem;color:var(--p-glow);font-family:var(--font-ui);margin-top:0.25rem;">${escHtml(e.effect)}</div>
+          </div>
+          <button class="toggle-switch ${e.enabled ? 'on' : ''}" onclick="deToggleExpansion(${i})" title="${e.enabled ? 'Deaktivieren' : 'Aktivieren'}">
+            <span class="toggle-knob"></span>
+          </button>
+        </div>`).join('');
+    }
+
+    async function deSaveSettings() {
+      if (!deSettings) return;
+      const auth = getAdminAuth();
+      try {
+        const res = await fetch('/api/domain-expansion', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...auth, ...deSettings })
+        });
+        deSettings = await res.json();
+        renderDE();
+      } catch { showToast('Fehler beim Speichern', 'error'); }
+    }
+
+    function deToggleEnabled() {
+      if (!deSettings) return;
+      deSettings.enabled = !deSettings.enabled;
+      deSaveSettings();
+    }
+
+    function deToggleExpansion(idx) {
+      if (!deSettings) return;
+      deSettings.expansions[idx].enabled = !deSettings.expansions[idx].enabled;
+      deSaveSettings();
+    }
+
+    function deUpdateChanceLabel(val) {
+      document.getElementById('de-chance-label').textContent = val + '%';
+      if (deSettings) deSettings.chance = parseInt(val);
+    }
+
+    // Load DE settings when admin section is visible
+    const _origShowAdmin = typeof showAdmin === 'function' ? showAdmin : null;
+    document.addEventListener('DOMContentLoaded', () => { /* loaded inline below */ });
+
+    // Hook into the existing login flow by watching admin screen visibility
+    const _deObserver = new MutationObserver(() => {
+      const screen = document.getElementById('admin-screen');
+      if (screen && screen.style.display !== 'none' && !deSettings) loadDE();
+    });
+    _deObserver.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['style'] });
 
   </script>
 </body>

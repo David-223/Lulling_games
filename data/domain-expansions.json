@@ -1,0 +1,51 @@
+{
+  "enabled": true,
+  "chance": 25,
+  "expansions": [
+    {
+      "id": "infinite_void",
+      "name": "無量空処",
+      "subname": "Infinite Void",
+      "caster": "Gojo Satoru",
+      "theme": "ao",
+      "effect": "Alle Spieler trinken 3 Schlucke, bevor sie setzen.",
+      "enabled": true
+    },
+    {
+      "id": "malevolent_shrine",
+      "name": "嗤う蝉",
+      "subname": "Malevolent Shrine",
+      "caster": "Ryomen Sukuna",
+      "theme": "shuku",
+      "effect": "Die Blinds werden diese Runde verdoppelt.",
+      "enabled": true
+    },
+    {
+      "id": "chimera_shadow",
+      "name": "嵌合暗翳庭",
+      "subname": "Chimera Shadow Garden",
+      "caster": "Fushiguro Megumi",
+      "theme": "yami",
+      "effect": "Jeder Spieler muss seinen Einsatz verdoppeln oder folden.",
+      "enabled": true
+    },
+    {
+      "id": "horizon_captivating",
+      "name": "蕩ケシ",
+      "subname": "Horizon of the Captivating Skandha",
+      "caster": "Geto Suguru",
+      "theme": "yami",
+      "effect": "Alle zahlen 10 Punkte zusätzlich in den Pot.",
+      "enabled": true
+    },
+    {
+      "id": "self_embodiment",
+      "name": "自己身体変容",
+      "subname": "Self-Embodiment of Perfection",
+      "caster": "Mahito",
+      "theme": "shuku",
+      "effect": "Der Spieler mit den wenigsten Chips trinkt 5 Schlucke.",
+      "enabled": true
+    }
+  ]
+}
