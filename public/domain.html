@@ -519,11 +519,24 @@
     let allExpansions = [];
 
     async function init() {
-      const me = getMe();
+      let me = getMe();
       if (!me) {
         document.getElementById('not-logged').style.display = '';
         return;
       }
+
+      // Always fetch fresh player data so domainIdx is up to date
+      try {
+        const r = await fetch('/api/players');
+        if (r.ok) {
+          const players = await r.json();
+          const fresh = players.find(p => p.id === me.id);
+          if (fresh && fresh.domainIdx !== undefined) {
+            me = { ...me, domainIdx: fresh.domainIdx };
+            localStorage.setItem('lalling-me', JSON.stringify(me));
+          }
+        }
+      } catch {}
 
       const domainIdx = (me.domainIdx !== undefined) ? me.domainIdx % DOMAINS.length : me.id % DOMAINS.length;
       myDomain = DOMAINS[domainIdx];
