@@ -3,14 +3,14 @@
     {
       "id": 1,
       "points": 100,
-      "title": "Erste Regel – Der Eintritt",
-      "description": "Jeder Spieler trinkt zu Beginn 2 Schlucke, um das Ritual zu besiegeln. Kein Ausstieg mehr möglich."
+      "title": "Der Eintritt",
+      "description": "Jeder Spieler trinkt zu Beginn 1 Shot und erweist eine großzügige Spende von 10€. Kein Ausstieg mehr möglich."
     },
     {
       "id": 2,
       "points": 200,
-      "title": "Zweite Regel – Punkte & Schlucke",
-      "description": "Wer Punkte verliert, trinkt entsprechend viele Schlucke. 100 Punkte = 1 Schluck."
+      "title": "Punkte & Schlucke",
+      "description": "Wer Punkte verliert, trinkt entsprechend viel. 25 Punkte = 1 Schluck, 100 Punkte = 1 Shot"
     },
     {
       "id": 3,
