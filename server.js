@@ -391,6 +391,7 @@ app.post('/api/poker/winner', (req, res) => {
   g.winner = winners.map(p => p.name).join(' & ');
   g.winnerId = winners[0].id;
   g.splitPot = winners.length > 1;
+  g.winnerPot = g.pot;
   g.pot = 0; g.phase = 'ended';
   g.winningHand = req.body.winningHand || null;
   const pdata = readPlayers();

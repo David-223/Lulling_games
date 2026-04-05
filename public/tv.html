@@ -558,6 +558,65 @@
       letter-spacing: 0.1em;
     }
 
+    /* ── Showdown result panel (inside the oval) ── */
+    .ptv-result {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.15rem;
+      animation: de-content-rise 0.5s ease both;
+    }
+
+    .ptv-result.visible { display: flex; }
+
+    .ptv-result-label {
+      font-family: var(--font-ui);
+      font-size: 0.5rem;
+      letter-spacing: 0.5em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      font-weight: 700;
+    }
+
+    .ptv-result-winner {
+      font-family: var(--font-title);
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: var(--gold);
+      line-height: 1.05;
+      text-shadow: 0 0 28px rgba(201,162,39,0.65);
+      letter-spacing: 0.04em;
+    }
+
+    .ptv-result-pot {
+      font-family: var(--font-title);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--p-glow);
+      letter-spacing: 0.08em;
+    }
+
+    .ptv-result-hand {
+      font-family: var(--font-ui);
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.55);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-top: 0.15rem;
+    }
+
+    .ptv-result-drink {
+      font-family: var(--font-ui);
+      font-size: 0.72rem;
+      color: var(--gold-dim);
+      letter-spacing: 0.04em;
+      margin-top: 0.2rem;
+      max-width: 18vw;
+      text-align: center;
+      line-height: 1.35;
+    }
+
     /* player seat */
     .ptv-seat {
       position: absolute;
@@ -1090,11 +1149,20 @@
     <div class="ptv-arena">
       <div class="ptv-table-wrap" id="ptv-table-wrap">
         <div class="ptv-oval">
-          <div class="ptv-center">
+          <!-- live pot (hidden at ended) -->
+          <div class="ptv-center" id="ptv-pot-panel">
             <div class="ptv-pot-lbl">Pot</div>
             <div class="ptv-pot-val" id="ptv-pot-val">0</div>
             <div class="ptv-pot-pts">Punkte</div>
             <div class="ptv-cur-bet" id="ptv-cur-bet"></div>
+          </div>
+          <!-- result (shown at ended) -->
+          <div class="ptv-result" id="ptv-result">
+            <div class="ptv-result-label">— Showdown —</div>
+            <div class="ptv-result-winner" id="ptv-result-winner"></div>
+            <div class="ptv-result-pot"    id="ptv-result-pot"></div>
+            <div class="ptv-result-hand"   id="ptv-result-hand"></div>
+            <div class="ptv-result-drink"  id="ptv-result-drink"></div>
           </div>
         </div>
         <!-- seats injected by JS -->
@@ -1401,9 +1469,28 @@
         PHASE_LABELS[state.phase] || state.phase;
       document.getElementById('ptv-hand-badge').textContent =
         'Hand ' + toRoman(state.handNum);
-      document.getElementById('ptv-pot-val').textContent = state.pot;
-      document.getElementById('ptv-cur-bet').textContent =
-        state.currentBet > 0 ? 'Aktueller Einsatz: ' + state.currentBet : '';
+      const isEnded = state.phase === 'ended';
+      document.getElementById('ptv-pot-panel').style.display = isEnded ? 'none' : '';
+      const resultEl = document.getElementById('ptv-result');
+      resultEl.classList.toggle('visible', isEnded);
+
+      if (isEnded) {
+        document.getElementById('ptv-result-winner').textContent =
+          (state.splitPot ? '🤝 ' : '🏆 ') + (state.winner || '—');
+        document.getElementById('ptv-result-pot').textContent =
+          state.winnerPot != null ? '+ ' + state.winnerPot + ' Punkte' : '';
+        document.getElementById('ptv-result-hand').textContent =
+          state.winningHand ? state.winningHand : '';
+        // look up drink rule from localStorage
+        const handRules = JSON.parse(localStorage.getItem('poker-hand-rules') || '{}');
+        const hand = HANDS.find(h => h.name === state.winningHand || h.en === state.winningHand);
+        const drinkRule = hand ? (handRules[hand.id] || hand.def) : '';
+        document.getElementById('ptv-result-drink').textContent = drinkRule;
+      } else {
+        document.getElementById('ptv-pot-val').textContent = state.pot;
+        document.getElementById('ptv-cur-bet').textContent =
+          state.currentBet > 0 ? 'Aktueller Einsatz: ' + state.currentBet : '';
+      }
 
       // Domain expansion background + persistent banner
       const de     = state.domainExpansion;
