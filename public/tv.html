@@ -1273,6 +1273,19 @@
 </head>
 <body>
 
+  <!-- Audio unlock overlay — shown on first load, disappears on click -->
+  <div id="audio-unlock-overlay" style="
+    position:fixed;inset:0;z-index:9999;
+    background:rgba(0,0,0,0.82);
+    display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    cursor:pointer;gap:1rem;
+  ">
+    <div style="font-size:3rem">🔊</div>
+    <div style="font-family:sans-serif;font-size:1.4rem;color:#fff;letter-spacing:0.1em">Klicken zum Starten</div>
+    <div style="font-family:sans-serif;font-size:0.75rem;color:rgba(255,255,255,0.4);letter-spacing:0.08em">Aktiviert Audio für Domain Expansions</div>
+  </div>
+
   <div class="tv-bg"></div>
   <div class="tv-scanlines"></div>
 
@@ -1820,16 +1833,17 @@
     };
 
     let _domainAudio = null;
-    let _audioUnlocked = false;
 
-    // Browsers block autoplay — unlock on first user interaction
-    document.addEventListener('click', () => {
-      if (_audioUnlocked) return;
-      _audioUnlocked = true;
-      // Play and immediately pause a silent buffer to unlock audio context
+    // Unlock audio on the startup overlay click
+    document.getElementById('audio-unlock-overlay').addEventListener('click', () => {
+      const overlay = document.getElementById('audio-unlock-overlay');
+      overlay.style.transition = 'opacity 0.4s';
+      overlay.style.opacity = '0';
+      setTimeout(() => overlay.remove(), 400);
+      // Warm up audio context so future plays work without user gesture
       const a = new Audio();
       a.play().catch(() => {});
-    }, { once: true });
+    });
 
     function playDomainAudio(id) {
       if (_domainAudio) { _domainAudio.pause(); _domainAudio.currentTime = 0; }
