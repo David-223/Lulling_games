@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
   <title>☠ Das Knuggelige Rad ☠</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="style.css" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -275,10 +275,39 @@
 </head>
 <body>
 
-  <header>
+  <header class="site-header">
+    <div class="logo-text">Lalling Games</div>
+    <div class="logo-sub">Das Culling Spiel · Das Trinkspiel</div>
+    <nav class="nav-links">
+      <a href="index.html">Regeln</a>
+      <a href="poker.html">Hände</a>
+      <a href="gluecksrad.html">Gamble</a>
+      <a href="poker-game.html">Poker</a>
+      <div class="nav-dropdown">
+        <button class="nav-dropdown-btn" id="nav-more-btn">Mehr ▾</button>
+        <div class="nav-dropdown-menu" id="nav-more-menu">
+          <a href="lobby.html">Anmelden</a>
+          <a href="spieler.html">Spieler</a>
+          <a href="binding-vows.html">Binding Vows</a>
+          <a href="admin.html">Admin</a>
+          <a href="domain.html">Domain</a>
+          <a href="brainrot.html">Brainrot</a>
+          <a href="knuggeliges-rad.html" class="active">☠ Knuggeliges Rad</a>
+        </div>
+      </div>
+    </nav>
+    <div class="theme-switcher" id="theme-switcher">
+      <button class="theme-btn" data-scheme="ao"    title="蒼 – Gojo Blue"></button>
+      <button class="theme-btn" data-scheme="shuku" title="赫 – Sukuna Crimson"></button>
+      <button class="theme-btn" data-scheme="yami"  title="闇 – Hollow Purple"></button>
+      <button class="theme-btn" data-scheme="kin"   title="金 – Special Grade"></button>
+    </div>
+  </header>
+
+  <div style="text-align:center;padding:1.5rem 1rem 0.5rem;">
     <div class="title">☠ Das Knuggelige Rad ☠</div>
     <div class="subtitle">Drehe wenn du es wagst</div>
-  </header>
+  </div>
 
   <main>
     <!-- Wheel -->
@@ -474,6 +503,22 @@
 
     // Initial draw
     drawWheel(currentAngle);
+
+    // ── Nav dropdown + theme switcher ──
+    const moreBtn  = document.getElementById('nav-more-btn');
+    const moreMenu = document.getElementById('nav-more-menu');
+    if (moreBtn) moreBtn.addEventListener('click', e => { e.stopPropagation(); moreMenu.classList.toggle('open'); });
+    document.addEventListener('click', () => moreMenu && moreMenu.classList.remove('open'));
+
+    const THEMES = ['ao','shuku','yami','kin'];
+    function applyTheme(s) {
+      if (!THEMES.includes(s)) s = 'ao';
+      document.documentElement.setAttribute('data-theme', s);
+      document.querySelectorAll('.theme-btn').forEach(b => b.classList.toggle('active', b.dataset.scheme === s));
+      localStorage.setItem('lalling-theme', s);
+    }
+    document.querySelectorAll('.theme-btn').forEach(b => b.addEventListener('click', () => applyTheme(b.dataset.scheme)));
+    applyTheme(localStorage.getItem('lalling-theme') || 'ao');
   </script>
 </body>
 </html>
