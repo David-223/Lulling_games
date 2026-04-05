@@ -1328,6 +1328,8 @@
 
     // Load when admin panel becomes visible
     // ── Roster management ──
+    let rosterLoaded = false;
+
     const DOMAIN_NAMES = [
       'Infinite Void', 'Malevolent Shrine', 'Chimera Shadow Garden',
       'Self-Embodiment', 'Horizon', 'Womb Profusion',
@@ -1335,6 +1337,8 @@
     ];
 
     async function loadRoster() {
+      if (rosterLoaded) return;
+      rosterLoaded = true;
       const el = document.getElementById('roster-list');
       try {
         const pw  = getAdminPassword();
