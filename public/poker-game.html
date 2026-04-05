@@ -1483,7 +1483,17 @@
       try {
         const res = await fetch('/api/poker/deal', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
         const data = await res.json();
-        if (!res.ok) { showToast(data.error || 'Fehler', 'error'); return; }
+        if (!res.ok) {
+          showToast(data.error || 'Fehler', 'error');
+          if (res.status === 400 && data.error && data.error.includes('wenige')) {
+            // Only 1 player left with chips — game is over
+            document.getElementById('hand-result').style.display = '';
+            document.getElementById('result-name').textContent = '🏆 Spiel vorbei!';
+            document.getElementById('result-text').textContent = data.error;
+            document.getElementById('next-hand-btn').style.display = 'none';
+          }
+          return;
+        }
         render(data);
         startPolling();
       } catch { showToast('Verbindungsfehler', 'error'); }

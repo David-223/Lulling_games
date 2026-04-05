@@ -263,6 +263,13 @@ app.post('/api/poker/deal', (req, res) => {
   if (!pokerGame) return res.status(400).json({ error: 'Kein Spiel' });
   const g = pokerGame;
   const n = g.players.length;
+
+  // Need at least 2 players with chips to start a new hand
+  const activePlayers = g.players.filter(p => p.chips > 0);
+  if (activePlayers.length < 2) {
+    return res.status(400).json({ error: 'Zu wenige Spieler mit Punkten — Spiel beenden!' });
+  }
+
   if (g.handNum > 0) {
     let tries = 0;
     do { g.dealerIdx = (g.dealerIdx + 1) % n; tries++; }
@@ -274,9 +281,11 @@ app.post('/api/poker/deal', (req, res) => {
   g.players.forEach(p => { p.roundBet = 0; p.totalBet = 0; p.folded = p.chips <= 0; p.allIn = false; });
 
   let sbIdx = (g.dealerIdx + 1) % n;
-  while (g.players[sbIdx].chips <= 0) sbIdx = (sbIdx + 1) % n;
+  let sbTries = 0;
+  while (g.players[sbIdx].chips <= 0 && sbTries < n) { sbIdx = (sbIdx + 1) % n; sbTries++; }
   let bbIdx = (sbIdx + 1) % n;
-  while (g.players[bbIdx].chips <= 0 || bbIdx === sbIdx) bbIdx = (bbIdx + 1) % n;
+  let bbTries = 0;
+  while ((g.players[bbIdx].chips <= 0 || bbIdx === sbIdx) && bbTries < n) { bbIdx = (bbIdx + 1) % n; bbTries++; }
 
   const postBlind = (idx, amt) => {
     const actual = Math.min(amt, g.players[idx].chips);
