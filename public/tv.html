@@ -651,6 +651,97 @@
     .ptv-badge.fold    { background: rgba(100,100,120,0.3); color: var(--text-dim); }
     .ptv-badge.allin   { background: rgba(201,162,39,0.2);  color: var(--gold-dim); border: 1px solid var(--border-gold); }
     .ptv-badge.turn    { background: rgba(100,220,100,0.2); color: #88ee88; border: 1px solid rgba(100,220,100,0.4); }
+    /* ══════════════════════════════════════
+       FLAMES
+    ══════════════════════════════════════ */
+    .tv-flames {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 22vh;
+      pointer-events: none;
+      z-index: 100;
+      overflow: hidden;
+    }
+
+    /* Base glow bloom */
+    .tv-flames::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0; right: 0;
+      height: 6vh;
+      background: radial-gradient(ellipse 80% 100% at 50% 100%,
+        rgba(180,30,0,0.45) 0%,
+        rgba(120,10,0,0.25) 45%,
+        transparent 75%);
+      filter: blur(8px);
+    }
+
+    .flame-tongue {
+      position: absolute;
+      bottom: 0;
+      transform-origin: bottom center;
+      border-radius: 50% 50% 10% 10% / 80% 80% 20% 20%;
+      will-change: transform, opacity;
+    }
+
+    /* Outer (dark red/crimson) layer */
+    .flame-tongue.outer {
+      background: linear-gradient(to top,
+        #6b0000 0%,
+        #c0200a 40%,
+        #e84010 70%,
+        transparent 100%);
+      filter: blur(2px);
+    }
+
+    /* Mid (orange) layer */
+    .flame-tongue.mid {
+      background: linear-gradient(to top,
+        #8c1c00 0%,
+        #e05000 35%,
+        #ff8800 65%,
+        rgba(255,180,0,0.2) 90%,
+        transparent 100%);
+      filter: blur(1px);
+    }
+
+    /* Core (bright yellow/white) */
+    .flame-tongue.core {
+      background: linear-gradient(to top,
+        #cc3300 0%,
+        #ff6600 30%,
+        #ffcc00 60%,
+        rgba(255,240,150,0.3) 85%,
+        transparent 100%);
+      filter: blur(0.5px);
+    }
+
+    @keyframes flicker-a {
+      0%   { transform: scaleY(1)    scaleX(1)    rotate(-1.5deg); opacity: 0.92; }
+      20%  { transform: scaleY(1.08) scaleX(0.95) rotate(0.5deg);  opacity: 1;    }
+      45%  { transform: scaleY(0.93) scaleX(1.04) rotate(2deg);    opacity: 0.88; }
+      70%  { transform: scaleY(1.12) scaleX(0.92) rotate(-2deg);   opacity: 0.95; }
+      100% { transform: scaleY(0.97) scaleX(1.02) rotate(1deg);    opacity: 0.9;  }
+    }
+
+    @keyframes flicker-b {
+      0%   { transform: scaleY(1.04) scaleX(0.97) rotate(2deg);    opacity: 0.9;  }
+      25%  { transform: scaleY(0.9)  scaleX(1.06) rotate(-1deg);   opacity: 1;    }
+      55%  { transform: scaleY(1.15) scaleX(0.9)  rotate(1.5deg);  opacity: 0.85; }
+      80%  { transform: scaleY(0.95) scaleX(1.02) rotate(-2.5deg); opacity: 0.95; }
+      100% { transform: scaleY(1.06) scaleX(0.95) rotate(1deg);    opacity: 0.88; }
+    }
+
+    @keyframes flicker-c {
+      0%   { transform: scaleY(0.95) scaleX(1.03) rotate(1deg);    opacity: 0.95; }
+      30%  { transform: scaleY(1.1)  scaleX(0.93) rotate(-2deg);   opacity: 0.88; }
+      60%  { transform: scaleY(0.88) scaleX(1.07) rotate(2.5deg);  opacity: 1;    }
+      85%  { transform: scaleY(1.06) scaleX(0.96) rotate(-1deg);   opacity: 0.9;  }
+      100% { transform: scaleY(0.98) scaleX(1.01) rotate(1.5deg);  opacity: 0.92; }
+    }
   </style>
 </head>
 <body>
@@ -704,6 +795,9 @@
     <div class="tv-refresh-dot"></div>
     <div class="tv-stat">呪術廻戦 · Lalling Games</div>
   </footer>
+
+  <!-- ═══ FLAMES ═══ -->
+  <div class="tv-flames" id="tv-flames"></div>
 
   <!-- ═══ POKER OVERLAY ═══ -->
   <div id="tv-poker-overlay">
@@ -1080,6 +1174,53 @@
       header.style.display   = show ? 'none' : '';
       footer.style.display   = show ? 'none' : '';
     }
+
+    // ── Flame generator ──
+    (function buildFlames() {
+      const container = document.getElementById('tv-flames');
+      const anims = ['flicker-a', 'flicker-b', 'flicker-c'];
+      const count = 28; // number of tongue groups
+
+      for (let i = 0; i < count; i++) {
+        const pct = (i / (count - 1)) * 100;
+        // randomish but deterministic per index
+        const r = (Math.sin(i * 7.3 + 1.1) + 1) / 2;  // 0-1
+        const r2 = (Math.sin(i * 3.7 + 2.4) + 1) / 2;
+
+        const outerW  = 4  + r  * 5;    // 4–9 vw
+        const outerH  = 10 + r2 * 12;   // 10–22 vh
+        const midW    = outerW  * 0.6;
+        const midH    = outerH  * 0.75;
+        const coreW   = outerW  * 0.35;
+        const coreH   = outerH  * 0.55;
+
+        const dur1 = (0.55 + r  * 0.5).toFixed(2); // 0.55–1.05s
+        const dur2 = (0.45 + r2 * 0.55).toFixed(2);
+        const dur3 = (0.5  + r  * 0.45).toFixed(2);
+        const del1 = (r  * 0.4).toFixed(2);
+        const del2 = (r2 * 0.35).toFixed(2);
+        const del3 = (r  * 0.25).toFixed(2);
+        const anim = anims[i % 3];
+
+        const layers = [
+          { cls: 'outer', w: outerW, h: outerH, dur: dur1, del: del1 },
+          { cls: 'mid',   w: midW,   h: midH,   dur: dur2, del: del2 },
+          { cls: 'core',  w: coreW,  h: coreH,  dur: dur3, del: del3 },
+        ];
+
+        layers.forEach(l => {
+          const el = document.createElement('div');
+          el.className = `flame-tongue ${l.cls}`;
+          el.style.cssText = `
+            left: calc(${pct}% - ${l.w / 2}vw);
+            width: ${l.w}vw;
+            height: ${l.h}vh;
+            animation: ${anim} ${l.dur}s ${l.del}s ease-in-out infinite alternate;
+          `;
+          container.appendChild(el);
+        });
+      }
+    })();
 
     pollPoker();
     setInterval(pollPoker, 2000);
