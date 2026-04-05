@@ -992,6 +992,14 @@
       position: relative;
       z-index: 2;
       text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      max-width: 88vw;
+      max-height: 92vh;
+      overflow: hidden;
+      padding: 0 2vw;
+      box-sizing: border-box;
       animation: de-content-rise 0.5s 0.2s cubic-bezier(0.22,1,0.36,1) both;
     }
 
@@ -1002,11 +1010,13 @@
 
     .de-kanji {
       font-family: var(--font-title);
-      font-size: 12vw;
+      font-size: clamp(2.5rem, 10vw, 12vw);
       font-weight: 900;
       color: var(--de-color, #5a8af0);
       line-height: 1;
       letter-spacing: 0.08em;
+      word-break: break-word;
+      max-width: 88vw;
       text-shadow:
         0 0 40px var(--de-color, #5a8af0),
         0 0 120px var(--de-color, #5a8af0),
@@ -1022,13 +1032,15 @@
 
     .de-subname {
       font-family: var(--font-ui);
-      font-size: 2.2vw;
+      font-size: clamp(0.7rem, 1.8vw, 2.2vw);
       font-weight: 700;
-      letter-spacing: 0.45em;
+      letter-spacing: 0.25em;
       text-transform: uppercase;
       color: #fff;
       opacity: 0.85;
       margin-top: 0.4rem;
+      max-width: 84vw;
+      word-break: break-word;
       animation: de-fade-in 0.4s 0.6s ease both;
     }
 
@@ -1053,11 +1065,12 @@
 
     .de-effect {
       font-family: var(--font-title);
-      font-size: 2vw;
+      font-size: clamp(0.6rem, 1.5vw, 2vw);
       color: var(--gold);
-      letter-spacing: 0.06em;
-      max-width: 70vw;
-      line-height: 1.5;
+      letter-spacing: 0.04em;
+      max-width: 80vw;
+      line-height: 1.6;
+      word-break: break-word;
       text-shadow: 0 0 20px rgba(201,162,39,0.4);
       animation: de-fade-in 0.5s 1s ease both;
     }

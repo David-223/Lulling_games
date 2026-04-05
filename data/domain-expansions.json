@@ -57,7 +57,7 @@
       "subname": "The Wandering Barnabas",
       "caster": "Shanon",
       "theme": "yami",
-      "effect": "Ein Mitspieler wird mit '67' auf der Stirn zum Shikigami ernannt und nimmt diese Hand nicht als Spieler teil. Das Shikigami stellt sich hinter den Gegner, auf den ich zeige, und darf dessen Karten sehen — Hinweise jedoch nur durch Tiergeräusche. Verliere ich die Hand, trinkt mein Shikigami 1 Strafschluck.",
+      "effect": "Ein Mitspieler wird mit '67' auf der Stirn zum Shikigami ernannt und nimmt diese Hand nicht als Spieler teil. Das Shikigami stellt sich hinter den Gegner, auf den ich zeige, und darf dessen Karten sehen — Hinweise jedoch nur durch Tiergeräusche. Verliere ich die Hand, trinken ich und mein Shikigami je 2 Strafschlücke.",
       "enabled": true,
       "chance": 0
     }
