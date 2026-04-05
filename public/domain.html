@@ -223,6 +223,35 @@
     @keyframes naoya-scan   { from{ transform: translateY(-100%) } to{ transform: translateY(100%) } }
     @keyframes naoya-strike { 0%,90%,100%{ opacity:0 } 92%,98%{ opacity:1 } }
 
+    /* ══════════════════════════════
+       9 · DER WANDELNDE BARNABAS — Shanon
+    ══════════════════════════════ */
+    .domain-barnabas {
+      background: radial-gradient(ellipse at 40% 60%, #0a0a00 0%, #000000 100%);
+    }
+    .domain-barnabas::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 30% 70%, rgba(80,60,0,0.25) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 60% at 70% 30%, rgba(60,40,0,0.2) 0%, transparent 70%);
+      animation: barnabas-shift 7s ease-in-out infinite alternate;
+    }
+    .domain-barnabas::after {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(1px 1px at 15% 25%, rgba(180,150,0,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 55% 15%, rgba(160,130,0,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 80% 40%, rgba(180,140,0,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 35% 65%, rgba(140,110,0,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 70% 75%, rgba(160,130,0,0.35) 0%, transparent 100%),
+        radial-gradient(1px 1px at 20% 80%, rgba(180,150,0,0.3) 0%, transparent 100%);
+      animation: barnabas-flicker 5s ease-in-out infinite;
+    }
+    @keyframes barnabas-shift   { from{ transform: scale(1) } to{ transform: scale(1.08) translateX(-3%) } }
+    @keyframes barnabas-flicker { 0%,100%{ opacity:0.4 } 30%{ opacity:1 } 60%{ opacity:0.6 } 80%{ opacity:0.9 } }
+
     /* ── Content overlay ── */
     .domain-content {
       position: relative;
@@ -475,10 +504,10 @@
         expansionId: null,
       },
       {
-        cls: 'domain-shanon', jp: '死刑宣告', en: 'Der wandelnde Barnabas',
-        desc: 'Das Urteil ist unausweichlich.',
-        color: '#c8c020', theme: 'kin', caster: 'Naoya Zenin',
-        expansionId: null,
+        cls: 'domain-barnabas', jp: 'Der wandelnde Barnabas', en: 'The Wandering Barnabas',
+        desc: 'Barnabas sieht alles. Barnabas spricht nicht.',
+        color: '#b8a020', theme: 'yami', caster: 'Shanon',
+        expansionId: 'wandelnder_barnabas',
       },
     ];
 
