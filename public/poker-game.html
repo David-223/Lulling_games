@@ -1038,16 +1038,6 @@
             <div style="font-family:var(--font-ui);font-size:0.63rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--text-dim);font-weight:700;margin-bottom:0.3rem">Gewinnende Hand (optional)</div>
             <select id="winning-hand-select" class="winner-select">
               <option value="">— Keine Angabe —</option>
-              <option value="royal_flush">Royal Flush</option>
-              <option value="straight_flush">Straight Flush</option>
-              <option value="four_of_a_kind">Vierling (Four of a Kind)</option>
-              <option value="full_house">Full House</option>
-              <option value="flush">Flush</option>
-              <option value="straight">Straße (Straight)</option>
-              <option value="three_of_a_kind">Drilling (Three of a Kind)</option>
-              <option value="two_pair">Zwei Paare (Two Pair)</option>
-              <option value="one_pair">Ein Paar (One Pair)</option>
-              <option value="high_card">High Card</option>
             </select>
           </div>
           <button class="btn btn-primary btn-full" id="winner-btn" style="margin-top:0.5rem">
@@ -1092,7 +1082,19 @@
 
   <div id="toast"></div>
 
+  <script src="hands-data.js"></script>
   <script>
+    // Populate winning-hand dropdown from shared HANDS array
+    (function () {
+      const sel = document.getElementById('winning-hand-select');
+      HANDS.forEach(h => {
+        const opt = document.createElement('option');
+        opt.value = h.id;
+        opt.textContent = h.name + (h.en && h.en !== h.name ? ' (' + h.en + ')' : '');
+        sel.appendChild(opt);
+      });
+    })();
+
     // ── Identity ──
     function getMe() { try { return JSON.parse(localStorage.getItem('lalling-me')); } catch { return null; } }
     function setMe(p) { localStorage.setItem('lalling-me', JSON.stringify(p)); }
@@ -1362,30 +1364,13 @@
         const ruleBox = document.getElementById('hand-rule-box');
         if (g.winningHand) {
           const savedHandRules = JSON.parse(localStorage.getItem('poker-hand-rules') || '{}');
-          const HAND_DEFS = {
-            royal_flush: 'Alle anderen trinken 5 Schlucke. Du bist unantastbar.',
-            straight_flush: 'Verteile 8 Schlucke frei auf beliebige Spieler.',
-            four_of_a_kind: 'Verteile 6 Schlucke frei. Du darfst eine Regel für diese Runde bestimmen.',
-            full_house: 'Verteile 4 Schlucke und trink selbst 1 Schluck.',
-            flush: 'Verteile 3 Schlucke frei.',
-            straight: 'Spieler links und rechts trinken je 2 Schlucke.',
-            three_of_a_kind: 'Wähle einen Spieler aus – dieser trinkt 3 Schlucke.',
-            two_pair: 'Du trinkst 2 Schlucke.',
-            one_pair: 'Du trinkst 1 Schluck.',
-            high_card: 'Du trinkst 2 Schlucke. Pech gehabt.'
-          };
-          const HAND_NAMES = {
-            royal_flush: 'Royaler Flush', straight_flush: 'Straight Flush',
-            four_of_a_kind: 'Vierling', full_house: 'Full House',
-            flush: 'Flush', straight: 'Straße',
-            three_of_a_kind: 'Drilling', two_pair: 'Zwei Paare',
-            one_pair: 'Ein Paar', high_card: 'Höchste Karte'
-          };
+          // Build lookups dynamically from shared HANDS array
+          const handById = Object.fromEntries(HANDS.map(h => [h.id, h]));
           const ruleText = savedHandRules[g.winningHand] !== undefined
             ? savedHandRules[g.winningHand]
-            : (HAND_DEFS[g.winningHand] || '');
+            : (handById[g.winningHand]?.def || '');
           const resolved = ruleText.replace(/\{Spieler\}/gi, g.winner || '?');
-          document.getElementById('hand-rule-label').textContent = HAND_NAMES[g.winningHand] || g.winningHand;
+          document.getElementById('hand-rule-label').textContent = handById[g.winningHand]?.name || g.winningHand;
           document.getElementById('hand-rule-text').textContent = resolved;
           ruleBox.style.display = '';
         } else {
