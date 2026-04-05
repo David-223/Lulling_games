@@ -1557,7 +1557,6 @@
         });
         const data = await res.json();
         if (!res.ok) { showToast(data.error || 'Fehler', 'error'); return; }
-        stopPolling();
         render(data);
         const me = getMe();
         if (me) {
@@ -1700,7 +1699,6 @@
         if (res.status === 404) { stopPolling(); showNoGame(); return; }
         const data = await res.json();
         if (!data || data.phase === 'setup') { stopPolling(); showNoGame(); return; }
-        if (data.phase === 'ended') { render(data); stopPolling(); return; }
         render(data);
         // Auto-advance when a betting round is finished
         if (data.toAct.length === 0 && data.currentPlayerIdx === -1
@@ -1735,7 +1733,7 @@
           const data = await res.json();
           if (data && !['setup'].includes(data.phase)) {
             render(data);
-            if (!['ended'].includes(data.phase)) startPolling();
+            startPolling();
             return;
           }
         }
