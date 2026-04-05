@@ -661,58 +661,6 @@ app.delete('/api/domain-expansion/:id', (req, res) => {
   res.json(current);
 });
 
-// ── RGB LED State ──
-// Returns the current color/effect for the RGB strip controller running on the Pi.
-app.get('/api/rgb/state', (req, res) => {
-  const g = pokerGame;
-
-  if (!g) {
-    // Idle lobby – slow purple pulse (JJK theme)
-    return res.json({ effect: 'pulse', r: 80, g: 0, b: 180, speed: 0.5 });
-  }
-
-  // Domain Expansion has highest priority – flash the expansion's theme color
-  if (g.domainExpansion) {
-    const themeColors = {
-      ao:       { r: 0,   g: 80,  b: 255 }, // Infinite Void – blue
-      murasaki: { r: 150, g: 0,   b: 255 }, // purple
-      aka:      { r: 255, g: 0,   b: 20  }, // Malevolent Shrine – red
-      midori:   { r: 0,   g: 220, b: 60  }, // Chimera Shadow – green
-      shiro:    { r: 255, g: 240, b: 200 }, // white
-    };
-    const c = themeColors[g.domainExpansion.theme] || { r: 150, g: 0, b: 255 };
-    return res.json({ effect: 'flash', ...c, speed: 3.0 });
-  }
-
-  // Hand ended – flash winner color
-  if (g.phase === 'ended' && g.winner) {
-    if (g.splitPot) return res.json({ effect: 'flash', r: 0,   g: 180, b: 255, speed: 2.0 }); // cyan split
-    return res.json({ effect: 'flash', r: 255, g: 200, b: 0, speed: 2.0 }); // gold win
-  }
-
-  // Showdown – intense gold pulse
-  if (g.phase === 'showdown') {
-    return res.json({ effect: 'pulse', r: 255, g: 150, b: 0, speed: 2.5 });
-  }
-
-  // Someone busted out – red flash
-  const hasBusted = g.players.some(p => p.chips === 0 && !p.folded && !p.allIn);
-  if (hasBusted) {
-    return res.json({ effect: 'flash', r: 255, g: 0, b: 0, speed: 2.0 });
-  }
-
-  // Active betting phases – color shifts as tension builds
-  const phaseColors = {
-    setup:   { r: 0,   g: 0,   b: 100 },
-    preflop: { r: 0,   g: 50,  b: 220 }, // blue
-    flop:    { r: 0,   g: 160, b: 120 }, // teal
-    turn:    { r: 160, g: 120, b: 0   }, // amber
-    river:   { r: 220, g: 40,  b: 0   }, // red-orange
-  };
-  const c = phaseColors[g.phase] || { r: 0, g: 0, b: 80 };
-  return res.json({ effect: 'solid', ...c, speed: 1.0 });
-});
-
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`\n⚔  Lalling Games läuft auf Port ${PORT}`);
   console.log(`   Lokal:   http://localhost:${PORT}`);
