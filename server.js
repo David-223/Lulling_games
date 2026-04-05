@@ -55,7 +55,7 @@ app.post('/api/players', (req, res) => {
   const { name, role } = req.body;
   if (!name || !role) return res.status(400).json({ error: 'Name und Rolle erforderlich' });
   const data = readPlayers();
-  const player = { id: data.nextId, name: name.trim(), role, points: 100, isAdmin: false };
+  const player = { id: data.nextId, name: name.trim(), role, points: 1000, isAdmin: false };
   data.players.push(player);
   data.nextId += 1;
   writePlayers(data);
@@ -103,7 +103,7 @@ app.post('/api/players/register', (req, res) => {
   const data = readPlayers();
   const existing = data.players.find(p => p.name.toLowerCase() === name.trim().toLowerCase());
   if (existing) return res.json(existing);
-  const player = { id: data.nextId, name: name.trim(), role: role || 'Normaler Mensch', points: 100, isAdmin: false };
+  const player = { id: data.nextId, name: name.trim(), role: role || 'Normaler Mensch', points: 1000, isAdmin: false };
   data.players.push(player);
   data.nextId += 1;
   writePlayers(data);
