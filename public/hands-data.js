@@ -38,7 +38,7 @@ const HANDS = [
       { v: 'A♦', r: true  }, { v: 'A♣', r: false }, { v: 'K♠', r: false }
     ],
     desc: 'Vier Karten desselben Wertes.',
-    def:  'Verteile 6 Schlucke frei. Du darfst eine Regel für diese Runde bestimmen.',
+    def:  'Verteile 6 Schlucke frei. Du darfst eine Regel für diese Runde bestimmen. +1 Domain-Münze 🪙',
   },
   {
     id:    'full_house',
