@@ -1568,7 +1568,7 @@
       const comm      = state.communityCards || [];
       const commWrap  = document.getElementById('ptv-community');
       const commRow   = document.getElementById('ptv-cards-row');
-      if (state.cardsEnabled && comm.length > 0) {
+      if (state.cardsEnabled) {
         // always show 5 slots: revealed face-up, rest face-down
         const slots = Array.from({ length: 5 }, (_, i) => comm[i] || null);
         commRow.innerHTML = slots.map(tvCardHtml).join('');
