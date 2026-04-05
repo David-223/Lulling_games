@@ -1,6 +1,7 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const Anthropic = require('@anthropic-ai/sdk');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -659,6 +660,249 @@ app.delete('/api/domain-expansion/:id', (req, res) => {
   current.expansions = current.expansions.filter(e => e.id !== req.params.id);
   writeDE(current);
   res.json(current);
+});
+
+// ── Kogane (AI game master) ────────────────────────────────────────────────
+
+const BACKUPS_DIR = path.join(__dirname, 'data', 'backups');
+
+function autoBackup() {
+  if (!fs.existsSync(BACKUPS_DIR)) fs.mkdirSync(BACKUPS_DIR, { recursive: true });
+  const ts = new Date().toISOString().replace(/[:.]/g, '-');
+  const snapshot = {
+    ts,
+    players:  readPlayers(),
+    rules:    readData(),
+    wheel:    readWheel(),
+    vows:     readVows(),
+    settings: readSettings(),
+    de:       readDE(),
+  };
+  const file = path.join(BACKUPS_DIR, `backup-${ts}.json`);
+  fs.writeFileSync(file, JSON.stringify(snapshot, null, 2));
+  // Keep only the last 30 backups
+  const all = fs.readdirSync(BACKUPS_DIR).filter(f => f.endsWith('.json')).sort();
+  if (all.length > 30) all.slice(0, all.length - 30).forEach(f => fs.unlinkSync(path.join(BACKUPS_DIR, f)));
+  return ts;
+}
+
+const KOGANE_TOOLS = [
+  {
+    name: 'get_players',
+    description: 'Get all players and their current point totals.',
+    input_schema: { type: 'object', properties: {}, required: [] },
+  },
+  {
+    name: 'get_rules',
+    description: 'Get all current Culling Game rules.',
+    input_schema: { type: 'object', properties: {}, required: [] },
+  },
+  {
+    name: 'get_game_state',
+    description: 'Get the current poker hand state (phase, pot, player chips).',
+    input_schema: { type: 'object', properties: {}, required: [] },
+  },
+  {
+    name: 'update_player_points',
+    description: 'Add or subtract points from a player. Positive delta = add, negative = subtract.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        playerId: { type: 'integer', description: 'Player ID' },
+        delta:    { type: 'integer', description: 'Points to add (positive) or subtract (negative)' },
+      },
+      required: ['playerId', 'delta'],
+    },
+  },
+  {
+    name: 'add_rule',
+    description: 'Add a new rule to the Culling Game.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        title:       { type: 'string', description: 'Short rule title' },
+        description: { type: 'string', description: 'Full rule description' },
+        points:      { type: 'integer', description: 'Optional point value (omit if none)' },
+      },
+      required: ['title', 'description'],
+    },
+  },
+  {
+    name: 'delete_rule',
+    description: 'Remove a rule by ID.',
+    input_schema: {
+      type: 'object',
+      properties: { ruleId: { type: 'integer' } },
+      required: ['ruleId'],
+    },
+  },
+  {
+    name: 'create_binding_vow',
+    description: 'Create a binding vow (alliance) between two players.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        player1Id: { type: 'integer' },
+        player2Id: { type: 'integer' },
+      },
+      required: ['player1Id', 'player2Id'],
+    },
+  },
+];
+
+function executeKoganeTool(name, input) {
+  switch (name) {
+    case 'get_players':
+      return readPlayers().players;
+
+    case 'get_rules':
+      return readData().rules;
+
+    case 'get_game_state':
+      return pokerGame || { status: 'Kein aktives Spiel' };
+
+    case 'update_player_points': {
+      const pdata = readPlayers();
+      const idx = pdata.players.findIndex(p => p.id === input.playerId);
+      if (idx === -1) return { error: 'Spieler nicht gefunden' };
+      pdata.players[idx].points = Math.max(0, pdata.players[idx].points + input.delta);
+      if (pokerGame) {
+        const gp = pokerGame.players.find(p => p.id === input.playerId);
+        if (gp) gp.chips = pdata.players[idx].points;
+      }
+      writePlayers(pdata);
+      return { success: true, player: pdata.players[idx] };
+    }
+
+    case 'add_rule': {
+      const rdata = readData();
+      const rule = {
+        id: rdata.nextId++,
+        title: input.title.trim(),
+        description: input.description.trim(),
+        points: input.points ?? null,
+      };
+      rdata.rules.push(rule);
+      writeData(rdata);
+      return { success: true, rule };
+    }
+
+    case 'delete_rule': {
+      const rdata = readData();
+      const idx = rdata.rules.findIndex(r => r.id === input.ruleId);
+      if (idx === -1) return { error: 'Regel nicht gefunden' };
+      rdata.rules.splice(idx, 1);
+      writeData(rdata);
+      return { success: true };
+    }
+
+    case 'create_binding_vow': {
+      const vdata = readVows();
+      const vow = { id: vdata.nextId++, player1Id: input.player1Id, player2Id: input.player2Id };
+      vdata.vows.push(vow);
+      writeVows(vdata);
+      return { success: true, vow };
+    }
+
+    default:
+      return { error: `Unbekanntes Tool: ${name}` };
+  }
+}
+
+app.get('/api/kogane/backups', (req, res) => {
+  if (!fs.existsSync(BACKUPS_DIR)) return res.json([]);
+  const files = fs.readdirSync(BACKUPS_DIR).filter(f => f.endsWith('.json')).sort().reverse();
+  res.json(files.map(f => ({ file: f, ts: f.replace('backup-', '').replace('.json', '') })));
+});
+
+app.post('/api/kogane/restore/:file', (req, res) => {
+  if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
+  const file = path.join(BACKUPS_DIR, req.params.file);
+  if (!fs.existsSync(file)) return res.status(404).json({ error: 'Backup nicht gefunden' });
+  const snap = JSON.parse(fs.readFileSync(file, 'utf-8'));
+  if (snap.players)  writePlayers(snap.players);
+  if (snap.rules)    writeData(snap.rules);
+  if (snap.wheel)    writeWheel(snap.wheel);
+  if (snap.vows)     writeVows(snap.vows);
+  if (snap.settings) writeSettings(snap.settings);
+  if (snap.de)       writeDE(snap.de);
+  res.json({ success: true, restoredFrom: snap.ts });
+});
+
+app.post('/api/kogane/chat', async (req, res) => {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) return res.status(503).json({ error: 'ANTHROPIC_API_KEY nicht gesetzt. Bitte in .env eintragen.' });
+
+  const { messages: history = [], message } = req.body;
+  if (!message) return res.status(400).json({ error: 'Nachricht fehlt' });
+
+  // Auto-backup before every Kogane interaction
+  const backupTs = autoBackup();
+
+  // Build fresh context snapshot for the system prompt
+  const players = readPlayers().players;
+  const rules   = readData().rules;
+  const game    = pokerGame
+    ? `Phase: ${pokerGame.phase}, Pot: ${pokerGame.pot}, ` +
+      `Spieler: ${pokerGame.players.map(p => `${p.name}(${p.chips})`).join(', ')}`
+    : 'Kein aktives Spiel';
+
+  const systemPrompt = `Du bist Kogane — der unparteiische Regelgeist der Lalling Games, inspiriert von Kogane aus Jujutsu Kaisen. Du bist ein kleiner, schwebender Würfel-Geist, der die Regeln des Spiels durchsetzt.
+
+Deine Persönlichkeit:
+- Formal, unparteiisch, leicht dramatisch
+- Kurze, prägnante Sätze
+- Bestätige Aktionen mit Phrasen wie "Diese Regel wurde festgelegt.", "Bedingung erfüllt.", "Dieses Kogane bestätigt..."
+- Du verstehst umgangssprachliche Sprache (Deutsch/Englisch), antwortest aber formal
+- Du kannst Regeln hinzufügen/löschen, Punkte anpassen, Binding Vows schließen
+
+Aktueller Spielstand:
+Spieler: ${players.map(p => `${p.name} (ID:${p.id}, ${p.points} Punkte)`).join(' | ')}
+Regeln (${rules.length}): ${rules.map(r => `[${r.id}] ${r.title}`).join(', ')}
+Spiel: ${game}
+Backup erstellt: ${backupTs}
+
+Führe erbetene Änderungen direkt aus. Erkläre kurz was du getan hast.`;
+
+  const client = new Anthropic({ apiKey });
+  const msgs = [
+    ...history.slice(-10), // last 10 messages for context
+    { role: 'user', content: message },
+  ];
+
+  try {
+    let response;
+    // Tool use loop
+    while (true) {
+      response = await client.messages.create({
+        model:      'claude-haiku-4-5-20251001',
+        max_tokens: 1024,
+        system:     systemPrompt,
+        tools:      KOGANE_TOOLS,
+        messages:   msgs,
+      });
+
+      if (response.stop_reason === 'end_turn') break;
+
+      // Process tool calls
+      msgs.push({ role: 'assistant', content: response.content });
+      const toolResults = response.content
+        .filter(b => b.type === 'tool_use')
+        .map(b => ({
+          type:        'tool_result',
+          tool_use_id: b.id,
+          content:     JSON.stringify(executeKoganeTool(b.name, b.input)),
+        }));
+      if (!toolResults.length) break;
+      msgs.push({ role: 'user', content: toolResults });
+    }
+
+    const text = response.content.find(b => b.type === 'text')?.text || '...';
+    res.json({ response: text, backupTs });
+  } catch (err) {
+    console.error('[Kogane]', err.message);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.listen(PORT, '0.0.0.0', () => {
