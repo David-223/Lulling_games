@@ -8,7 +8,7 @@
     { "id": 6,  "name": "Lovis",   "pin": "7615", "domainIdx": 5 },
     { "id": 7,  "name": "Mattis",  "pin": "5083", "domainIdx": 6 },
     { "id": 8,  "name": "Marlon",  "pin": "9426", "domainIdx": 7 },
-    { "id": 9,  "name": "Shanon",  "pin": "1768", "domainIdx": 0 },
-    { "id": 10, "name": "Ozan",    "pin": "6341", "domainIdx": 1 }
+    { "id": 9,  "name": "Shanon",  "pin": "1768", "domainIdx": 8 },
+    { "id": 10, "name": "Ozan",    "pin": "6341", "domainIdx": 9 }
   ]
 }
