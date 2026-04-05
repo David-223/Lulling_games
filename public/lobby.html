@@ -150,17 +150,13 @@
       <div id="signin-form" class="form-card">
         <div class="form-group">
           <label for="player-name">Dein Name</label>
-          <input id="player-name" type="text" placeholder="z.B. Gojo Satoru" maxlength="30" autocomplete="off" autocapitalize="words" />
+          <select id="player-name">
+            <option value="">— Auswählen —</option>
+          </select>
         </div>
         <div class="form-group">
-          <label for="player-role">Rolle</label>
-          <select id="player-role">
-            <option value="Normaler Mensch">○ Normaler Mensch</option>
-            <option value="Jujutsu Zauberer">⚔ Jujutsu Zauberer</option>
-            <option value="Sonderklasse">★ Sonderklasse</option>
-            <option value="Verfluchter Geist">👁 Verfluchter Geist</option>
-            <option value="Fluchnutzer">🔥 Fluchnutzer</option>
-          </select>
+          <label for="player-pin">PIN</label>
+          <input id="player-pin" type="password" inputmode="numeric" maxlength="4" placeholder="····" autocomplete="off" />
         </div>
         <button class="btn btn-primary btn-full" id="signin-btn">Anmelden</button>
       </div>
@@ -259,18 +255,35 @@
       }
     }
 
+    // ── Load roster into dropdown ──
+    async function loadRoster() {
+      try {
+        const res = await fetch('/api/roster');
+        const roster = await res.json();
+        const sel = document.getElementById('player-name');
+        roster.forEach(p => {
+          const opt = document.createElement('option');
+          opt.value = p.name;
+          opt.textContent = p.name;
+          sel.appendChild(opt);
+        });
+      } catch { /* ignore */ }
+    }
+    loadRoster();
+
     // ── Sign in ──
     document.getElementById('signin-btn').addEventListener('click', async () => {
-      const name = document.getElementById('player-name').value.trim();
-      const role = document.getElementById('player-role').value;
-      if (!name) { showToast('Bitte Namen eingeben', 'error'); return; }
+      const name = document.getElementById('player-name').value;
+      const pin  = document.getElementById('player-pin').value.trim();
+      if (!name) { showToast('Bitte Namen auswählen', 'error'); return; }
+      if (!pin)  { showToast('Bitte PIN eingeben', 'error'); return; }
       const btn = document.getElementById('signin-btn');
       btn.disabled = true;
       try {
-        const res    = await fetch('/api/players/register', {
+        const res    = await fetch('/api/roster/checkin', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, role })
+          body: JSON.stringify({ name, pin })
         });
         const player = await res.json();
         if (!res.ok) { showToast(player.error || 'Fehler', 'error'); return; }

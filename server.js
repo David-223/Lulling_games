@@ -43,6 +43,80 @@ function checkAdminAuth(body) {
   return false;
 }
 
+// ── Roster (pre-defined player list with PINs) ──
+
+const ROSTER_FILE = path.join(__dirname, 'data', 'roster.json');
+
+function readRoster() {
+  if (!fs.existsSync(ROSTER_FILE)) return { players: [] };
+  return JSON.parse(fs.readFileSync(ROSTER_FILE, 'utf-8'));
+}
+function writeRoster(data) {
+  fs.writeFileSync(ROSTER_FILE, JSON.stringify(data, null, 2));
+}
+
+// Public: names + domainIdx only (no PINs)
+app.get('/api/roster', (req, res) => {
+  const { players } = readRoster();
+  res.json(players.map(({ pin, ...rest }) => rest));
+});
+
+// Admin: full list including PINs
+app.get('/api/roster/admin', (req, res) => {
+  if (!checkAdminAuth(req.query)) return res.status(401).json({ error: 'Keine Berechtigung' });
+  const active = readPlayers().players;
+  const { players } = readRoster();
+  res.json(players.map(p => ({
+    ...p,
+    active: active.some(a => a.rosterPlayerId === p.id),
+  })));
+});
+
+// Check in: validate PIN → register into active players
+app.post('/api/roster/checkin', (req, res) => {
+  const { name, pin } = req.body;
+  const { players: roster } = readRoster();
+  const entry = roster.find(p => p.name.toLowerCase() === (name || '').trim().toLowerCase());
+  if (!entry) return res.status(404).json({ error: 'Name nicht in der Spielerliste' });
+  if (String(entry.pin) !== String(pin).trim()) return res.status(401).json({ error: 'Falscher PIN' });
+
+  const pdata = readPlayers();
+  let player = pdata.players.find(p => p.rosterPlayerId === entry.id);
+  if (!player) {
+    player = {
+      id: pdata.nextId++,
+      name: entry.name,
+      role: 'Normaler Mensch',
+      points: 1000,
+      isAdmin: false,
+      domainIdx: entry.domainIdx,
+      rosterPlayerId: entry.id,
+    };
+    pdata.players.push(player);
+  } else {
+    player.domainIdx = entry.domainIdx; // sync domain in case admin changed it
+  }
+  writePlayers(pdata);
+  res.json(player);
+});
+
+// Admin: change domain assignment for a roster player
+app.patch('/api/roster/:id/domain', (req, res) => {
+  if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
+  const id = parseInt(req.params.id);
+  const domainIdx = parseInt(req.body.domainIdx);
+  const { players: roster } = readRoster();
+  const entry = roster.find(p => p.id === id);
+  if (!entry) return res.status(404).json({ error: 'Spieler nicht gefunden' });
+  entry.domainIdx = domainIdx;
+  writeRoster({ players: roster });
+  // Sync into active players if already checked in
+  const pdata = readPlayers();
+  const active = pdata.players.find(p => p.rosterPlayerId === id);
+  if (active) { active.domainIdx = domainIdx; writePlayers(pdata); }
+  res.json(entry);
+});
+
 // ── Players API ──
 
 app.get('/api/players', (req, res) => {

@@ -463,6 +463,14 @@
 
       <hr class="divider" style="margin-top:2rem;" />
 
+      <!-- Spielerliste (Roster) -->
+      <h2 class="section-title">Spielerliste</h2>
+      <div class="form-card" style="margin-top:0;padding:0.5rem;">
+        <div id="roster-list"><div class="loading">Lade…</div></div>
+      </div>
+
+      <hr class="divider" style="margin-top:2rem;" />
+
       <!-- Domain Expansions -->
       <h2 class="section-title">Domain Expansion</h2>
       <div class="form-card" style="margin-top:0;" id="de-card">
@@ -1319,11 +1327,51 @@
     }
 
     // Load when admin panel becomes visible
+    // ── Roster management ──
+    const DOMAIN_NAMES = [
+      'Infinite Void', 'Malevolent Shrine', 'Chimera Shadow Garden',
+      'Self-Embodiment', 'Horizon', 'Womb Profusion',
+      'Idle Death Gamble', 'Deadly Sentencing',
+    ];
+
+    async function loadRoster() {
+      const el = document.getElementById('roster-list');
+      try {
+        const pw  = getAdminPassword();
+        const res = await fetch(`/api/roster/admin?password=${encodeURIComponent(adminPassword)}`);
+        if (!res.ok) { el.innerHTML = '<div style="color:var(--text-dim);font-size:0.85rem;padding:0.5rem">Nicht autorisiert</div>'; return; }
+        const players = await res.json();
+        el.innerHTML = players.map(p => `
+          <div style="display:flex;align-items:center;gap:0.6rem;padding:0.5rem 0.6rem;border-radius:6px;background:var(--bg-card2);border:1px solid var(--border-mid);flex-wrap:wrap;">
+            <div style="font-weight:700;font-family:var(--font-ui);min-width:80px;font-size:0.9rem;color:${p.active ? 'var(--p-glow)' : 'var(--text-dim)'}">
+              ${escHtml(p.name)} ${p.active ? '●' : '○'}
+            </div>
+            <div style="font-family:monospace;letter-spacing:0.2em;font-size:0.8rem;color:var(--gold);background:rgba(0,0,0,0.3);padding:0.2rem 0.5rem;border-radius:4px;">${p.pin}</div>
+            <select onchange="rosterSetDomain(${p.id}, this.value)" style="flex:1;background:var(--bg-card);border:1px solid var(--border-mid);color:var(--text);padding:0.3rem 0.4rem;border-radius:4px;font-size:0.8rem;">
+              ${DOMAIN_NAMES.map((n, i) => `<option value="${i}"${p.domainIdx === i ? ' selected' : ''}>${i}: ${n}</option>`).join('')}
+            </select>
+          </div>`).join('');
+      } catch { el.innerHTML = '<div style="color:var(--text-dim);font-size:0.85rem;padding:0.5rem">Fehler</div>'; }
+    }
+
+    async function rosterSetDomain(rosterId, domainIdx) {
+      try {
+        const res = await fetch(`/api/roster/${rosterId}/domain`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...adminAuthBody(), domainIdx: parseInt(domainIdx) }),
+        });
+        if (!res.ok) { showToast('Fehler', 'error'); return; }
+        showToast('Domain aktualisiert', 'success');
+      } catch { showToast('Fehler', 'error'); }
+    }
+
     const _deObserver = new MutationObserver(() => {
       const screen = document.getElementById('admin-screen');
       if (screen && screen.style.display !== 'none') {
         if (!deSettings) loadDE();
         loadCardsEnabled();
+        loadRoster();
       }
     });
     _deObserver.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['style'] });

@@ -407,17 +407,9 @@
         return;
       }
 
-      // Fetch player list to get stable index for domain assignment
-      let domainIdx = me.id % DOMAINS.length; // fallback: use ID directly
-      try {
-        const res = await fetch('/api/players');
-        if (res.ok) {
-          const players = await res.json();
-          const idx = players.findIndex(p => p.id === me.id);
-          if (idx >= 0) domainIdx = idx % DOMAINS.length;
-        }
-      } catch { /* use fallback */ }
-
+      // Use domainIdx stored in player object (set at checkin from roster)
+      // Fallback to ID-based assignment if not set
+      const domainIdx = (me.domainIdx !== undefined) ? me.domainIdx % DOMAINS.length : me.id % DOMAINS.length;
       const d = DOMAINS[domainIdx];
 
       // Apply domain class and color
