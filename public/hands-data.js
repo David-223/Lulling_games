@@ -12,7 +12,7 @@ const HANDS = [
       { v: 'Q♠', r: false }, { v: 'J♠', r: false }, { v: '10♠', r: false }
     ],
     desc: 'Ass, König, Dame, Bube, Zehn – alle in derselben Farbe.',
-    def:  'Nächste Runde alle Domain Expansions aktiv.',
+    def:  'Alle anderen trinken 1 Shot.',
   },
   {
     id:    'straight_flush',
@@ -153,6 +153,6 @@ const HANDS = [
       { v: '7♠', r: false }, { v: '2♦', r: true }
     ],
     desc: 'Starthand 7-2 – die schlechteste Hand im Poker.',
-    def:  'Alle anderen trinken 1 Shot.',
+    def:  'Nächste Runde alle Domain Expansions aktiv.',
   },
 ];
