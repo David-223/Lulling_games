@@ -834,6 +834,30 @@ app.delete('/api/domain-activation', (req, res) => {
   res.json({ success: true, myCoins: player ? (player.domainCoins ?? 0) : null });
 });
 
+// Grant 1 wheel spin to a player (admin only)
+app.post('/api/players/:id/wheel-spins/grant', (req, res) => {
+  if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
+  const id = parseInt(req.params.id);
+  const pdata = readPlayers();
+  const player = pdata.players.find(p => p.id === id);
+  if (!player) return res.status(404).json({ error: 'Spieler nicht gefunden' });
+  player.wheelSpins = (player.wheelSpins ?? 0) + 1;
+  writePlayers(pdata);
+  res.json({ success: true, wheelSpins: player.wheelSpins });
+});
+
+// Use 1 wheel spin (player themselves)
+app.post('/api/players/:id/wheel-spins/use', (req, res) => {
+  const id = parseInt(req.params.id);
+  const pdata = readPlayers();
+  const player = pdata.players.find(p => p.id === id);
+  if (!player) return res.status(404).json({ error: 'Spieler nicht gefunden' });
+  if ((player.wheelSpins ?? 0) < 1) return res.status(402).json({ error: 'Keine Spins übrig' });
+  player.wheelSpins = player.wheelSpins - 1;
+  writePlayers(pdata);
+  res.json({ success: true, wheelSpins: player.wheelSpins });
+});
+
 // Grant 1 domain coin to a player (e.g. triggered by wheel result)
 app.post('/api/players/:id/domain-coins', (req, res) => {
   const id = parseInt(req.params.id);

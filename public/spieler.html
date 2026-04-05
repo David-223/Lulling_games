@@ -231,6 +231,30 @@
       return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
+    function getMe() {
+      try { return JSON.parse(localStorage.getItem('lalling-me')); } catch { return null; }
+    }
+
+    async function grantSpin(playerId, playerName) {
+      const me = getMe();
+      if (!me) return;
+      const body = me.isAdmin
+        ? { adminPlayerId: me.id }
+        : { password: prompt('Admin-Passwort:') };
+      if (!me.isAdmin && !body.password) return;
+      try {
+        const r = await fetch('/api/players/' + playerId + '/wheel-spins/grant', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const d = await r.json();
+        if (!r.ok) { alert(d.error || 'Fehler'); return; }
+        showToast('🎰 Spin für ' + playerName + ' freigegeben!', 'success');
+        loadPlayers();
+      } catch { alert('Verbindungsfehler'); }
+    }
+
     async function loadPlayers() {
       const list = document.getElementById('players-list');
       const countEl = document.getElementById('players-count');
@@ -250,12 +274,15 @@
           return;
         }
 
+        const me = getMe();
+        const isAdmin = me && me.isAdmin;
         const sorted = [...players].sort((a, b) => b.points - a.points);
         list.innerHTML = sorted.map((p, idx) => {
           const rank = idx + 1;
           const role = ROLES[p.role] || { css: 'role-mensch', icon: '○' };
           const pct = Math.min(100, p.points);
           const isElim = p.points === 0;
+          const spins = p.wheelSpins ?? 0;
           return `
             <div class="player-card-wrap">
             <div class="player-card">
@@ -270,6 +297,8 @@
                   <div class="points-bar ${isElim ? 'zero' : ''}" style="width:${pct}%"></div>
                 </div>
                 ${isElim ? '<div class="eliminated-tag">✕ Ausgeschieden</div>' : ''}
+                ${spins > 0 ? `<div style="font-size:0.7rem;color:var(--p-glow);font-family:var(--font-ui);margin-top:0.3rem;">🎰 ${spins} Spin${spins > 1 ? 's' : ''} verfügbar</div>` : ''}
+                ${isAdmin ? `<button onclick="grantSpin(${p.id}, '${escHtml(p.name)}')" style="margin-top:0.5rem;font-size:0.7rem;padding:0.25rem 0.7rem;" class="btn btn-secondary">🎰 Spin vergeben</button>` : ''}
               </div>
             </div>
             </div>
