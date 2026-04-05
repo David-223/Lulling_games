@@ -594,6 +594,7 @@
         ? allExpansions.find(e => e.id === myDomain.expansionId)
         : null;
       return {
+        id:      myDomain.expansionId || myDomain.cls,
         name:    myDomain.jp,
         subname: myDomain.en,
         caster:  myDomain.caster,
