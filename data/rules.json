@@ -15,14 +15,14 @@
     {
       "id": 3,
       "points": 300,
-      "title": "Dritte Regel – Ausscheiden",
-      "description": "Wer auf 0 Punkte fällt, ist ausgeschieden und muss ein Strafglas leeren."
+      "title": "Ausscheiden",
+      "description": "Wer auf 0 Punkte fällt, ist ausgeschieden und dreht das Knuggelige Rad"
     },
     {
       "id": 4,
       "points": 400,
-      "title": "Vierte Regel – Challenges",
-      "description": "Jeder Spieler kann einen anderen zu einer Challenge fordern. Der Verlierer trinkt 3 Schlucke."
+      "title": "Wiederbelebung",
+      "description": "Ist man Tot kann man sich mit einem Absynth Shot wieder 300 Punkte Kaufen"
     },
     {
       "id": 5,
