@@ -3,654 +3,441 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-  <title>Domain – Lalling Games</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>Domain Expansion</title>
   <style>
-    * { box-sizing: border-box; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      min-height: 100vh;
-      background: #07070f;
-      color: #e0e0e0;
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
       font-family: 'Segoe UI', sans-serif;
+    }
+
+    /* ── Domain base ── */
+    .domain {
+      position: fixed;
+      inset: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
-      overflow-x: hidden;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
     }
 
-    /* ── Animated background ── */
-    body::before {
+    /* ══════════════════════════════
+       1 · INFINITE VOID — Gojo
+    ══════════════════════════════ */
+    .domain-void {
+      background: #000;
+    }
+    .domain-void::before {
       content: '';
-      position: fixed;
-      inset: 0;
+      position: fixed; inset: 0;
       background:
-        radial-gradient(ellipse 60% 40% at 50% 0%, var(--p-bg, #0d0020) 0%, transparent 70%),
-        radial-gradient(ellipse 40% 30% at 20% 80%, rgba(30,0,60,0.4) 0%, transparent 60%),
-        radial-gradient(ellipse 40% 30% at 80% 60%, rgba(0,20,60,0.3) 0%, transparent 60%);
-      pointer-events: none;
-      z-index: 0;
-      animation: bg-pulse 6s ease-in-out infinite;
+        repeating-linear-gradient(0deg,   transparent, transparent 59px, rgba(120,200,255,0.07) 60px),
+        repeating-linear-gradient(90deg,  transparent, transparent 59px, rgba(120,200,255,0.07) 60px);
+      animation: void-grid 8s linear infinite;
     }
-    @keyframes bg-pulse {
-      0%,100% { opacity: 1; }
-      50%      { opacity: 0.7; }
+    .domain-void::after {
+      content: '';
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 50%, rgba(160,220,255,0.12) 0%, transparent 70%);
+      animation: void-pulse 4s ease-in-out infinite;
+    }
+    @keyframes void-grid  { from { transform: perspective(400px) rotateX(20deg) translateY(0); } to { transform: perspective(400px) rotateX(20deg) translateY(60px); } }
+    @keyframes void-pulse { 0%,100%{ opacity:0.5 } 50%{ opacity:1 } }
+
+    /* ══════════════════════════════
+       2 · MALEVOLENT SHRINE — Sukuna
+    ══════════════════════════════ */
+    .domain-shrine {
+      background: radial-gradient(ellipse at 50% 100%, #2a0000 0%, #0d0000 60%, #000 100%);
+    }
+    .domain-shrine::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 50% 90%, rgba(200,20,20,0.25) 0%, transparent 70%);
+      animation: shrine-flicker 2s ease-in-out infinite;
+    }
+    .domain-shrine::after {
+      content: '';
+      position: fixed; inset: -10%;
+      background-image:
+        radial-gradient(1px 40px at 20% 80%, rgba(255,50,50,0.4) 0%, transparent 100%),
+        radial-gradient(1px 60px at 50% 90%, rgba(255,80,30,0.3) 0%, transparent 100%),
+        radial-gradient(1px 30px at 80% 85%, rgba(255,40,40,0.4) 0%, transparent 100%),
+        radial-gradient(1px 50px at 35% 75%, rgba(220,60,20,0.3) 0%, transparent 100%),
+        radial-gradient(1px 45px at 65% 88%, rgba(255,30,30,0.35) 0%, transparent 100%);
+      animation: shrine-flames 3s ease-in-out infinite alternate;
+    }
+    @keyframes shrine-flicker { 0%,100%{ opacity:0.6 } 50%{ opacity:1 } 75%{ opacity:0.4 } }
+    @keyframes shrine-flames  { from{ transform: scaleY(1) translateY(0) } to{ transform: scaleY(1.1) translateY(-8px) } }
+
+    /* ══════════════════════════════
+       3 · CHIMERA SHADOW — Megumi
+    ══════════════════════════════ */
+    .domain-shadow {
+      background: #050510;
+    }
+    .domain-shadow::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 50% 70% at 20% 50%, rgba(40,0,80,0.5) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 70% at 80% 50%, rgba(0,20,60,0.4) 0%, transparent 60%);
+      animation: shadow-shift 6s ease-in-out infinite alternate;
+    }
+    .domain-shadow::after {
+      content: '';
+      position: fixed; inset: 0;
+      background: repeating-conic-gradient(from 0deg at 50% 50%, transparent 0deg, rgba(80,0,160,0.04) 1deg, transparent 2deg);
+      animation: shadow-rotate 20s linear infinite;
+    }
+    @keyframes shadow-shift  { from{ transform: scale(1) } to{ transform: scale(1.1) translateX(5%) } }
+    @keyframes shadow-rotate { from{ transform: rotate(0deg) } to{ transform: rotate(360deg) } }
+
+    /* ══════════════════════════════
+       4 · SELF-EMBODIMENT — Mahito
+    ══════════════════════════════ */
+    .domain-mahito {
+      background: radial-gradient(ellipse at 50% 50%, #1a0820 0%, #080008 100%);
+    }
+    .domain-mahito::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 30% 60% at 30% 40%, rgba(180,40,120,0.15) 0%, transparent 70%),
+        radial-gradient(ellipse 30% 60% at 70% 60%, rgba(100,20,180,0.15) 0%, transparent 70%);
+      animation: mahito-warp 5s ease-in-out infinite;
+    }
+    .domain-mahito::after {
+      content: '';
+      position: fixed; inset: 0;
+      background: repeating-radial-gradient(ellipse at 50% 50%, transparent 0px, transparent 40px, rgba(180,40,120,0.05) 41px, transparent 42px);
+      animation: mahito-pulse 3s ease-in-out infinite;
+    }
+    @keyframes mahito-warp  { 0%,100%{ transform: scale(1) } 50%{ transform: scale(1.05) skewX(1deg) } }
+    @keyframes mahito-pulse { 0%,100%{ opacity:0.5 } 50%{ opacity:1 } }
+
+    /* ══════════════════════════════
+       5 · HORIZON — Geto
+    ══════════════════════════════ */
+    .domain-geto {
+      background: radial-gradient(ellipse at 50% 30%, #0a001a 0%, #000308 100%);
+    }
+    .domain-geto::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 80% 20% at 50% 50%, rgba(100,60,200,0.2) 0%, transparent 100%);
+      animation: geto-float 6s ease-in-out infinite;
+    }
+    .domain-geto::after {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(2px 2px at 20% 30%, rgba(180,140,255,0.6) 0%, transparent 100%),
+        radial-gradient(2px 2px at 60% 20%, rgba(180,140,255,0.5) 0%, transparent 100%),
+        radial-gradient(2px 2px at 80% 50%, rgba(140,100,255,0.4) 0%, transparent 100%),
+        radial-gradient(2px 2px at 40% 70%, rgba(200,160,255,0.5) 0%, transparent 100%),
+        radial-gradient(2px 2px at 10% 60%, rgba(160,120,255,0.4) 0%, transparent 100%),
+        radial-gradient(2px 2px at 70% 80%, rgba(180,140,255,0.3) 0%, transparent 100%);
+      animation: geto-stars 8s ease-in-out infinite alternate;
+    }
+    @keyframes geto-float { 0%,100%{ transform: translateY(0) } 50%{ transform: translateY(-10px) } }
+    @keyframes geto-stars { from{ opacity:0.4 } to{ opacity:1 } }
+
+    /* ══════════════════════════════
+       6 · WOMB PROFUSION — Dagon
+    ══════════════════════════════ */
+    .domain-dagon {
+      background: radial-gradient(ellipse at 50% 100%, #001a2e 0%, #000a14 100%);
+    }
+    .domain-dagon::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 100% 30% at 50% 100%, rgba(0,80,140,0.4) 0%, transparent 100%);
+      animation: dagon-wave 4s ease-in-out infinite;
+    }
+    .domain-dagon::after {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        repeating-linear-gradient(180deg, transparent, transparent 29px, rgba(0,120,200,0.06) 30px);
+      animation: dagon-current 6s linear infinite;
+    }
+    @keyframes dagon-wave    { 0%,100%{ transform: scaleX(1) } 50%{ transform: scaleX(1.05) } }
+    @keyframes dagon-current { from{ transform: translateY(0) } to{ transform: translateY(30px) } }
+
+    /* ══════════════════════════════
+       7 · MOON PALACE — Tengen
+    ══════════════════════════════ */
+    .domain-tengen {
+      background: radial-gradient(ellipse at 50% 0%, #1a1200 0%, #080600 100%);
+    }
+    .domain-tengen::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 40% 40% at 50% 20%, rgba(255,200,60,0.15) 0%, transparent 70%),
+        repeating-conic-gradient(from 0deg at 50% 20%, transparent 0deg, rgba(255,180,40,0.03) 10deg, transparent 20deg);
+      animation: tengen-spin 30s linear infinite;
+    }
+    .domain-tengen::after {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 20% 20% at 50% 20%, rgba(255,220,100,0.2) 0%, transparent 100%);
+      animation: tengen-glow 4s ease-in-out infinite;
+    }
+    @keyframes tengen-spin { from{ transform: rotate(0deg) } to{ transform: rotate(360deg) } }
+    @keyframes tengen-glow { 0%,100%{ opacity:0.5 } 50%{ opacity:1 } }
+
+    /* ══════════════════════════════
+       8 · DEADLY SENTENCING — Naoya
+    ══════════════════════════════ */
+    .domain-naoya {
+      background: #020202;
+    }
+    .domain-naoya::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        linear-gradient(180deg, rgba(180,160,0,0.08) 0%, transparent 30%),
+        linear-gradient(0deg,   rgba(180,160,0,0.08) 0%, transparent 30%);
+      animation: naoya-scan 2s linear infinite;
+    }
+    .domain-naoya::after {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(1px 100vh at 15% 0%, rgba(200,180,0,0.3) 0%, transparent 100%),
+        radial-gradient(1px 100vh at 40% 0%, rgba(200,180,0,0.15) 0%, transparent 100%),
+        radial-gradient(1px 100vh at 70% 0%, rgba(200,180,0,0.25) 0%, transparent 100%),
+        radial-gradient(1px 100vh at 90% 0%, rgba(200,180,0,0.2) 0%, transparent 100%);
+      animation: naoya-strike 4s ease-in-out infinite;
+    }
+    @keyframes naoya-scan   { from{ transform: translateY(-100%) } to{ transform: translateY(100%) } }
+    @keyframes naoya-strike { 0%,90%,100%{ opacity:0 } 92%,98%{ opacity:1 } }
+
+    /* ── Content overlay ── */
+    .domain-content {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      user-select: none;
     }
 
-    .page { position: relative; z-index: 1; width: 100%; max-width: 440px; padding: 1.5rem 1rem 3rem; }
+    .expansion-label {
+      font-size: 0.55rem;
+      letter-spacing: 0.5em;
+      text-transform: uppercase;
+      opacity: 0.5;
+      margin-bottom: 0.5rem;
+    }
+
+    .domain-jp {
+      font-size: clamp(2rem, 10vw, 3.5rem);
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: 0.1em;
+      text-shadow: 0 0 40px currentColor;
+      animation: name-breathe 4s ease-in-out infinite;
+    }
+    @keyframes name-breathe { 0%,100%{ text-shadow: 0 0 40px currentColor } 50%{ text-shadow: 0 0 80px currentColor, 0 0 120px currentColor } }
+
+    .domain-en {
+      font-size: clamp(0.8rem, 3vw, 1.1rem);
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      opacity: 0.6;
+      margin-bottom: 0.75rem;
+    }
+
+    .domain-separator {
+      width: 60px;
+      height: 1px;
+      background: currentColor;
+      opacity: 0.3;
+      margin: 0.5rem 0;
+    }
+
+    .domain-desc {
+      font-size: clamp(0.75rem, 2.5vw, 0.9rem);
+      opacity: 0.45;
+      letter-spacing: 0.15em;
+      font-style: italic;
+    }
+
+    .player-label {
+      position: fixed;
+      bottom: 2.5rem;
+      left: 0; right: 0;
+      text-align: center;
+      z-index: 10;
+    }
+    .player-label-name {
+      font-size: clamp(1rem, 4vw, 1.4rem);
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      opacity: 0.7;
+    }
+    .player-label-role {
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      opacity: 0.3;
+      margin-top: 0.2rem;
+    }
 
     /* ── Not logged in ── */
     .not-logged {
-      text-align: center;
-      margin-top: 30vh;
-    }
-    .not-logged h2 { color: var(--p-glow, #a78bfa); margin-bottom: 0.5rem; }
-    .not-logged p  { color: #6b7280; margin-bottom: 1.5rem; }
-
-    /* ── Domain header ── */
-    .domain-header {
-      text-align: center;
-      margin-bottom: 1.5rem;
-    }
-    .domain-label {
-      font-size: 0.6rem;
-      letter-spacing: 0.4em;
-      text-transform: uppercase;
-      color: var(--p-glow, #a78bfa);
-      opacity: 0.7;
-      margin-bottom: 0.4rem;
-    }
-
-    /* ── Avatar orb ── */
-    .orb-wrap {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 1rem;
-    }
-    .orb {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 35% 35%, var(--p, #7c3aed), #1a0040);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2.8rem;
-      font-family: var(--font-title, serif);
-      font-weight: 900;
-      color: #fff;
-      box-shadow:
-        0 0 0 2px var(--p-dim, #4c1d95),
-        0 0 30px var(--p-glow, #a78bfa),
-        0 0 60px rgba(124,58,237,0.3);
-      animation: orb-breathe 3s ease-in-out infinite;
-      position: relative;
-    }
-    .orb.is-turn {
-      animation: orb-turn 1s ease-in-out infinite;
-      box-shadow:
-        0 0 0 3px #4ade80,
-        0 0 30px #4ade80,
-        0 0 70px rgba(74,222,128,0.4);
-    }
-    .orb.is-busted {
-      opacity: 0.35;
-      filter: grayscale(1);
-      animation: none;
-    }
-    @keyframes orb-breathe {
-      0%,100% { box-shadow: 0 0 0 2px var(--p-dim,#4c1d95), 0 0 30px var(--p-glow,#a78bfa), 0 0 60px rgba(124,58,237,0.3); }
-      50%      { box-shadow: 0 0 0 2px var(--p-dim,#4c1d95), 0 0 50px var(--p-glow,#a78bfa), 0 0 90px rgba(124,58,237,0.45); }
-    }
-    @keyframes orb-turn {
-      0%,100% { box-shadow: 0 0 0 3px #4ade80, 0 0 30px #4ade80, 0 0 70px rgba(74,222,128,0.4); transform: scale(1); }
-      50%      { box-shadow: 0 0 0 4px #4ade80, 0 0 50px #4ade80, 0 0 100px rgba(74,222,128,0.6); transform: scale(1.04); }
-    }
-
-    .player-name {
-      font-family: var(--font-title, serif);
-      font-size: 1.6rem;
-      font-weight: 900;
-      text-align: center;
-      color: #f0e6ff;
-      letter-spacing: 0.05em;
-      margin-bottom: 0.15rem;
-    }
-    .player-role {
-      font-size: 0.7rem;
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      color: var(--text-dim, #6b7280);
-      text-align: center;
-      margin-bottom: 1.2rem;
-    }
-
-    /* ── Points ── */
-    .points-block {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.07);
-      border-radius: 12px;
-      padding: 1rem 1.2rem;
-      margin-bottom: 1rem;
-    }
-    .points-value {
-      font-family: var(--font-title, serif);
-      font-size: 2.2rem;
-      font-weight: 900;
-      color: var(--gold, #c9a227);
-      text-align: center;
-      line-height: 1;
-      margin-bottom: 0.3rem;
-    }
-    .points-label {
-      font-size: 0.6rem;
-      letter-spacing: 0.3em;
-      text-transform: uppercase;
-      color: #4b5563;
-      text-align: center;
-    }
-    .points-bar-wrap {
-      margin-top: 0.6rem;
-      background: #111;
-      border-radius: 4px;
-      height: 6px;
-      overflow: hidden;
-    }
-    .points-bar {
-      height: 100%;
-      border-radius: 4px;
-      background: linear-gradient(90deg, var(--p, #7c3aed), var(--gold, #c9a227));
-      transition: width 0.6s ease;
-    }
-
-    /* ── Section ── */
-    .section {
-      background: rgba(255,255,255,0.025);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 12px;
-      padding: 1rem 1.2rem;
-      margin-bottom: 0.75rem;
-    }
-    .section-title {
-      font-size: 0.58rem;
-      letter-spacing: 0.35em;
-      text-transform: uppercase;
-      color: var(--p-glow, #a78bfa);
-      opacity: 0.7;
-      margin: 0 0 0.7rem;
-      font-weight: 700;
-    }
-
-    /* ── Cards ── */
-    .cards-row {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-    }
-    .card {
-      width: 52px;
-      height: 72px;
-      border-radius: 8px;
-      background: #fff;
+      position: fixed; inset: 0;
+      background: #050505;
+      color: #444;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      font-size: 1.1rem;
-      font-weight: 800;
-      border: 2px solid rgba(255,255,255,0.15);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-      line-height: 1.1;
-      position: relative;
-    }
-    .card.red { color: #dc2626; }
-    .card.black { color: #111; }
-    .card.community {
-      opacity: 0.75;
-      width: 44px;
-      height: 62px;
+      gap: 1rem;
       font-size: 0.9rem;
+      letter-spacing: 0.1em;
     }
-    .card-suit { font-size: 0.75rem; }
-    .card-empty {
-      width: 52px; height: 72px;
-      border-radius: 8px;
-      border: 2px dashed rgba(255,255,255,0.1);
-      background: rgba(255,255,255,0.02);
-    }
-    .cards-divider {
-      width: 1px;
-      background: rgba(255,255,255,0.1);
-      margin: 0 0.25rem;
-      align-self: stretch;
-    }
-
-    /* ── Game status ── */
-    .status-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.85rem;
-    }
-    .status-phase {
-      font-family: var(--font-title, serif);
-      color: var(--p-glow, #a78bfa);
-      font-weight: 700;
-    }
-    .status-pot {
-      color: var(--gold, #c9a227);
-      font-weight: 700;
-    }
-    .turn-banner {
-      margin-top: 0.6rem;
-      background: rgba(74,222,128,0.1);
-      border: 1px solid rgba(74,222,128,0.3);
-      border-radius: 8px;
-      padding: 0.5rem 0.75rem;
-      font-size: 0.85rem;
-      color: #4ade80;
-      font-weight: 700;
-      text-align: center;
-      animation: banner-pulse 1s ease-in-out infinite;
-    }
-    @keyframes banner-pulse {
-      0%,100% { opacity: 1; }
-      50%      { opacity: 0.6; }
-    }
-    .fold-banner {
-      margin-top: 0.6rem;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 8px;
-      padding: 0.5rem 0.75rem;
-      font-size: 0.8rem;
-      color: #4b5563;
-      text-align: center;
-    }
-
-    /* ── Action buttons ── */
-    .actions {
-      display: grid;
-      gap: 0.5rem;
-      margin-top: 0.75rem;
-    }
-    .actions-row { display: flex; gap: 0.5rem; }
-    .btn-action {
-      flex: 1;
-      padding: 0.75rem 0.5rem;
-      border: 1px solid;
-      border-radius: 10px;
-      font-family: var(--font-ui, sans-serif);
-      font-size: 0.85rem;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      cursor: pointer;
-      transition: opacity 0.15s, transform 0.1s;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .btn-action:active { transform: scale(0.96); }
-    .btn-fold  { background: rgba(239,68,68,0.1);  border-color: rgba(239,68,68,0.3);  color: #f87171; }
-    .btn-check { background: rgba(99,102,241,0.1); border-color: rgba(99,102,241,0.3); color: #818cf8; }
-    .btn-call  { background: rgba(59,130,246,0.1); border-color: rgba(59,130,246,0.3); color: #60a5fa; }
-    .btn-raise { background: rgba(234,179,8,0.1);  border-color: rgba(234,179,8,0.3);  color: #facc15; }
-    .btn-allin { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.5);  color: #f87171; }
-
-    .raise-row {
-      display: flex;
-      gap: 0.5rem;
-      align-items: center;
-    }
-    .raise-input {
-      flex: 1;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 8px;
-      color: #e5e7eb;
-      padding: 0.6rem 0.8rem;
-      font-size: 0.9rem;
-      font-family: var(--font-ui, sans-serif);
-      outline: none;
-    }
-    .raise-input:focus { border-color: var(--p, #7c3aed); }
-
-    /* ── Vows ── */
-    .vow-row {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.85rem;
-      color: #c4b5fd;
-      padding: 0.3rem 0;
-      border-bottom: 1px solid rgba(255,255,255,0.04);
-    }
-    .vow-row:last-child { border-bottom: none; }
-
-    /* ── Busted ── */
-    .busted-block {
-      text-align: center;
-      padding: 1.5rem 1rem;
-      color: #4b5563;
-    }
-    .busted-block .busted-icon { font-size: 3rem; display: block; margin-bottom: 0.5rem; }
-    .busted-block p { font-size: 0.9rem; margin: 0; }
-
-    /* ── No game ── */
-    .no-game-msg {
-      text-align: center;
-      color: #374151;
-      font-size: 0.85rem;
-      padding: 0.5rem 0;
-    }
-
-    /* ── Domain expansion active banner ── */
-    .de-banner {
-      background: linear-gradient(135deg, rgba(109,40,217,0.15), rgba(30,64,175,0.15));
-      border: 1px solid rgba(139,92,246,0.4);
-      border-radius: 10px;
-      padding: 0.75rem 1rem;
-      margin-bottom: 0.75rem;
-      text-align: center;
-    }
-    .de-banner-name {
-      font-family: var(--font-title, serif);
-      font-size: 1rem;
-      color: #a78bfa;
-      font-weight: 900;
-      margin-bottom: 0.2rem;
-    }
-    .de-banner-effect {
-      font-size: 0.78rem;
-      color: #c4b5fd;
+    .not-logged a {
+      color: #666;
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
 
-  <div class="page" id="page">
-    <div class="not-logged" id="not-logged" style="display:none">
-      <h2>Keine Domain gefunden</h2>
-      <p>Melde dich zuerst in der Lobby an.</p>
-      <a href="lobby.html" class="btn btn-primary">Zur Lobby</a>
+  <div class="not-logged" id="not-logged" style="display:none">
+    <div>Keine Domain gefunden.</div>
+    <a href="lobby.html">Zur Lobby →</a>
+  </div>
+
+  <div class="domain" id="domain" style="display:none">
+    <div class="domain-content">
+      <div class="expansion-label" id="expansion-label">Domain Expansion</div>
+      <div class="domain-jp"   id="domain-jp"></div>
+      <div class="domain-en"   id="domain-en"></div>
+      <div class="domain-separator"></div>
+      <div class="domain-desc" id="domain-desc"></div>
     </div>
-
-    <div id="domain-content" style="display:none">
-      <!-- Header label -->
-      <div class="domain-header">
-        <div class="domain-label">⚔ Domain Expansion ⚔</div>
-      </div>
-
-      <!-- Avatar orb -->
-      <div class="orb-wrap">
-        <div class="orb" id="orb">?</div>
-      </div>
-
-      <div class="player-name" id="player-name-el">–</div>
-      <div class="player-role" id="player-role-el">–</div>
-
-      <!-- Points -->
-      <div class="points-block">
-        <div class="points-value" id="points-value">–</div>
-        <div class="points-label">Cursed Energy</div>
-        <div class="points-bar-wrap">
-          <div class="points-bar" id="points-bar" style="width:0%"></div>
-        </div>
-      </div>
-
-      <!-- Domain Expansion active -->
-      <div class="de-banner" id="de-banner" style="display:none">
-        <div class="de-banner-name" id="de-name"></div>
-        <div class="de-banner-effect" id="de-effect"></div>
-      </div>
-
-      <!-- Busted -->
-      <div class="busted-block" id="busted-block" style="display:none">
-        <span class="busted-icon">💀</span>
-        <p>Du bist ausgeschieden.<br>Trink dein Strafglas.</p>
-      </div>
-
-      <!-- Game section -->
-      <div class="section" id="game-section" style="display:none">
-        <div class="section-title">Spiel</div>
-        <div class="status-row">
-          <span class="status-phase" id="status-phase">–</span>
-          <span class="status-pot" id="status-pot"></span>
-        </div>
-        <div id="turn-indicator"></div>
-
-        <!-- Actions -->
-        <div class="actions" id="actions" style="display:none">
-          <div class="actions-row">
-            <button class="btn-action btn-fold"  id="btn-fold">Fold</button>
-            <button class="btn-action btn-check" id="btn-check" style="display:none">Check</button>
-            <button class="btn-action btn-call"  id="btn-call" style="display:none">Call</button>
-          </div>
-          <div class="raise-row">
-            <input class="raise-input" id="raise-input" type="number" placeholder="Raise auf…" min="1" />
-            <button class="btn-action btn-raise" id="btn-raise">Raise</button>
-          </div>
-          <div class="actions-row">
-            <button class="btn-action btn-allin" id="btn-allin">All-In ⚡</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Cards section -->
-      <div class="section" id="cards-section" style="display:none">
-        <div class="section-title">Karten</div>
-        <div class="cards-row" id="cards-row"></div>
-      </div>
-
-      <!-- Binding Vows -->
-      <div class="section" id="vows-section" style="display:none">
-        <div class="section-title">Binding Vows</div>
-        <div id="vows-list"></div>
-      </div>
+    <div class="player-label">
+      <div class="player-label-name" id="player-name"></div>
+      <div class="player-label-role" id="player-role"></div>
     </div>
   </div>
 
-  <div id="toast"></div>
-
   <script>
-    // ── Identity ──
-    function getMe() { try { return JSON.parse(localStorage.getItem('lalling-me')); } catch { return null; } }
+    const DOMAINS = [
+      {
+        cls:   'domain-void',
+        jp:    '無量空処',
+        en:    'Infinite Void',
+        desc:  'Alles. Nichts. Unendlichkeit.',
+        color: '#a0dcff',
+      },
+      {
+        cls:   'domain-shrine',
+        jp:    '伏魔御廚子',
+        en:    'Malevolent Shrine',
+        desc:  'Zerstörung kennt keine Grenzen.',
+        color: '#ff6060',
+      },
+      {
+        cls:   'domain-shadow',
+        jp:    '嵌合暗翳庭',
+        en:    'Chimera Shadow Garden',
+        desc:  'Schatten verschlingen alles.',
+        color: '#9d60ff',
+      },
+      {
+        cls:   'domain-mahito',
+        jp:    '自閉円頓裹',
+        en:    'Self-Embodiment of Perfection',
+        desc:  'Die Seele verformt sich nach deinem Willen.',
+        color: '#e060c0',
+      },
+      {
+        cls:   'domain-geto',
+        jp:    '嶄新な慄き',
+        en:    'Horizon of the Captivating Skandha',
+        desc:  'Zwischen den Welten schweben.',
+        color: '#b49fff',
+      },
+      {
+        cls:   'domain-dagon',
+        jp:    '蕩蕩跋扈魑魅魍魎',
+        en:    'Womb Profusion',
+        desc:  'Tiefe ohne Ende.',
+        color: '#40a0e0',
+      },
+      {
+        cls:   'domain-tengen',
+        jp:    '無為転変',
+        en:    'Idle Death Gamble',
+        desc:  'Ewiges Licht übersteigt jeden Fluch.',
+        color: '#ffd060',
+      },
+      {
+        cls:   'domain-naoya',
+        jp:    '死刑宣告',
+        en:    'Deadly Sentencing',
+        desc:  'Das Urteil ist unausweichlich.',
+        color: '#c8c020',
+      },
+    ];
 
-    const me = getMe();
-    if (!me) {
-      document.getElementById('not-logged').style.display = '';
-    } else {
-      document.getElementById('domain-content').style.display = '';
-      init();
+    function getMe() {
+      try { return JSON.parse(localStorage.getItem('lalling-me')); } catch { return null; }
     }
 
-    // ── Theme ──
-    function applyTheme(s) {
-      if (!['ao','shuku','yami','kin'].includes(s)) s = 'ao';
-      document.documentElement.setAttribute('data-theme', s);
-    }
-    applyTheme(localStorage.getItem('lalling-theme') || 'ao');
+    async function init() {
+      const me = getMe();
+      if (!me) {
+        document.getElementById('not-logged').style.display = '';
+        return;
+      }
 
-    // ── Card helpers ──
-    const RED_SUITS = ['♥','♦'];
-    function cardHtml(card, cls = '') {
-      const isRed = RED_SUITS.some(s => card.v && card.v.includes(s));
-      const parts = card.v ? card.v.match(/^(.+?)([♠♣♥♦])$/) : null;
-      const val  = parts ? parts[1] : (card.v || '?');
-      const suit = parts ? parts[2] : '';
-      return `<div class="card ${isRed ? 'red' : 'black'} ${cls}">
-        <div>${val}</div><div class="card-suit">${suit}</div>
-      </div>`;
-    }
-
-    // ── State ──
-    let lastGame = null;
-
-    async function poll() {
+      // Fetch player list to get stable index for domain assignment
+      let domainIdx = me.id % DOMAINS.length; // fallback: use ID directly
       try {
-        const [playersRes, gameRes, cardsRes, vowsRes] = await Promise.all([
-          fetch('/api/players'),
-          fetch('/api/poker/state'),
-          fetch(`/api/poker/mycards?playerId=${me.id}`),
-          fetch('/api/binding-vows'),
-        ]);
-
-        const players = playersRes.ok ? await playersRes.json() : [];
-        const game    = gameRes.ok   ? await gameRes.json()    : null;
-        const cardsData = cardsRes.ok ? await cardsRes.json()  : { cards: [], enabled: false };
-        const vows    = vowsRes.ok   ? await vowsRes.json()    : [];
-
-        const player = players.find(p => p.id === me.id) || me;
-        render(player, game, cardsData, vows);
-      } catch (e) {
-        console.warn('[domain] poll error', e);
-      }
-    }
-
-    function render(player, game, cardsData, vows) {
-      // ── Orb ──
-      const orb = document.getElementById('orb');
-      orb.textContent = player.name.charAt(0).toUpperCase();
-
-      // ── Name / role ──
-      document.getElementById('player-name-el').textContent = player.name;
-      document.getElementById('player-role-el').textContent = player.role || '';
-
-      // ── Points ──
-      document.getElementById('points-value').textContent = player.points;
-      const pct = Math.min(100, (player.points / 1000) * 100);
-      document.getElementById('points-bar').style.width = pct + '%';
-
-      // ── Busted? ──
-      const isBusted = player.points <= 0;
-      document.getElementById('busted-block').style.display = isBusted ? '' : 'none';
-      if (isBusted) { orb.classList.add('is-busted'); } else { orb.classList.remove('is-busted'); }
-
-      // ── Domain Expansion ──
-      const deBanner = document.getElementById('de-banner');
-      if (game && game.domainExpansion) {
-        const de = game.domainExpansion;
-        document.getElementById('de-name').textContent = de.name + ' — ' + de.subname;
-        document.getElementById('de-effect').textContent = de.effect;
-        deBanner.style.display = '';
-      } else {
-        deBanner.style.display = 'none';
-      }
-
-      // ── Game section ──
-      const gameSection = document.getElementById('game-section');
-      if (!game || isBusted) {
-        gameSection.style.display = 'none';
-      } else {
-        gameSection.style.display = '';
-        const PHASE_NAMES = { setup: 'Setup', preflop: 'Pre-Flop', flop: 'Flop', turn: 'Turn', river: 'River', showdown: 'Showdown', ended: 'Hand beendet' };
-        document.getElementById('status-phase').textContent = PHASE_NAMES[game.phase] || game.phase;
-        document.getElementById('status-pot').textContent   = game.pot > 0 ? `Pot: ${game.pot}` : '';
-
-        const myIdx  = game.players.findIndex(p => p.id === me.id);
-        const myData = myIdx >= 0 ? game.players[myIdx] : null;
-        const isTurn = myIdx >= 0 && game.currentPlayerIdx === myIdx && ['preflop','flop','turn','river'].includes(game.phase);
-        const isFolded = myData && myData.folded;
-
-        // orb glow
-        if (isTurn) { orb.classList.add('is-turn'); } else { orb.classList.remove('is-turn'); }
-
-        // turn indicator
-        const indicator = document.getElementById('turn-indicator');
-        if (isTurn) {
-          indicator.innerHTML = '<div class="turn-banner">⚡ DU BIST AN DER REIHE</div>';
-        } else if (isFolded) {
-          indicator.innerHTML = '<div class="fold-banner">Du hast gefoldet</div>';
-        } else {
-          indicator.innerHTML = '';
+        const res = await fetch('/api/players');
+        if (res.ok) {
+          const players = await res.json();
+          const idx = players.findIndex(p => p.id === me.id);
+          if (idx >= 0) domainIdx = idx % DOMAINS.length;
         }
+      } catch { /* use fallback */ }
 
-        // Actions
-        const actionsEl = document.getElementById('actions');
-        if (isTurn && myData) {
-          actionsEl.style.display = '';
-          const toCall = game.currentBet - (myData.roundBet || 0);
-          const canCheck = toCall <= 0;
-          document.getElementById('btn-check').style.display = canCheck ? '' : 'none';
-          document.getElementById('btn-call').style.display  = canCheck ? 'none' : '';
-          if (!canCheck) {
-            document.getElementById('btn-call').textContent = `Call ${toCall}`;
-          }
-          document.getElementById('raise-input').min = game.currentBet + 1;
-          document.getElementById('raise-input').placeholder = `Raise auf… (min ${game.currentBet + 1})`;
-        } else {
-          actionsEl.style.display = 'none';
-        }
-      }
+      const d = DOMAINS[domainIdx];
 
-      // ── Cards ──
-      const cardsSection = document.getElementById('cards-section');
-      const cardsRow     = document.getElementById('cards-row');
-      const holeCards    = cardsData.cards || [];
-      const community    = (game && game.cardsEnabled) ? (game.communityCards || []) : [];
+      // Apply domain class and color
+      const domainEl = document.getElementById('domain');
+      domainEl.classList.add(d.cls);
+      domainEl.style.color = d.color;
+      domainEl.style.display = '';
 
-      if (cardsData.enabled && (holeCards.length > 0 || community.length > 0)) {
-        cardsSection.style.display = '';
-        let html = holeCards.map(c => cardHtml(c)).join('');
-        if (community.length > 0) {
-          html += '<div class="cards-divider"></div>';
-          html += community.map(c => cardHtml(c, 'community')).join('');
-        }
-        cardsRow.innerHTML = html;
-      } else {
-        cardsSection.style.display = 'none';
-      }
+      // Fill content
+      document.getElementById('domain-jp').textContent   = d.jp;
+      document.getElementById('domain-en').textContent   = d.en;
+      document.getElementById('domain-desc').textContent = d.desc;
+      document.getElementById('player-name').textContent = me.name;
+      document.getElementById('player-role').textContent = me.role || '';
 
-      // ── Binding Vows ──
-      const vowsSection = document.getElementById('vows-section');
-      const myVows = vows.filter(v => v.player1?.id === me.id || v.player2?.id === me.id);
-      if (myVows.length > 0) {
-        vowsSection.style.display = '';
-        document.getElementById('vows-list').innerHTML = myVows.map(v => {
-          const ally = v.player1?.id === me.id ? v.player2 : v.player1;
-          return `<div class="vow-row">🤝 Allianz mit <strong>${ally?.name || '?'}</strong></div>`;
-        }).join('');
-      } else {
-        vowsSection.style.display = 'none';
-      }
+      // Set page title
+      document.title = d.en + ' — ' + me.name;
     }
 
-    // ── Actions ──
-    async function doAction(action, amount) {
-      try {
-        const res = await fetch('/api/poker/action', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ playerId: me.id, action, amount }),
-        });
-        const data = await res.json();
-        if (!res.ok) { showToast(data.error || 'Fehler', 'error'); return; }
-        render(me, data, { cards: document.getElementById('cards-row')._lastCards || [], enabled: !!document.getElementById('cards-section').style.display }, []);
-        poll(); // refresh immediately
-      } catch { showToast('Verbindungsfehler', 'error'); }
-    }
-
-    document.getElementById('btn-fold').addEventListener('click',  () => doAction('fold'));
-    document.getElementById('btn-check').addEventListener('click', () => doAction('check'));
-    document.getElementById('btn-call').addEventListener('click',  () => doAction('call'));
-    document.getElementById('btn-allin').addEventListener('click', () => doAction('allin'));
-    document.getElementById('btn-raise').addEventListener('click', () => {
-      const amt = parseInt(document.getElementById('raise-input').value);
-      if (!amt) { showToast('Betrag eingeben', 'error'); return; }
-      doAction('raise', amt);
-    });
-
-    // ── Toast ──
-    function showToast(msg, type = '') {
-      const t = document.getElementById('toast');
-      t.textContent = msg;
-      t.className = type;
-      t.classList.add('show');
-      setTimeout(() => t.classList.remove('show'), 2800);
-    }
-
-    function init() {
-      poll();
-      setInterval(poll, 2000);
-    }
+    init();
   </script>
 </body>
 </html>
