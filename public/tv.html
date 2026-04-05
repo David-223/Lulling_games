@@ -1589,12 +1589,14 @@
 
     function calcDrinks(pointsLost) {
       if (pointsLost < 25) return null;
-      const shots   = Math.floor(pointsLost / 100);
-      const schlucke = Math.floor((pointsLost % 100) / 25);
-      const parts = [];
-      if (shots    > 0) parts.push(shots    === 1 ? '1 Shot'    : shots    + ' Shots');
-      if (schlucke > 0) parts.push(schlucke === 1 ? '1 Schluck' : schlucke + ' Schlücke');
-      return parts.length ? parts.join(' + ') : null;
+      const shots    = Math.floor(pointsLost / 100);
+      const schlucke = Math.floor(pointsLost / 25);
+      if (shots >= 1) {
+        const shotStr    = shots    === 1 ? '1 Shot'    : shots    + ' Shots';
+        const schluckStr = schlucke === 1 ? '1 Schluck' : schlucke + ' Schlücke';
+        return shotStr + ' oder ' + schluckStr;
+      }
+      return schlucke === 1 ? '1 Schluck' : schlucke + ' Schlücke';
     }
 
     function calcDrinkText(playerId, state) {

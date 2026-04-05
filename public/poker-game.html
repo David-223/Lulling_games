@@ -1378,11 +1378,16 @@
           const lost = myPlayer ? g.handStartChips[me.id] - myPlayer.chips : 0;
           if (lost >= 25) {
             const shots    = Math.floor(lost / 100);
-            const schlucke = Math.floor((lost % 100) / 25);
-            const parts = [];
-            if (shots    > 0) parts.push(shots    === 1 ? '1 Shot'    : shots    + ' Shots');
-            if (schlucke > 0) parts.push(schlucke === 1 ? '1 Schluck' : schlucke + ' Schlücke');
-            document.getElementById('my-drink-text').textContent = parts.join(' + ');
+            const schlucke = Math.floor(lost / 25);
+            let drinkStr;
+            if (shots >= 1) {
+              const shotStr    = shots    === 1 ? '1 Shot'    : shots    + ' Shots';
+              const schluckStr = schlucke === 1 ? '1 Schluck' : schlucke + ' Schlücke';
+              drinkStr = shotStr + ' oder ' + schluckStr;
+            } else {
+              drinkStr = schlucke === 1 ? '1 Schluck' : schlucke + ' Schlücke';
+            }
+            document.getElementById('my-drink-text').textContent = drinkStr;
             myDrinkBox.style.display = '';
           } else {
             myDrinkBox.style.display = 'none';
