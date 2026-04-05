@@ -12,7 +12,7 @@ const HANDS = [
       { v: 'Q♠', r: false }, { v: 'J♠', r: false }, { v: '10♠', r: false }
     ],
     desc: 'Ass, König, Dame, Bube, Zehn – alle in derselben Farbe.',
-    def:  'Alle anderen trinken 5 Schlucke. Du bist unantastbar.',
+    def:  'Nächste Runde alle Domain Expansions aktiv.',
   },
   {
     id:    'straight_flush',
@@ -25,7 +25,7 @@ const HANDS = [
       { v: '7♥', r: true }, { v: '6♥', r: true }, { v: '5♥', r: true }
     ],
     desc: 'Fünf aufeinanderfolgende Karten in derselben Farbe.',
-    def:  'Verteile 8 Schlucke frei auf beliebige Spieler.',
+    def:  'Alle anderen exen ihr Getränk.',
   },
   {
     id:    'four_of_a_kind',
@@ -51,7 +51,7 @@ const HANDS = [
       { v: 'K♦', r: true  }, { v: 'J♠', r: false }, { v: 'J♥', r: true }
     ],
     desc: 'Drei gleiche Karten und ein Paar.',
-    def:  'Verteile 4 Schlucke und trink selbst 1 Schluck.',
+    def:  'Gewinner darf eine neue Regel hinzufügen.',
   },
   {
     id:    'flush',
@@ -64,7 +64,7 @@ const HANDS = [
       { v: '8♣', r: false }, { v: '6♣', r: false }, { v: '3♣', r: false }
     ],
     desc: 'Fünf beliebige Karten in derselben Farbe.',
-    def:  'Verteile 3 Schlucke frei.',
+    def:  'Eine Regel nach Wahl entfernen.',
   },
   {
     id:    'straight',
@@ -77,7 +77,7 @@ const HANDS = [
       { v: '7♦', r: true  }, { v: '6♣', r: false }, { v: '5♠', r: false }
     ],
     desc: 'Fünf aufeinanderfolgende Karten in verschiedenen Farben.',
-    def:  'Spieler links und rechts trinken je 2 Schlucke.',
+    def:  'Zweimal am Glücksrad drehen.',
   },
   {
     id:    'three_of_a_kind',
@@ -90,7 +90,7 @@ const HANDS = [
       { v: 'Q♦', r: true  }, { v: '9♠', r: false }, { v: '4♥', r: true }
     ],
     desc: 'Drei Karten desselben Wertes.',
-    def:  'Wähle einen Spieler aus – dieser trinkt 3 Schlucke.',
+    def:  'Einen Eintrag zum Glücksrad hinzufügen.',
   },
   {
     id:    'two_pair',
@@ -103,7 +103,7 @@ const HANDS = [
       { v: '8♦', r: true  }, { v: '8♣', r: false }, { v: 'A♠', r: false }
     ],
     desc: 'Zwei verschiedene Paare.',
-    def:  'Du trinkst 2 Schlucke.',
+    def:  'Binding Vow auf eine Person wirken (max. 2 aktiv).',
   },
   {
     id:    'one_pair',
@@ -116,7 +116,7 @@ const HANDS = [
       { v: 'A♦',  r: true  }, { v: 'K♣',  r: false }, { v: 'Q♠', r: false }
     ],
     desc: 'Zwei Karten desselben Wertes.',
-    def:  'Du trinkst 1 Schluck.',
+    def:  'Glücksrad drehen.',
   },
   {
     id:    'high_card',
@@ -129,6 +129,30 @@ const HANDS = [
       { v: '9♣', r: false }, { v: '7♥', r: true }, { v: '3♠', r: false }
     ],
     desc: 'Keine Kombination – die höchste Karte zählt.',
-    def:  'Du trinkst 2 Schlucke. Pech gehabt.',
+    def:  'Eine Person aussuchen, die das knuggelige Rad drehen muss.',
+  },
+  {
+    id:    'sixty_seven',
+    rank:  'Sonderhand',
+    tier:  'C',
+    name:  '6-7',
+    en:    '6-7',
+    cards: [
+      { v: '6♠', r: false }, { v: '7♥', r: true }
+    ],
+    desc: 'Starthand 6-7 – die Glückshand.',
+    def:  'Einen Eintrag zum knuggeligen Rad hinzufügen.',
+  },
+  {
+    id:    'seventy_two',
+    rank:  'Sonderhand',
+    tier:  'C',
+    name:  '7-2',
+    en:    '7-2',
+    cards: [
+      { v: '7♠', r: false }, { v: '2♦', r: true }
+    ],
+    desc: 'Starthand 7-2 – die schlechteste Hand im Poker.',
+    def:  'Alle anderen trinken 1 Shot.',
   },
 ];
