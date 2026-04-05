@@ -1820,6 +1820,16 @@
     };
 
     let _domainAudio = null;
+    let _audioUnlocked = false;
+
+    // Browsers block autoplay — unlock on first user interaction
+    document.addEventListener('click', () => {
+      if (_audioUnlocked) return;
+      _audioUnlocked = true;
+      // Play and immediately pause a silent buffer to unlock audio context
+      const a = new Audio();
+      a.play().catch(() => {});
+    }, { once: true });
 
     function playDomainAudio(id) {
       if (_domainAudio) { _domainAudio.pause(); _domainAudio.currentTime = 0; }
