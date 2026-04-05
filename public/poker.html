@@ -252,27 +252,46 @@
   <script>
     // HANDS array is loaded from hands-data.js — add new hands there.
 
-    // ── Storage ──
-    function loadRules() {
-      return JSON.parse(localStorage.getItem('poker-hand-rules') || '{}');
+    // ── Storage (server-side) ──
+    let _cachedRules = {};
+
+    async function loadRules() {
+      try {
+        const res = await fetch('/api/hand-rules');
+        _cachedRules = res.ok ? await res.json() : {};
+      } catch { _cachedRules = {}; }
+      return _cachedRules;
     }
 
-    function saveRule(id, value) {
-      const rules = loadRules();
-      rules[id] = value;
-      localStorage.setItem('poker-hand-rules', JSON.stringify(rules));
+    async function saveRule(id, value) {
+      try {
+        await fetch('/api/hand-rules', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, rule: value }),
+        });
+        _cachedRules[id] = value;
+      } catch { showToast('Speichern fehlgeschlagen', 'error'); }
     }
 
-    function resetDefaults() {
+    async function resetDefaults() {
       if (!confirm('Alle Regeln auf Standard zurücksetzen?')) return;
-      localStorage.removeItem('poker-hand-rules');
-      render();
-      showToast('Standardregeln wiederhergestellt.', 'success');
+      try {
+        await Promise.all(HANDS.map(h =>
+          fetch('/api/hand-rules', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: h.id, rule: h.def }),
+          })
+        ));
+        await render();
+        showToast('Standardregeln wiederhergestellt.', 'success');
+      } catch { showToast('Fehler', 'error'); }
     }
 
     // ── Render ──
-    function render() {
-      const saved = loadRules();
+    async function render() {
+      const saved = await loadRules();
       const list  = document.getElementById('hands-list');
 
       list.innerHTML = HANDS.map(h => {
@@ -315,9 +334,9 @@
       ind.textContent = '…';
 
       clearTimeout(debounceTimers[id]);
-      debounceTimers[id] = setTimeout(() => {
+      debounceTimers[id] = setTimeout(async () => {
         const val = document.getElementById(`rule-${id}`).value;
-        saveRule(id, val);
+        await saveRule(id, val);
         ind.className = 'save-indicator saved';
         ind.textContent = '✓ Gespeichert';
       }, 600);
@@ -357,7 +376,7 @@
 
     // ── Init ──
     applyTheme(localStorage.getItem('lalling-theme') || 'ao');
-    render();
+    render(); // async, returns promise — fire and forget on load
 
     // ── Dropdown ──
     (function() {

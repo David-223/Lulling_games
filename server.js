@@ -745,6 +745,28 @@ app.delete('/api/domain-expansion/:id', (req, res) => {
   res.json(current);
 });
 
+// ── Hand rules (server-side, shared across all devices) ──
+
+const HAND_RULES_FILE = path.join(__dirname, 'data', 'hand-rules.json');
+
+function readHandRules() {
+  if (!fs.existsSync(HAND_RULES_FILE)) return {};
+  return JSON.parse(fs.readFileSync(HAND_RULES_FILE, 'utf-8'));
+}
+
+app.get('/api/hand-rules', (req, res) => {
+  res.json(readHandRules());
+});
+
+app.post('/api/hand-rules', (req, res) => {
+  const { id, rule } = req.body;
+  if (!id) return res.status(400).json({ error: 'id fehlt' });
+  const rules = readHandRules();
+  rules[id] = rule ?? '';
+  fs.writeFileSync(HAND_RULES_FILE, JSON.stringify(rules, null, 2));
+  res.json(rules);
+});
+
 // ── Kogane (AI game master) ────────────────────────────────────────────────
 
 const BACKUPS_DIR = path.join(__dirname, 'data', 'backups');

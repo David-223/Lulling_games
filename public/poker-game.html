@@ -1150,7 +1150,7 @@
     const PHASE_LABEL = { preflop: 'Pre-Flop', flop: 'Flop', turn: 'Turn', river: 'River', showdown: 'Showdown', ended: 'Beendet', setup: 'Setup' };
 
     // ── Render ──
-    function render(g) {
+    async function render(g) {
       if (!g || g.phase === 'setup') { showNoGame(); return; }
       showGame();
       game = g;
@@ -1367,9 +1367,10 @@
         document.getElementById('result-text').textContent = g.splitPot ? 'Pot aufgeteilt!' : 'Hat den Pot gewonnen!';
         const ruleBox = document.getElementById('hand-rule-box');
         if (g.winningHand) {
-          const savedHandRules = JSON.parse(localStorage.getItem('poker-hand-rules') || '{}');
           // Build lookups dynamically from shared HANDS array
           const handById = Object.fromEntries(HANDS.map(h => [h.id, h]));
+          let savedHandRules = {};
+          try { const r = await fetch('/api/hand-rules'); if (r.ok) savedHandRules = await r.json(); } catch {}
           const ruleText = savedHandRules[g.winningHand] !== undefined
             ? savedHandRules[g.winningHand]
             : (handById[g.winningHand]?.def || '');

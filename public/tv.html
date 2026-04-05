@@ -1270,10 +1270,16 @@
     setInterval(tickClock, 1000);
     tickClock();
 
-    // ── HANDS column (static, from localStorage) ──
-    function renderHands() {
+    // ── HANDS column — loaded from server, polls every 10s ──
+    let _handRules = {};
+
+    async function renderHands() {
+      try {
+        const res = await fetch('/api/hand-rules');
+        if (res.ok) _handRules = await res.json();
+      } catch { /* keep last */ }
       document.getElementById('hands-count').textContent = HANDS.length + ' Hände';
-      const saved = JSON.parse(localStorage.getItem('poker-hand-rules') || '{}');
+      const saved = _handRules;
       const col = document.getElementById('hands-col');
       col.innerHTML = HANDS.map(h => {
         const rule = saved[h.id] !== undefined ? saved[h.id] : h.def;
@@ -1526,10 +1532,8 @@
         const winHand = state.winningHand ? HANDS.find(h => h.id === state.winningHand) : null;
         document.getElementById('ptv-result-hand').textContent =
           winHand ? winHand.name : (state.winningHand || '');
-        // look up drink rule from localStorage
-        const handRules = JSON.parse(localStorage.getItem('poker-hand-rules') || '{}');
         const hand = HANDS.find(h => h.id === state.winningHand);
-        const drinkRule = hand ? (handRules[hand.id] || hand.def) : '';
+        const drinkRule = hand ? (_handRules[hand.id] ?? hand.def) : '';
         document.getElementById('ptv-result-drink').textContent = drinkRule;
       } else {
         document.getElementById('ptv-pot-val').textContent = state.pot;
@@ -1741,6 +1745,7 @@
     setInterval(pollPoker, 2000);
 
     renderHands();
+    setInterval(renderHands, 10000); // re-sync hand rules every 10s
     loadData();
     setInterval(loadData, 5000);
 
