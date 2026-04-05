@@ -247,7 +247,14 @@
 
   <script>
     // ── State ──
+    const DOMAIN_COIN_ENTRY = '🪙 +1 Domain-Münze';
+
+    function getMe() {
+      try { return JSON.parse(localStorage.getItem('lalling-me')); } catch { return null; }
+    }
+
     const DEFAULT_ENTRIES = [
+      DOMAIN_COIN_ENTRY,
       'Punkte werden verdoppelt',
       'Verteile 1 Shot deiner Wahl',
       'Bestimme einen Hurensohn für die nächste Hand',
@@ -446,6 +453,20 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text }),
       }).catch(() => {});
+      // Domain coin entry: grant +1 coin to the spinning player
+      if (text === DOMAIN_COIN_ENTRY) {
+        const me = getMe();
+        if (me) {
+          fetch('/api/players/' + me.id + '/domain-coins', { method: 'POST' })
+            .then(r => r.json())
+            .then(data => {
+              if (data.success) showToast('🪙 +1 Domain-Münze! Du hast jetzt ' + data.domainCoins + '.', 'success');
+            })
+            .catch(() => showToast('🪙 Domain-Münze konnte nicht gutgeschrieben werden.', 'error'));
+        } else {
+          showToast('🪙 +1 Domain-Münze! (Bitte einloggen zum Speichern)', '');
+        }
+      }
     }
 
     function closeResult() {

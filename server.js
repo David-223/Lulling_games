@@ -525,6 +525,13 @@ app.post('/api/poker/winner', (req, res) => {
   g.winningHand = req.body.winningHand || null;
   const pdata = readPlayers();
   g.players.forEach(gp => { const pp = pdata.players.find(p => p.id === gp.id); if (pp) pp.points = gp.chips; });
+  // Vierling (Four of a Kind) grants +1 domain coin to the winner(s)
+  if (g.winningHand === 'four_of_a_kind') {
+    winners.forEach(w => {
+      const pp = pdata.players.find(p => p.id === w.id);
+      if (pp) pp.domainCoins = (pp.domainCoins ?? 0) + 1;
+    });
+  }
   writePlayers(pdata);
   res.json(g);
 });
@@ -814,6 +821,17 @@ app.delete('/api/domain-activation', (req, res) => {
   const player = pdata.players.find(p => p.id === parseInt(playerId));
   pendingDomainActivation = null;
   res.json({ success: true, myCoins: player ? (player.domainCoins ?? 0) : null });
+});
+
+// Grant 1 domain coin to a player (e.g. triggered by wheel result)
+app.post('/api/players/:id/domain-coins', (req, res) => {
+  const id = parseInt(req.params.id);
+  const pdata = readPlayers();
+  const player = pdata.players.find(p => p.id === id);
+  if (!player) return res.status(404).json({ error: 'Spieler nicht gefunden' });
+  player.domainCoins = (player.domainCoins ?? 0) + 1;
+  writePlayers(pdata);
+  res.json({ success: true, domainCoins: player.domainCoins });
 });
 
 // ── Hand rules (server-side, shared across all devices) ──
