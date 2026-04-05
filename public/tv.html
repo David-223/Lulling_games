@@ -676,6 +676,62 @@
       line-height: 1.35;
     }
 
+    .ptv-result-drinks-list {
+      margin-top: 0.55rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      max-width: 22vw;
+      width: 100%;
+    }
+
+    .ptv-result-drink-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-ui);
+      font-size: 0.72rem;
+      background: rgba(201,162,39,0.08);
+      border: 1px solid rgba(201,162,39,0.22);
+      border-radius: 4px;
+      padding: 0.2rem 0.5rem;
+    }
+
+    .ptv-result-drink-row .drink-name {
+      color: rgba(255,255,255,0.75);
+      font-weight: 600;
+      flex: 1;
+      text-align: left;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .ptv-result-drink-row .drink-amount {
+      color: var(--gold);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .ptv-seat-drink {
+      font-family: var(--font-ui);
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: #e05252;
+      background: rgba(224,82,82,0.13);
+      border: 1px solid rgba(224,82,82,0.35);
+      border-radius: 4px;
+      padding: 0.15rem 0.35rem;
+      margin-top: 0.2rem;
+      text-align: center;
+      display: none;
+    }
+
+    .ptv-seat-drink.visible {
+      display: block;
+    }
+
     /* player seat */
     .ptv-seat {
       position: absolute;
@@ -1311,6 +1367,7 @@
             <div class="ptv-result-pot"    id="ptv-result-pot"></div>
             <div class="ptv-result-hand"   id="ptv-result-hand"></div>
             <div class="ptv-result-drink"  id="ptv-result-drink"></div>
+            <div class="ptv-result-drinks-list" id="ptv-result-drinks-list"></div>
           </div>
         </div>
         <!-- seats injected by JS -->
@@ -1530,6 +1587,25 @@
       turn: 'Turn', river: 'River', showdown: 'Showdown'
     };
 
+    function calcDrinks(pointsLost) {
+      if (pointsLost < 25) return null;
+      const shots   = Math.floor(pointsLost / 100);
+      const schlucke = Math.floor((pointsLost % 100) / 25);
+      const parts = [];
+      if (shots    > 0) parts.push(shots    === 1 ? '1 Shot'    : shots    + ' Shots');
+      if (schlucke > 0) parts.push(schlucke === 1 ? '1 Schluck' : schlucke + ' Schlücke');
+      return parts.length ? parts.join(' + ') : null;
+    }
+
+    function calcDrinkText(playerId, state) {
+      if (state.phase !== 'ended' || !state.handStartChips) return null;
+      const startChips = state.handStartChips[playerId];
+      const player = state.players.find(p => p.id === playerId);
+      if (startChips == null || !player) return null;
+      const lost = startChips - player.chips;
+      return calcDrinks(lost);
+    }
+
     const seatNodeMap = new Map();
 
     // Position on an ellipse: angle in radians, centre = (50%, 50%)
@@ -1566,6 +1642,8 @@
       if (isFolded) badges.push('<span class="ptv-badge fold">Gefoldet</span>');
       if (isAllIn)  badges.push('<span class="ptv-badge allin">All-In</span>');
 
+      const drinkText = calcDrinkText(player.id, state);
+
       if (!seatNodeMap.has(key)) {
         const el = document.createElement('div');
         el.innerHTML = `
@@ -1574,6 +1652,7 @@
             <div class="ptv-seat-chips">Chips: <span>${player.chips}</span></div>
             <div class="ptv-seat-bet ${player.roundBet === 0 ? 'zero' : ''}">${player.roundBet}</div>
             <div class="ptv-badges">${badges.join('')}</div>
+            <div class="ptv-seat-drink${drinkText ? ' visible' : ''}">${escHtml(drinkText || '')}</div>
           </div>`;
         el.className = cls;
         seatNodeMap.set(key, el);
@@ -1585,6 +1664,9 @@
         betEl.textContent = player.roundBet;
         betEl.className = 'ptv-seat-bet' + (player.roundBet === 0 ? ' zero' : '');
         el.querySelector('.ptv-badges').innerHTML = badges.join('');
+        const drinkEl = el.querySelector('.ptv-seat-drink');
+        drinkEl.textContent = drinkText || '';
+        drinkEl.classList.toggle('visible', !!drinkText);
       }
 
       const el = seatNodeMap.get(key);
@@ -1626,6 +1708,22 @@
         const hand = HANDS.find(h => h.id === state.winningHand);
         const drinkRule = hand ? (_handRules[hand.id] ?? hand.def) : '';
         document.getElementById('ptv-result-drink').textContent = drinkRule;
+
+        // Build drink list for all players
+        const drinksList = document.getElementById('ptv-result-drinks-list');
+        if (state.handStartChips) {
+          const rows = state.players.map(p => {
+            const drink = calcDrinkText(p.id, state);
+            if (!drink) return '';
+            return `<div class="ptv-result-drink-row">
+              <span class="drink-name">${escHtml(p.name)}</span>
+              <span class="drink-amount">${escHtml(drink)}</span>
+            </div>`;
+          }).join('');
+          drinksList.innerHTML = rows;
+        } else {
+          drinksList.innerHTML = '';
+        }
       } else {
         document.getElementById('ptv-pot-val').textContent = state.pot;
         document.getElementById('ptv-cur-bet').textContent =

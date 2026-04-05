@@ -358,6 +358,10 @@ app.post('/api/poker/deal', (req, res) => {
   g.awayEvents = [];
   g.players.forEach(p => { p.roundBet = 0; p.totalBet = 0; p.folded = p.chips <= 0; p.allIn = false; });
 
+  // Record chips at start of hand for drink calculation later
+  g.handStartChips = {};
+  g.players.forEach(p => { g.handStartChips[p.id] = p.chips; });
+
   let sbIdx = (g.dealerIdx + 1) % n;
   let sbTries = 0;
   while (g.players[sbIdx].chips <= 0 && sbTries < n) { sbIdx = (sbIdx + 1) % n; sbTries++; }
