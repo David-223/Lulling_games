@@ -637,16 +637,6 @@
       if (btn) applyTheme(btn.dataset.scheme);
     });
 
-    // ── Admin check ──
-    (function() {
-      const me = JSON.parse(localStorage.getItem('lalling-me') || 'null');
-      const isAdmin = !!(me && me.isAdmin);
-      if (!isAdmin) {
-        document.getElementById('spin-btn').style.display = 'none';
-        document.getElementById('no-spin-msg').style.display = 'block';
-      }
-    })();
-
     // ── Init ──
     applyTheme(localStorage.getItem('lalling-theme') || 'ao');
     loadEntries();
