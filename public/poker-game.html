@@ -813,6 +813,71 @@
 
     /* Stagger seat cards - removed to prevent re-animation on each poll */
     /* Player row entrance - removed to prevent blinking on each poll */
+    /* ── Playing cards ── */
+    .card {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 2.8rem;
+      height: 4rem;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-family: 'Georgia', serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      line-height: 1;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      user-select: none;
+      flex-shrink: 0;
+    }
+
+    .card.red  { color: #cc1111; }
+    .card.black { color: #111; }
+
+    .card.face-down {
+      background: linear-gradient(135deg, #1e3aaa 25%, #0e2062 100%);
+      border-color: #0e2062;
+      color: transparent;
+    }
+
+    .card.face-down::after {
+      content: '🂠';
+      font-size: 1.8rem;
+      color: rgba(255,255,255,0.15);
+    }
+
+    .card-suit {
+      font-size: 0.7rem;
+      margin-top: 0.1rem;
+    }
+
+    /* hole-cards strip */
+    #my-cards-wrap {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.8rem 1rem 0.4rem;
+    }
+
+    #my-cards-wrap.visible { display: flex; }
+
+    .my-cards-label {
+      font-family: var(--font-ui);
+      font-size: 0.65rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      font-weight: 700;
+    }
+
+    .my-cards-row {
+      display: flex;
+      gap: 0.6rem;
+      justify-content: center;
+    }
   </style>
 </head>
 <body>
@@ -935,6 +1000,12 @@
 
       </div>
       <!-- end .table-scene -->
+
+      <!-- My hole cards (shown when cards are enabled) -->
+      <div id="my-cards-wrap">
+        <div class="my-cards-label">Deine Karten</div>
+        <div class="my-cards-row" id="my-cards-row"></div>
+      </div>
 
       <!-- My action panel -->
       <div class="action-panel" id="action-panel" style="display:none">
@@ -1337,6 +1408,47 @@
 
       }
     }
+
+    // ── Hole cards ──
+    function cardHtml(card) {
+      if (!card) return '<div class="card face-down"></div>';
+      const red = card.s === '♥' || card.s === '♦';
+      return `<div class="card ${red ? 'red' : 'black'}">
+        <span>${card.v}</span><span class="card-suit">${card.s}</span>
+      </div>`;
+    }
+
+    let lastMyCardsHand = -1;
+
+    async function refreshMyCards(handNum) {
+      const me = getMe();
+      const wrap = document.getElementById('my-cards-wrap');
+      const row  = document.getElementById('my-cards-row');
+      if (!me) { wrap.classList.remove('visible'); return; }
+      try {
+        const res = await fetch(`/api/poker/mycards?playerId=${me.id}`);
+        const data = await res.json();
+        if (!data.enabled || !data.cards || !data.cards.length) {
+          wrap.classList.remove('visible'); return;
+        }
+        row.innerHTML = data.cards.map(cardHtml).join('');
+        wrap.classList.add('visible');
+      } catch { wrap.classList.remove('visible'); }
+    }
+
+    // patch render to call refreshMyCards on new hand
+    const _origRender = render;
+    render = function(g) {
+      _origRender(g);
+      if (g && g.cardsEnabled) {
+        if (g.handNum !== lastMyCardsHand) {
+          lastMyCardsHand = g.handNum;
+          refreshMyCards(g.handNum);
+        }
+      } else {
+        document.getElementById('my-cards-wrap').classList.remove('visible');
+      }
+    };
 
     function showNoGame() {
       document.getElementById('view-nogame').style.display = '';

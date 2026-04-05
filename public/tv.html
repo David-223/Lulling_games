@@ -558,6 +558,64 @@
       letter-spacing: 0.1em;
     }
 
+    /* ── Community cards on TV ── */
+    .ptv-community {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.35rem;
+      margin-top: 0.5rem;
+    }
+
+    .ptv-community.visible { display: flex; }
+
+    .ptv-community-label {
+      font-family: var(--font-ui);
+      font-size: 0.42rem;
+      letter-spacing: 0.45em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      font-weight: 700;
+    }
+
+    .ptv-cards-row {
+      display: flex;
+      gap: 0.35rem;
+    }
+
+    .ptv-card {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 2.4vw;
+      min-width: 34px;
+      height: 3.4vw;
+      min-height: 48px;
+      background: #fff;
+      border: 1px solid rgba(255,255,255,0.6);
+      border-radius: 5px;
+      font-family: 'Georgia', serif;
+      font-size: 0.9vw;
+      font-weight: 700;
+      line-height: 1;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
+
+    .ptv-card.red   { color: #cc1111; }
+    .ptv-card.black { color: #111; }
+
+    .ptv-card.face-down {
+      background: linear-gradient(135deg, #1e3aaa 30%, #0e2062 100%);
+      border-color: rgba(90,138,240,0.3);
+    }
+
+    .ptv-card-suit {
+      font-size: 0.6vw;
+      min-font-size: 8px;
+      margin-top: 0.1rem;
+    }
+
     /* ── Showdown result panel (inside the oval) ── */
     .ptv-result {
       display: none;
@@ -1156,6 +1214,12 @@
             <div class="ptv-pot-pts">Punkte</div>
             <div class="ptv-cur-bet" id="ptv-cur-bet"></div>
           </div>
+          <!-- community cards -->
+          <div class="ptv-community" id="ptv-community">
+            <div class="ptv-community-label">Gemeinschaftskarten</div>
+            <div class="ptv-cards-row" id="ptv-cards-row"></div>
+          </div>
+
           <!-- result (shown at ended) -->
           <div class="ptv-result" id="ptv-result">
             <div class="ptv-result-label">— Showdown —</div>
@@ -1460,6 +1524,14 @@
       return el;
     }
 
+    function tvCardHtml(card) {
+      if (!card) return '<div class="ptv-card face-down"></div>';
+      const red = card.s === '♥' || card.s === '♦';
+      return `<div class="ptv-card ${red ? 'red' : 'black'}">
+        <span>${card.v}</span><span class="ptv-card-suit">${card.s}</span>
+      </div>`;
+    }
+
     function renderPokerView(state) {
       const overlay = document.getElementById('tv-poker-overlay');
       const wrap    = document.getElementById('ptv-table-wrap');
@@ -1490,6 +1562,19 @@
         document.getElementById('ptv-pot-val').textContent = state.pot;
         document.getElementById('ptv-cur-bet').textContent =
           state.currentBet > 0 ? 'Aktueller Einsatz: ' + state.currentBet : '';
+      }
+
+      // Community cards
+      const comm      = state.communityCards || [];
+      const commWrap  = document.getElementById('ptv-community');
+      const commRow   = document.getElementById('ptv-cards-row');
+      if (state.cardsEnabled && comm.length > 0) {
+        // always show 5 slots: revealed face-up, rest face-down
+        const slots = Array.from({ length: 5 }, (_, i) => comm[i] || null);
+        commRow.innerHTML = slots.map(tvCardHtml).join('');
+        commWrap.classList.add('visible');
+      } else {
+        commWrap.classList.remove('visible');
       }
 
       // Domain expansion background + persistent banner

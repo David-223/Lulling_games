@@ -296,6 +296,23 @@ app.post('/api/poker/deal', (req, res) => {
   g.toAct = toAct;
   g.currentPlayerIdx = toAct[0] ?? -1;
 
+  // Deal cards if enabled
+  const settings = readSettings();
+  g.cardsEnabled = settings.cardsEnabled;
+  g._holeCards = {};
+  g._communityCards = [];
+  if (settings.cardsEnabled) {
+    const deck = shuffleDeck(createDeck());
+    const activePlayers = g.players.filter(p => !p.folded);
+    // deal 2 hole cards to each active player
+    for (const p of activePlayers) {
+      g._holeCards[p.id] = [deck.pop(), deck.pop()];
+    }
+    // burn 1, set aside 5 community cards
+    deck.pop();
+    g._communityCards = [deck.pop(), deck.pop(), deck.pop(), deck.pop(), deck.pop()];
+  }
+
   // Domain Expansion roll — each expansion has its own chance
   g.domainExpansion = null;
   const de = readDE();
@@ -310,7 +327,20 @@ app.post('/api/poker/deal', (req, res) => {
 
 app.get('/api/poker/state', (req, res) => {
   if (!pokerGame) return res.status(404).json({ error: 'Kein Spiel' });
-  res.json(pokerGame);
+  const g = pokerGame;
+  const n = communityRevealCount(g.phase);
+  const pub = { ...g, _holeCards: undefined, _communityCards: undefined,
+    communityCards: g.cardsEnabled ? (g._communityCards || []).slice(0, n) : [] };
+  res.json(pub);
+});
+
+app.get('/api/poker/mycards', (req, res) => {
+  if (!pokerGame) return res.status(404).json({ error: 'Kein Spiel' });
+  const id = parseInt(req.query.playerId);
+  if (!id) return res.status(400).json({ error: 'playerId erforderlich' });
+  if (!pokerGame.cardsEnabled) return res.json({ cards: [], enabled: false });
+  const cards = (pokerGame._holeCards || {})[id] || [];
+  res.json({ cards, enabled: true });
 });
 
 app.post('/api/poker/action', (req, res) => {
@@ -507,6 +537,52 @@ app.delete('/api/binding-vows/:id', (req, res) => {
   writeVows(data);
   res.json({ success: true });
 });
+
+// ── Settings ──
+
+const SETTINGS_FILE = path.join(__dirname, 'data', 'settings.json');
+
+function readSettings() {
+  if (!fs.existsSync(SETTINGS_FILE)) return { cardsEnabled: false };
+  return JSON.parse(fs.readFileSync(SETTINGS_FILE, 'utf-8'));
+}
+
+function writeSettings(data) {
+  fs.writeFileSync(SETTINGS_FILE, JSON.stringify(data, null, 2), 'utf-8');
+}
+
+app.get('/api/settings', (req, res) => res.json(readSettings()));
+
+app.post('/api/settings', (req, res) => {
+  if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
+  const current = readSettings();
+  const { cardsEnabled } = req.body;
+  if (cardsEnabled !== undefined) current.cardsEnabled = !!cardsEnabled;
+  writeSettings(current);
+  res.json(current);
+});
+
+// ── Card helpers ──
+
+function createDeck() {
+  const suits = ['♠', '♣', '♥', '♦'];
+  const vals  = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+  const deck  = [];
+  for (const s of suits) for (const v of vals) deck.push({ v, s });
+  return deck;
+}
+
+function shuffleDeck(deck) {
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+  return deck;
+}
+
+function communityRevealCount(phase) {
+  return { preflop: 0, flop: 3, turn: 4, river: 5, showdown: 5, ended: 5 }[phase] ?? 0;
+}
 
 // ── Domain Expansions ──
 

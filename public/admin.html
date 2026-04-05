@@ -535,6 +535,18 @@
             <span class="toggle-knob"></span>
           </button>
         </div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border-mid);">
+          <div>
+            <div style="font-family:var(--font-ui);font-size:0.88rem;color:var(--text);letter-spacing:0.04em;">🃏 Digitale Karten</div>
+            <div style="font-size:0.74rem;color:var(--text-dim);font-family:var(--font-ui);margin-top:0.3rem;line-height:1.4;">
+              Verteilt digitale Karten beim Deal. Jeder sieht seine eigenen Karten, der TV zeigt die Gemeinschaftskarten.
+            </div>
+          </div>
+          <button id="cards-toggle-btn" class="toggle-switch" onclick="toggleCardsEnabled()" title="Digitale Karten ein/ausschalten">
+            <span class="toggle-knob"></span>
+          </button>
+        </div>
       </div>
 
     </main>
@@ -617,6 +629,31 @@
       const on = localStorage.getItem('lalling-handy-detect') === '1';
       const btn = document.getElementById('handy-toggle-btn');
       if (btn) btn.classList.toggle('on', on);
+    }
+
+    // ── Digital cards toggle ──
+    async function loadCardsEnabled() {
+      try {
+        const res = await fetch('/api/settings');
+        const s = await res.json();
+        const btn = document.getElementById('cards-toggle-btn');
+        if (btn) btn.classList.toggle('on', !!s.cardsEnabled);
+      } catch {}
+    }
+
+    async function toggleCardsEnabled() {
+      try {
+        const res = await fetch('/api/settings');
+        const s = await res.json();
+        const next = !s.cardsEnabled;
+        await fetch('/api/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...getAdminAuth(), cardsEnabled: next })
+        });
+        document.getElementById('cards-toggle-btn').classList.toggle('on', next);
+        showToast(next ? 'Digitale Karten aktiviert' : 'Digitale Karten deaktiviert', 'success');
+      } catch { showToast('Fehler', 'error'); }
     }
 
     function toRoman(n) {
@@ -1233,7 +1270,10 @@
     // Load when admin panel becomes visible
     const _deObserver = new MutationObserver(() => {
       const screen = document.getElementById('admin-screen');
-      if (screen && screen.style.display !== 'none' && !deSettings) loadDE();
+      if (screen && screen.style.display !== 'none') {
+        if (!deSettings) loadDE();
+        loadCardsEnabled();
+      }
     });
     _deObserver.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['style'] });
 
