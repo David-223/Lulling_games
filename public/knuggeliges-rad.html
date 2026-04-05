@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>☠ Das Knuggelige Rad ☠</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      min-height: 100%;
+      background: #050000;
+      color: #cc0000;
+      font-family: 'Georgia', serif;
+      overflow-x: hidden;
+    }
+
+    /* Blood drip from top */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 6px;
+      background: #8b0000;
+      z-index: 100;
+      box-shadow: 0 0 18px 4px #8b0000;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 40% at 50% 0%, rgba(120,0,0,0.18) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 30% at 50% 100%, rgba(80,0,0,0.12) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Flickering vignette */
+    @keyframes flicker {
+      0%,100% { opacity: 1; }
+      92% { opacity: 1; }
+      93% { opacity: 0.85; }
+      94% { opacity: 1; }
+      97% { opacity: 0.9; }
+      98% { opacity: 1; }
+    }
+    body { animation: flicker 8s infinite; }
+
+    header {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      padding: 2rem 1rem 1rem;
+      border-bottom: 1px solid #3a0000;
+    }
+
+    .title {
+      font-size: clamp(1.6rem, 6vw, 2.6rem);
+      font-weight: 900;
+      color: #cc0000;
+      letter-spacing: 0.12em;
+      text-shadow:
+        0 0 10px #ff0000,
+        0 0 30px #8b0000,
+        0 0 60px rgba(139,0,0,0.5);
+      animation: title-pulse 3s ease-in-out infinite;
+    }
+
+    @keyframes title-pulse {
+      0%,100% { text-shadow: 0 0 10px #ff0000, 0 0 30px #8b0000, 0 0 60px rgba(139,0,0,0.5); }
+      50% { text-shadow: 0 0 20px #ff0000, 0 0 50px #cc0000, 0 0 100px rgba(200,0,0,0.6); }
+    }
+
+    .subtitle {
+      font-size: 0.65rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: #5a0000;
+      margin-top: 0.4rem;
+    }
+
+    main {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem 3rem;
+      gap: 1.5rem;
+    }
+
+    /* ── Wheel ── */
+    .wheel-wrap {
+      position: relative;
+      display: inline-block;
+    }
+
+    .wheel-pointer {
+      position: absolute;
+      top: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0; height: 0;
+      border-left: 14px solid transparent;
+      border-right: 14px solid transparent;
+      border-top: 26px solid #cc0000;
+      filter: drop-shadow(0 0 8px #ff0000) drop-shadow(0 0 16px #8b0000);
+      z-index: 2;
+      animation: pointer-drip 2s ease-in-out infinite;
+    }
+
+    @keyframes pointer-drip {
+      0%,100% { filter: drop-shadow(0 0 8px #ff0000) drop-shadow(0 0 16px #8b0000); }
+      50% { filter: drop-shadow(0 0 14px #ff2222) drop-shadow(0 0 28px #cc0000); }
+    }
+
+    #wheel {
+      display: block;
+      border-radius: 50%;
+      border: 3px solid #3a0000;
+      filter:
+        drop-shadow(0 0 12px #8b0000)
+        drop-shadow(0 0 30px rgba(139,0,0,0.5));
+    }
+
+    /* ── Spin button ── */
+    .spin-btn {
+      background: #1a0000;
+      border: 2px solid #8b0000;
+      color: #cc0000;
+      font-family: 'Georgia', serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      padding: 0.9rem 2.5rem;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+      box-shadow: 0 0 12px rgba(139,0,0,0.4), inset 0 0 20px rgba(80,0,0,0.3);
+    }
+
+    .spin-btn:hover:not(:disabled) {
+      background: #2a0000;
+      box-shadow: 0 0 24px rgba(200,0,0,0.6), inset 0 0 20px rgba(100,0,0,0.4);
+    }
+
+    .spin-btn:active:not(:disabled) { transform: scale(0.97); }
+
+    .spin-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* ── Result panel ── */
+    .result-panel {
+      display: none;
+      background: #0a0000;
+      border: 1px solid #5a0000;
+      border-top: 3px solid #cc0000;
+      border-radius: 6px;
+      padding: 1.5rem 1.3rem 1.3rem;
+      text-align: center;
+      width: 100%;
+      max-width: 360px;
+      animation: result-appear 0.3s ease;
+      box-shadow: 0 0 40px rgba(139,0,0,0.5), 0 8px 24px rgba(0,0,0,0.8);
+    }
+
+    .result-panel.visible { display: block; }
+
+    @keyframes result-appear {
+      from { opacity: 0; transform: scale(0.9) translateY(-10px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .result-label {
+      font-size: 0.6rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: #5a0000;
+      font-family: Georgia, serif;
+      margin-bottom: 0.7rem;
+    }
+
+    .result-text {
+      font-family: Georgia, serif;
+      font-size: 1.3rem;
+      color: #ff2222;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      line-height: 1.4;
+      margin-bottom: 1.1rem;
+      text-shadow: 0 0 16px rgba(255,0,0,0.5);
+      animation: result-shake 0.4s ease;
+    }
+
+    @keyframes result-shake {
+      0%,100% { transform: translateX(0); }
+      20% { transform: translateX(-5px); }
+      40% { transform: translateX(5px); }
+      60% { transform: translateX(-3px); }
+      80% { transform: translateX(3px); }
+    }
+
+    .close-btn {
+      background: transparent;
+      border: 1px solid #3a0000;
+      color: #5a0000;
+      font-family: Georgia, serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 0.5rem 1.2rem;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .close-btn:hover { border-color: #8b0000; color: #cc0000; }
+
+    /* ── Entries list (read-only) ── */
+    .entries-wrap {
+      width: 100%;
+      max-width: 360px;
+    }
+
+    .entries-title {
+      font-size: 0.58rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: #3a0000;
+      margin-bottom: 0.8rem;
+      text-align: center;
+    }
+
+    .entry-item {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      background: #0a0000;
+      border: 1px solid #2a0000;
+      border-left: 3px solid #5a0000;
+      border-radius: 0 3px 3px 0;
+      padding: 0.6rem 0.8rem 0.6rem 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .entry-skull { font-size: 0.9rem; flex-shrink: 0; }
+
+    .entry-name {
+      flex: 1;
+      font-size: 0.9rem;
+      color: #993333;
+      font-family: Georgia, serif;
+    }
+
+    /* Back link */
+    .back-link {
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      color: #3a0000;
+      text-decoration: none;
+      text-transform: uppercase;
+      margin-top: 1rem;
+      display: block;
+      text-align: center;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: #8b0000; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="title">☠ Das Knuggelige Rad ☠</div>
+    <div class="subtitle">Drehe wenn du es wagst</div>
+  </header>
+
+  <main>
+    <!-- Wheel -->
+    <div class="wheel-wrap">
+      <div class="wheel-pointer"></div>
+      <canvas id="wheel" width="320" height="320"></canvas>
+    </div>
+
+    <button class="spin-btn" id="spin-btn" onclick="spin()">☠ Drehen ☠</button>
+
+    <!-- Result -->
+    <div class="result-panel" id="result-panel">
+      <div class="result-label">— Das Urteil —</div>
+      <div class="result-text" id="result-text"></div>
+      <button class="close-btn" onclick="closeResult()">Schließen</button>
+    </div>
+
+    <!-- Entry list (read-only) -->
+    <div class="entries-wrap">
+      <div class="entries-title">— Die Strafen —</div>
+      <div id="entries-list"></div>
+    </div>
+
+    <a class="back-link" href="gluecksrad.html">← Zurück zum normalen Rad</a>
+  </main>
+
+  <script>
+    const ENTRIES = [
+      '3 Jelly Beans essen',
+      'Bordstein fressen',
+      'Mischtrunk aus der Hölle',
+      'David Ms linke Socke essen',
+    ];
+
+    // ── Render entry list ──
+    const list = document.getElementById('entries-list');
+    list.innerHTML = ENTRIES.map(e =>
+      `<div class="entry-item">
+        <span class="entry-skull">☠</span>
+        <span class="entry-name">${e}</span>
+      </div>`
+    ).join('');
+
+    // ── Wheel drawing ──
+    const SEG_COLORS = ['#1a0000', '#0d0000', '#200000', '#100000'];
+    const SEG_BORDER = '#8b0000';
+    const TEXT_COLOR = '#cc3333';
+
+    let currentAngle = 0;
+    let spinning = false;
+
+    function drawWheel(angle) {
+      const canvas = document.getElementById('wheel');
+      const ctx = canvas.getContext('2d');
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+      const r  = cx - 8;
+      const n  = ENTRIES.length;
+      const arc = (2 * Math.PI) / n;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Outer glow ring
+      const grad = ctx.createRadialGradient(cx, cy, r - 4, cx, cy, r + 2);
+      grad.addColorStop(0, 'rgba(139,0,0,0.6)');
+      grad.addColorStop(1, 'rgba(80,0,0,0)');
+      ctx.beginPath();
+      ctx.arc(cx, cy, r + 4, 0, 2 * Math.PI);
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      for (let i = 0; i < n; i++) {
+        const start = angle + i * arc;
+        const end   = start + arc;
+
+        // Segment
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, r, start, end);
+        ctx.closePath();
+        ctx.fillStyle = SEG_COLORS[i % SEG_COLORS.length];
+        ctx.fill();
+
+        // Border
+        ctx.strokeStyle = SEG_BORDER;
+        ctx.lineWidth = 1.5;
+        ctx.globalAlpha = 0.7;
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+
+        // Text
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(start + arc / 2);
+        ctx.textAlign = 'right';
+        ctx.fillStyle = TEXT_COLOR;
+        ctx.font = `bold ${Math.min(13, 260 / ENTRIES[i].length + 4)}px Georgia, serif`;
+        ctx.shadowColor = '#ff0000';
+        ctx.shadowBlur = 6;
+
+        const text = ENTRIES[i];
+        const maxW = r - 24;
+        // Word-wrap if needed
+        const words = text.split(' ');
+        let lines = [];
+        let line = '';
+        for (const w of words) {
+          const test = line ? line + ' ' + w : w;
+          if (ctx.measureText(test).width > maxW && line) {
+            lines.push(line);
+            line = w;
+          } else {
+            line = test;
+          }
+        }
+        lines.push(line);
+
+        const lineH = 15;
+        const startY = -(lines.length - 1) * lineH / 2;
+        lines.forEach((l, li) => {
+          ctx.fillText(l, r - 12, startY + li * lineH + 4);
+        });
+
+        ctx.restore();
+      }
+
+      // Center skull
+      ctx.font = '28px serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.shadowColor = '#ff0000';
+      ctx.shadowBlur = 12;
+      ctx.fillStyle = '#8b0000';
+      ctx.fillText('☠', cx, cy);
+      ctx.shadowBlur = 0;
+    }
+
+    // ── Spin ──
+    function spin() {
+      if (spinning) return;
+      spinning = true;
+      document.getElementById('spin-btn').disabled = true;
+      document.getElementById('result-panel').classList.remove('visible');
+
+      const extraSpins = (5 + Math.floor(Math.random() * 5)) * 2 * Math.PI;
+      const target = currentAngle + extraSpins + Math.random() * 2 * Math.PI;
+      const duration = 4000 + Math.random() * 1500;
+      const start = performance.now();
+      const startAngle = currentAngle;
+
+      function animate(now) {
+        const elapsed = now - start;
+        const t = Math.min(elapsed / duration, 1);
+        // Ease out cubic
+        const ease = 1 - Math.pow(1 - t, 3);
+        currentAngle = startAngle + (target - startAngle) * ease;
+        drawWheel(currentAngle);
+
+        if (t < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          currentAngle = target % (2 * Math.PI);
+          spinning = false;
+          document.getElementById('spin-btn').disabled = false;
+          showResult();
+        }
+      }
+      requestAnimationFrame(animate);
+    }
+
+    function getWinner() {
+      const n   = ENTRIES.length;
+      const arc = (2 * Math.PI) / n;
+      const pointerAngle = (3 * Math.PI / 2 - currentAngle % (2 * Math.PI) + 4 * Math.PI) % (2 * Math.PI);
+      return Math.floor(pointerAngle / arc) % n;
+    }
+
+    function showResult() {
+      const text = ENTRIES[getWinner()];
+      document.getElementById('result-text').textContent = text;
+      document.getElementById('result-panel').classList.add('visible');
+      // Broadcast to TV
+      fetch('/api/wheel/result', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: '☠ ' + text }),
+      }).catch(() => {});
+    }
+
+    function closeResult() {
+      document.getElementById('result-panel').classList.remove('visible');
+    }
+
+    // Initial draw
+    drawWheel(currentAngle);
+  </script>
+</body>
+</html>
