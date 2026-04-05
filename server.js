@@ -126,6 +126,17 @@ app.patch('/api/roster/:id/domain', (req, res) => {
 
 app.get('/api/players', (req, res) => {
   const data = readPlayers();
+  const { players: roster } = readRoster();
+  // Always sync domainIdx from roster so changes take effect without re-login
+  let dirty = false;
+  data.players.forEach(p => {
+    const entry = roster.find(r => r.id === p.rosterPlayerId);
+    if (entry && entry.domainIdx !== undefined && p.domainIdx !== entry.domainIdx) {
+      p.domainIdx = entry.domainIdx;
+      dirty = true;
+    }
+  });
+  if (dirty) writePlayers(data);
   res.json(data.players);
 });
 
