@@ -1,6 +1,5 @@
 {
   "enabled": true,
-  "chance": 25,
   "expansions": [
     {
       "id": "infinite_void",
@@ -9,7 +8,8 @@
       "caster": "Gojo Satoru",
       "theme": "ao",
       "effect": "Alle Spieler trinken 3 Schlucke, bevor sie setzen.",
-      "enabled": true
+      "enabled": true,
+      "chance": 20
     },
     {
       "id": "malevolent_shrine",
@@ -18,7 +18,8 @@
       "caster": "Ryomen Sukuna",
       "theme": "shuku",
       "effect": "Die Blinds werden diese Runde verdoppelt.",
-      "enabled": true
+      "enabled": true,
+      "chance": 15
     },
     {
       "id": "chimera_shadow",
@@ -27,7 +28,8 @@
       "caster": "Fushiguro Megumi",
       "theme": "yami",
       "effect": "Jeder Spieler muss seinen Einsatz verdoppeln oder folden.",
-      "enabled": true
+      "enabled": true,
+      "chance": 15
     },
     {
       "id": "horizon_captivating",
@@ -36,7 +38,8 @@
       "caster": "Geto Suguru",
       "theme": "yami",
       "effect": "Alle zahlen 10 Punkte zusätzlich in den Pot.",
-      "enabled": true
+      "enabled": true,
+      "chance": 10
     },
     {
       "id": "self_embodiment",
@@ -45,7 +48,8 @@
       "caster": "Mahito",
       "theme": "shuku",
       "effect": "Der Spieler mit den wenigsten Chips trinkt 5 Schlucke.",
-      "enabled": true
+      "enabled": true,
+      "chance": 10
     }
   ]
 }

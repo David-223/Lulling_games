@@ -480,15 +480,42 @@
         </div>
 
         <div id="de-controls">
-          <div style="display:flex;align-items:center;gap:0.8rem;margin-bottom:1.2rem;">
-            <label style="font-family:var(--font-ui);font-size:0.78rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;white-space:nowrap;">Chance</label>
-            <input id="de-chance-input" type="range" min="0" max="100" step="5" value="25"
-              style="flex:1;accent-color:var(--p-glow);" oninput="deUpdateChanceLabel(this.value)" onchange="deSaveSettings()" />
-            <span id="de-chance-label" style="font-family:var(--font-title);font-size:1rem;font-weight:700;color:var(--p-glow);min-width:3rem;text-align:right;">25%</span>
-          </div>
+          <div style="font-family:var(--font-ui);font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.6rem;">Aktive Expansions</div>
+          <div id="de-list" style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:1.2rem;"></div>
 
-          <div style="font-family:var(--font-ui);font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.6rem;">Verfügbare Expansions</div>
-          <div id="de-list" style="display:flex;flex-direction:column;gap:0.5rem;"></div>
+          <!-- Add new -->
+          <div style="border-top:1px solid var(--border-mid);padding-top:1rem;">
+            <div style="font-family:var(--font-ui);font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.7rem;">+ Neue Expansion hinzufügen</div>
+            <div style="display:flex;flex-direction:column;gap:0.5rem;">
+              <div style="display:flex;gap:0.5rem;">
+                <input id="de-new-name" type="text" placeholder="Kanji-Name (z.B. 無量空処)" autocomplete="off"
+                  style="flex:1;background:var(--bg-card2);border:1px solid var(--border-mid);border-radius:6px;color:var(--text);font-family:var(--font-ui);font-size:0.9rem;padding:0.5rem 0.7rem;outline:none;" />
+                <input id="de-new-subname" type="text" placeholder="Englischer Name" autocomplete="off"
+                  style="flex:1;background:var(--bg-card2);border:1px solid var(--border-mid);border-radius:6px;color:var(--text);font-family:var(--font-ui);font-size:0.9rem;padding:0.5rem 0.7rem;outline:none;" />
+              </div>
+              <div style="display:flex;gap:0.5rem;">
+                <input id="de-new-caster" type="text" placeholder="Anwender (z.B. Gojo Satoru)" autocomplete="off"
+                  style="flex:1;background:var(--bg-card2);border:1px solid var(--border-mid);border-radius:6px;color:var(--text);font-family:var(--font-ui);font-size:0.9rem;padding:0.5rem 0.7rem;outline:none;" />
+                <select id="de-new-theme"
+                  style="background:var(--bg-card2);border:1px solid var(--border-mid);border-radius:6px;color:var(--text);font-family:var(--font-ui);font-size:0.9rem;padding:0.5rem 0.7rem;outline:none;">
+                  <option value="ao">蒼 Gojo Blue</option>
+                  <option value="shuku">赫 Sukuna Crimson</option>
+                  <option value="yami">闇 Hollow Purple</option>
+                  <option value="kin">金 Special Grade</option>
+                </select>
+              </div>
+              <textarea id="de-new-effect" placeholder="Effekt-Beschreibung (was passiert beim Auslösen)" rows="2"
+                style="background:var(--bg-card2);border:1px solid var(--border-mid);border-radius:6px;color:var(--text);font-family:var(--font-ui);font-size:0.9rem;padding:0.5rem 0.7rem;outline:none;resize:vertical;"></textarea>
+              <div style="display:flex;align-items:center;gap:0.6rem;">
+                <span style="font-family:var(--font-ui);font-size:0.72rem;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;white-space:nowrap;">Chance</span>
+                <input type="range" min="0" max="100" step="5" value="10" id="de-new-chance"
+                  style="flex:1;accent-color:var(--p-glow);"
+                  oninput="document.getElementById('de-new-chance-lbl').textContent=this.value+'%'" />
+                <span id="de-new-chance-lbl" style="font-family:var(--font-title);font-size:0.85rem;font-weight:700;color:var(--p-glow);min-width:2.8rem;text-align:right;">10%</span>
+              </div>
+              <button class="btn btn-primary" onclick="deAddNew()" style="margin-top:0.3rem;">+ Expansion hinzufügen</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1092,41 +1119,60 @@
       if (!deSettings) return;
       const enabledBtn = document.getElementById('de-enabled-btn');
       const controls   = document.getElementById('de-controls');
-      const chanceIn   = document.getElementById('de-chance-input');
-      const chanceLabel = document.getElementById('de-chance-label');
-
       enabledBtn.classList.toggle('on', !!deSettings.enabled);
-      controls.style.opacity  = deSettings.enabled ? '1' : '0.4';
+      controls.style.opacity      = deSettings.enabled ? '1' : '0.45';
       controls.style.pointerEvents = deSettings.enabled ? '' : 'none';
-
-      chanceIn.value = deSettings.chance;
-      chanceLabel.textContent = deSettings.chance + '%';
 
       const list = document.getElementById('de-list');
       list.innerHTML = (deSettings.expansions || []).map((e, i) => `
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:0.8rem;
-          background:var(--bg-card2);border:1px solid var(--border-mid);border-radius:6px;padding:0.6rem 0.9rem;">
-          <div style="flex:1;min-width:0;">
-            <div style="font-family:var(--font-title);font-size:0.88rem;color:var(--text);font-weight:700;">
-              ${escHtml(e.name)} <span style="font-size:0.72rem;color:var(--text-dim);font-family:var(--font-ui);font-weight:400;">· ${escHtml(e.subname)}</span>
+        <div style="background:var(--bg-card2);border:1px solid var(--border-mid);border-radius:6px;padding:0.7rem 0.9rem;">
+          <div style="display:flex;align-items:flex-start;gap:0.8rem;">
+            <div style="flex:1;min-width:0;">
+              <div style="font-family:var(--font-title);font-size:0.9rem;color:var(--text);font-weight:700;">
+                ${escHtml(e.name)}
+                <span style="font-size:0.72rem;color:var(--text-dim);font-family:var(--font-ui);font-weight:400;">· ${escHtml(e.subname)}</span>
+              </div>
+              <div style="font-size:0.7rem;color:var(--text-dim);font-family:var(--font-ui);margin-top:0.1rem;">${escHtml(e.caster || '—')}</div>
+              <div style="font-size:0.75rem;color:var(--p-glow);font-family:var(--font-ui);margin-top:0.25rem;">${escHtml(e.effect)}</div>
             </div>
-            <div style="font-size:0.7rem;color:var(--text-dim);font-family:var(--font-ui);margin-top:0.15rem;">${escHtml(e.caster)}</div>
-            <div style="font-size:0.75rem;color:var(--p-glow);font-family:var(--font-ui);margin-top:0.25rem;">${escHtml(e.effect)}</div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.5rem;flex-shrink:0;">
+              <button class="toggle-switch ${e.enabled ? 'on' : ''}" onclick="deToggleExpansion(${i})" title="Ein/Aus">
+                <span class="toggle-knob"></span>
+              </button>
+              <button onclick="deDelete('${escHtml(e.id)}')"
+                style="font-size:0.65rem;font-family:var(--font-ui);color:var(--accent-glow);background:none;border:1px solid var(--accent-dim);border-radius:4px;padding:0.2rem 0.5rem;cursor:pointer;letter-spacing:0.05em;">
+                ✕ Löschen
+              </button>
+            </div>
           </div>
-          <button class="toggle-switch ${e.enabled ? 'on' : ''}" onclick="deToggleExpansion(${i})" title="${e.enabled ? 'Deaktivieren' : 'Aktivieren'}">
-            <span class="toggle-knob"></span>
-          </button>
+          <div style="display:flex;align-items:center;gap:0.6rem;margin-top:0.55rem;">
+            <span style="font-family:var(--font-ui);font-size:0.68rem;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;white-space:nowrap;">Chance</span>
+            <input type="range" min="0" max="100" step="5" value="${e.chance || 0}"
+              style="flex:1;accent-color:var(--p-glow);"
+              oninput="deChanceLabel(this, ${i})"
+              onchange="deChanceSave(this, ${i})" />
+            <span id="de-chance-lbl-${i}" style="font-family:var(--font-title);font-size:0.85rem;font-weight:700;color:var(--p-glow);min-width:2.8rem;text-align:right;">${e.chance || 0}%</span>
+          </div>
         </div>`).join('');
+    }
+
+    function deChanceLabel(slider, idx) {
+      document.getElementById('de-chance-lbl-' + idx).textContent = slider.value + '%';
+    }
+
+    function deChanceSave(slider, idx) {
+      if (!deSettings) return;
+      deSettings.expansions[idx].chance = parseInt(slider.value);
+      deSaveSettings();
     }
 
     async function deSaveSettings() {
       if (!deSettings) return;
-      const auth = getAdminAuth();
       try {
         const res = await fetch('/api/domain-expansion', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...auth, ...deSettings })
+          body: JSON.stringify({ ...getAdminAuth(), ...deSettings })
         });
         deSettings = await res.json();
         renderDE();
@@ -1145,16 +1191,46 @@
       deSaveSettings();
     }
 
-    function deUpdateChanceLabel(val) {
-      document.getElementById('de-chance-label').textContent = val + '%';
-      if (deSettings) deSettings.chance = parseInt(val);
+    async function deDelete(id) {
+      if (!confirm('Domain Expansion löschen?')) return;
+      try {
+        const res = await fetch('/api/domain-expansion/' + id, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(getAdminAuth())
+        });
+        deSettings = await res.json();
+        renderDE();
+        showToast('Gelöscht.', 'success');
+      } catch { showToast('Fehler', 'error'); }
     }
 
-    // Load DE settings when admin section is visible
-    const _origShowAdmin = typeof showAdmin === 'function' ? showAdmin : null;
-    document.addEventListener('DOMContentLoaded', () => { /* loaded inline below */ });
+    async function deAddNew() {
+      const name    = document.getElementById('de-new-name').value.trim();
+      const subname = document.getElementById('de-new-subname').value.trim();
+      const caster  = document.getElementById('de-new-caster').value.trim();
+      const theme   = document.getElementById('de-new-theme').value;
+      const effect  = document.getElementById('de-new-effect').value.trim();
+      const chance  = parseInt(document.getElementById('de-new-chance').value) || 10;
+      if (!name || !subname || !effect) { showToast('Name, Subname und Effekt erforderlich', 'error'); return; }
+      try {
+        const res = await fetch('/api/domain-expansion/add', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...getAdminAuth(), name, subname, caster, theme, effect, chance })
+        });
+        if (!res.ok) { const d = await res.json(); showToast(d.error || 'Fehler', 'error'); return; }
+        deSettings = await res.json();
+        renderDE();
+        // clear form
+        ['de-new-name','de-new-subname','de-new-caster','de-new-effect'].forEach(id => { document.getElementById(id).value = ''; });
+        document.getElementById('de-new-chance').value = 10;
+        document.getElementById('de-new-chance-lbl').textContent = '10%';
+        showToast('Domain Expansion hinzugefügt!', 'success');
+      } catch { showToast('Fehler', 'error'); }
+    }
 
-    // Hook into the existing login flow by watching admin screen visibility
+    // Load when admin panel becomes visible
     const _deObserver = new MutationObserver(() => {
       const screen = document.getElementById('admin-screen');
       if (screen && screen.style.display !== 'none' && !deSettings) loadDE();

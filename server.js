@@ -296,14 +296,13 @@ app.post('/api/poker/deal', (req, res) => {
   g.toAct = toAct;
   g.currentPlayerIdx = toAct[0] ?? -1;
 
-  // Domain Expansion roll
+  // Domain Expansion roll — each expansion has its own chance
   g.domainExpansion = null;
   const de = readDE();
   if (de.enabled) {
-    const eligible = de.expansions.filter(e => e.enabled);
-    if (eligible.length > 0 && Math.random() * 100 < de.chance) {
-      g.domainExpansion = eligible[Math.floor(Math.random() * eligible.length)];
-    }
+    const triggered = de.expansions.filter(e => e.enabled && Math.random() * 100 < (e.chance || 0));
+    if (triggered.length > 0)
+      g.domainExpansion = triggered[Math.floor(Math.random() * triggered.length)];
   }
 
   res.json(g);
@@ -528,10 +527,33 @@ app.get('/api/domain-expansion', (req, res) => {
 app.post('/api/domain-expansion', (req, res) => {
   if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
   const current = readDE();
-  const { enabled, chance, expansions } = req.body;
+  const { enabled, expansions } = req.body;
   if (enabled !== undefined) current.enabled = !!enabled;
-  if (chance !== undefined) current.chance = Math.min(100, Math.max(0, parseInt(chance) || 0));
   if (Array.isArray(expansions)) current.expansions = expansions;
+  writeDE(current);
+  res.json(current);
+});
+
+app.post('/api/domain-expansion/add', (req, res) => {
+  if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
+  const { name, subname, caster, theme, effect, chance } = req.body;
+  if (!name || !subname || !effect) return res.status(400).json({ error: 'Name, Subname und Effekt erforderlich' });
+  const current = readDE();
+  const id = 'de_' + Date.now();
+  current.expansions.push({
+    id, name: name.trim(), subname: subname.trim(),
+    caster: (caster || '').trim(), theme: theme || 'ao',
+    effect: effect.trim(), enabled: true,
+    chance: Math.min(100, Math.max(0, parseInt(chance) || 10))
+  });
+  writeDE(current);
+  res.json(current);
+});
+
+app.delete('/api/domain-expansion/:id', (req, res) => {
+  if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
+  const current = readDE();
+  current.expansions = current.expansions.filter(e => e.id !== req.params.id);
   writeDE(current);
   res.json(current);
 });
