@@ -4,12 +4,12 @@
       "id": 1,
       "points": 100,
       "title": "Der Eintritt",
-      "description": "Jeder Spieler trinkt zu Beginn 1 Shot und erweist eine großzügige Spende von 10€. Kein Ausstieg mehr möglich."
+      "description": "Jeder Spieler trinkt zu Beginn 1 Shot und erweist eine großzügige Spende von 10€. Kein Ausstieg mehr möglich"
     },
     {
       "id": 2,
       "points": 200,
-      "title": "Punkte & Schlucke",
+      "title": "Punkte & Schlücke",
       "description": "Wer Punkte verliert, trinkt entsprechend viel. 25 Punkte = 1 Schluck, 100 Punkte = 1 Shot"
     },
     {
@@ -27,8 +27,8 @@
     {
       "id": 5,
       "points": 500,
-      "title": "Fünfte Regel – Bündnisse",
-      "description": "Bündnisse sind erlaubt. Scheitert ein Bündnis, trinken beide Partner 2 Schlucke extra."
+      "title": "Regel Hinzufügen",
+      "description": "Für 670 Punkte darf ein Spieler eine Regel Hinzufügen"
     }
   ],
   "nextId": 6
