@@ -439,8 +439,10 @@ app.get('/api/poker/state', (req, res) => {
   if (!pokerGame) return res.status(404).json({ error: 'Kein Spiel' });
   const g = pokerGame;
   const n = communityRevealCount(g.phase);
+  const showHoleCards = g.phase === 'ended' && g.cardsEnabled;
   const pub = { ...g, _holeCards: undefined, _communityCards: undefined,
-    communityCards: g.cardsEnabled ? (g._communityCards || []).slice(0, n) : [] };
+    communityCards: g.cardsEnabled ? (g._communityCards || []).slice(0, n) : [],
+    holeCards: showHoleCards ? (g._holeCards || {}) : undefined };
   res.json(pub);
 });
 

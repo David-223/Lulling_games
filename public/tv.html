@@ -732,6 +732,25 @@
       display: block;
     }
 
+    /* hole cards shown at showdown */
+    .ptv-seat-holecards {
+      display: none;
+      flex-direction: row;
+      justify-content: center;
+      gap: 0.2rem;
+      margin-top: 0.3rem;
+    }
+
+    .ptv-seat-holecards.visible {
+      display: flex;
+    }
+
+    .ptv-seat-holecards .ptv-card {
+      font-size: 0.7vw;
+      padding: 0.15rem 0.25rem;
+      min-width: 1.4vw;
+    }
+
     /* player seat */
     .ptv-seat {
       position: absolute;
@@ -1672,6 +1691,9 @@
       if (isAllIn)  badges.push('<span class="ptv-badge allin">All-In</span>');
 
       const drinkText = calcDrinkText(player.id, state);
+      const holeCards = (state.holeCards && state.holeCards[player.id]) || [];
+      const holeHtml  = holeCards.map(tvCardHtml).join('');
+      const showCards = holeCards.length > 0;
 
       if (!seatNodeMap.has(key)) {
         const el = document.createElement('div');
@@ -1681,6 +1703,7 @@
             <div class="ptv-seat-chips">Chips: <span>${player.chips}</span></div>
             <div class="ptv-seat-bet ${player.roundBet === 0 ? 'zero' : ''}">${player.roundBet}</div>
             <div class="ptv-badges">${badges.join('')}</div>
+            <div class="ptv-seat-holecards${showCards ? ' visible' : ''}">${holeHtml}</div>
             <div class="ptv-seat-drink${drinkText ? ' visible' : ''}">${escHtml(drinkText || '')}</div>
           </div>`;
         el.className = cls;
@@ -1693,6 +1716,9 @@
         betEl.textContent = player.roundBet;
         betEl.className = 'ptv-seat-bet' + (player.roundBet === 0 ? ' zero' : '');
         el.querySelector('.ptv-badges').innerHTML = badges.join('');
+        const holeEl = el.querySelector('.ptv-seat-holecards');
+        holeEl.innerHTML = holeHtml;
+        holeEl.classList.toggle('visible', showCards);
         const drinkEl = el.querySelector('.ptv-seat-drink');
         drinkEl.textContent = drinkText || '';
         drinkEl.classList.toggle('visible', !!drinkText);
