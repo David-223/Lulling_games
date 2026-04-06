@@ -228,7 +228,7 @@ app.post('/api/rules', (req, res) => {
   res.status(201).json(newRule);
 });
 
-// POST Regel kaufen (Spieler, kostet 100 Punkte)
+// POST Regel kaufen (Spieler, kostet 670 Punkte)
 app.post('/api/rules/buy', (req, res) => {
   const { playerId, title, description } = req.body;
   if (!playerId || !title || !description) {
@@ -237,15 +237,15 @@ app.post('/api/rules/buy', (req, res) => {
   const pdata = readPlayers();
   const pidx = pdata.players.findIndex(p => p.id === parseInt(playerId));
   if (pidx === -1) return res.status(404).json({ error: 'Spieler nicht gefunden' });
-  if (pdata.players[pidx].points < 100) {
-    return res.status(400).json({ error: 'Nicht genug Punkte (100 benötigt)' });
+  if (pdata.players[pidx].points < 670) {
+    return res.status(400).json({ error: 'Nicht genug Punkte (670 benötigt)' });
   }
-  pdata.players[pidx].points -= 100;
+  pdata.players[pidx].points -= 670;
   writePlayers(pdata);
   // Keep in-memory poker chips in sync so the deduction isn't overwritten at showdown
   if (pokerGame) {
     const gp = pokerGame.players.find(p => p.id === parseInt(playerId));
-    if (gp) gp.chips = Math.max(0, gp.chips - 100);
+    if (gp) gp.chips = Math.max(0, gp.chips - 670);
   }
   const rdata = readData();
   const newRule = { id: rdata.nextId, points: null, title: title.trim(), description: description.trim() };

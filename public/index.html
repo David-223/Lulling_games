@@ -410,7 +410,7 @@
       <button class="buy-rule-toggle" id="buy-rule-toggle">
         <span class="buy-rule-icon">⊕</span>
         Neue Regel hinzufügen
-        <span class="buy-rule-cost">− 100 Punkte</span>
+        <span class="buy-rule-cost">− 670 Punkte</span>
         <span class="buy-rule-chevron" id="buy-rule-chevron">▾</span>
       </button>
       <div class="buy-rule-body" id="buy-rule-body" style="display:none">
@@ -429,7 +429,7 @@
             <label for="buy-desc">Beschreibung</label>
             <textarea id="buy-desc" rows="3" placeholder="Was passiert bei Verstoß?" maxlength="400"></textarea>
           </div>
-          <button class="btn btn-primary btn-full" id="buy-submit">Regel hinzufügen — 100 Punkte</button>
+          <button class="btn btn-primary btn-full" id="buy-submit">Regel hinzufügen — 670 Punkte</button>
         </div>
       </div>
     </div>
@@ -574,11 +574,11 @@
       document.getElementById('buy-fields').style.display        = me ? '' : 'none';
       if (me) {
         const el = document.getElementById('buy-player-pts');
-        if (me.points >= 100) {
+        if (me.points >= 670) {
           el.textContent = `${me.name} · ${me.points} Punkte — reicht für eine Regel`;
           el.className = 'buy-player-pts enough';
         } else {
-          el.textContent = `${me.name} · ${me.points} Punkte — nicht genug (100 benötigt)`;
+          el.textContent = `${me.name} · ${me.points} Punkte — nicht genug (670 benötigt)`;
           el.className = 'buy-player-pts broke';
         }
       }
