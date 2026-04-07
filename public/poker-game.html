@@ -1375,81 +1375,76 @@
         document.getElementById('result-name').textContent = g.winner || '?';
         document.getElementById('result-text').textContent = g.splitPot ? 'Pot aufgeteilt!' : 'Hat den Pot gewonnen!';
 
-        // Show drink amount for current player
+        // Show drink amount for current player (+ Binding Vows / Trink-Buddy)
         const myDrinkBox = document.getElementById('my-drink-box');
-        const me = getMe();
-        if (me && g.handStartChips && g.handStartChips[me.id] != null) {
-          const myPlayer = g.players.find(p => p.id === me.id);
-          const lost = myPlayer ? g.handStartChips[me.id] - myPlayer.chips : 0;
-          if (lost >= 25) {
-            const shots    = Math.floor(lost / 100);
-            const schlucke = Math.floor(lost / 25);
-            let drinkStr;
-            if (shots >= 1) {
-              const shotStr    = shots    === 1 ? '1 Shot'    : shots    + ' Shots';
-              const schluckStr = schlucke === 1 ? '1 Schluck' : schlucke + ' Schlücke';
-              drinkStr = shotStr + ' oder ' + schluckStr;
-            } else {
-              drinkStr = schlucke === 1 ? '1 Schluck' : schlucke + ' Schlücke';
-            }
-            document.getElementById('my-drink-text').textContent = drinkStr;
-            myDrinkBox.style.display = '';
-          } else {
-            myDrinkBox.style.display = 'none';
-          }
-        } else {
-          myDrinkBox.style.display = 'none';
-        }
-
-        // ── Binding Vows / Trink-Buddy ──
-        const buddyBox = document.getElementById('buddy-drink-box');
-        buddyBox.style.display = 'none';
+        const buddyBox   = document.getElementById('buddy-drink-box');
+        myDrinkBox.style.display = 'none';
+        buddyBox.style.display   = 'none';
         document.getElementById('buddy-drink-text').innerHTML = '';
+
+        const me = getMe();
         if (me && g.handStartChips) {
+          const myPlayer = g.players.find(p => p.id === me.id);
+          const myLost   = (myPlayer && g.handStartChips[me.id] != null)
+            ? Math.max(0, g.handStartChips[me.id] - myPlayer.chips) : 0;
+
+          // Fetch binding vow for this player
+          let buddyLost = 0, buddyName = null, myHalf = 0, buddyHalf = 0;
           try {
             const vowsRes = await fetch('/api/binding-vows');
             if (vowsRes.ok) {
-              const vows = await vowsRes.json();
-              const myId = parseInt(me.id);
+              const vows  = await vowsRes.json();
+              const myId  = parseInt(me.id);
               const myVow = vows.find(v => v.player1Id === myId || v.player2Id === myId);
               if (myVow) {
-                const buddyId    = myVow.player1Id === myId ? myVow.player2Id : myVow.player1Id;
-                const buddyObj   = myVow.player1Id === myId ? myVow.player2   : myVow.player1;
+                const buddyId     = myVow.player1Id === myId ? myVow.player2Id : myVow.player1Id;
+                const buddyObj    = myVow.player1Id === myId ? myVow.player2   : myVow.player1;
                 const buddyPlayer = g.players.find(p => parseInt(p.id) === buddyId);
-                const buddyName  = (buddyObj && buddyObj.name) || (buddyPlayer && buddyPlayer.name) || 'Trink-Buddy';
-
-                const myPlayer2 = g.players.find(p => parseInt(p.id) === myId);
-                const myLost    = (myPlayer2 && g.handStartChips[me.id]  != null) ? Math.max(0, g.handStartChips[me.id]  - myPlayer2.chips)   : 0;
-                const buddyKey  = buddyPlayer ? buddyPlayer.id : buddyId;
-                const buddyLost = (buddyPlayer && g.handStartChips[buddyKey] != null) ? Math.max(0, g.handStartChips[buddyKey] - buddyPlayer.chips) : 0;
-
-                function vowDrinkStr(lost) {
-                  const shots    = Math.floor(lost / 100);
-                  const schlucke = Math.floor(lost / 25);
-                  if (shots >= 1) {
-                    const shotStr    = shots    === 1 ? '1 Shot'    : shots    + ' Shots';
-                    const schluckStr = schlucke === 1 ? '1 Schluck' : schlucke + ' Schlücke';
-                    return shotStr + ' oder ' + schluckStr;
-                  }
-                  return schlucke === 1 ? '1 Schluck' : schlucke + ' Schlücke';
-                }
-
-                const lines = [];
-                if (myLost >= 25) {
-                  lines.push(escHtml(buddyName) + ' trinkt solidarisch mit dir: ' + vowDrinkStr(myLost));
-                }
-                if (buddyLost >= 25) {
-                  lines.push('Solidarität mit ' + escHtml(buddyName) + ': Du trinkst auch ' + vowDrinkStr(buddyLost));
-                }
-
-                if (lines.length > 0) {
-                  document.getElementById('buddy-drink-label').textContent = '⛧ Trink-Buddy: ' + buddyName;
-                  document.getElementById('buddy-drink-text').innerHTML = lines.map(l => '<div>' + l + '</div>').join('');
-                  buddyBox.style.display = '';
-                }
+                buddyName = (buddyObj && buddyObj.name) || (buddyPlayer && buddyPlayer.name) || 'Trink-Buddy';
+                const buddyKey = buddyPlayer ? buddyPlayer.id : buddyId;
+                buddyLost  = (buddyPlayer && g.handStartChips[buddyKey] != null)
+                  ? Math.max(0, g.handStartChips[buddyKey] - buddyPlayer.chips) : 0;
               }
             }
           } catch(e) {}
+
+          function calcDrinkStr(lost) {
+            const shots    = Math.floor(lost / 100);
+            const schlucke = Math.floor(lost / 25);
+            if (shots >= 1) {
+              const shotStr    = shots    === 1 ? '1 Shot'    : shots    + ' Shots';
+              const schluckStr = schlucke === 1 ? '1 Schluck' : schlucke + ' Schlücke';
+              return shotStr + ' oder ' + schluckStr;
+            }
+            return schlucke === 1 ? '1 Schluck' : schlucke + ' Schlücke';
+          }
+
+          // Each buddy drinks their own loss + half of the other's loss
+          buddyHalf       = Math.floor(buddyLost / 2);
+          myHalf          = Math.floor(myLost    / 2);
+          const totalLost = myLost + buddyHalf;
+
+          if (totalLost >= 25) {
+            document.getElementById('my-drink-text').textContent = calcDrinkStr(totalLost);
+            myDrinkBox.style.display = '';
+          }
+
+          // Buddy box: show breakdown if vow active and at least one person drinks
+          if (buddyName && (myLost >= 25 || buddyLost >= 25)) {
+            const lines = [];
+            if (buddyHalf >= 25) {
+              lines.push('+ ' + calcDrinkStr(buddyHalf) + ' (½ von ' + escHtml(buddyName) + 's Verlust)');
+            }
+            if (myHalf >= 25) {
+              lines.push(escHtml(buddyName) + ' trinkt extra: +' + calcDrinkStr(myHalf) + ' (½ von deinem Verlust)');
+            }
+            document.getElementById('buddy-drink-label').textContent = '⛧ Trink-Buddy: ' + buddyName;
+            document.getElementById('buddy-drink-text').innerHTML =
+              lines.length > 0
+                ? lines.map(l => '<div>' + l + '</div>').join('')
+                : '<div style="opacity:0.7">Verlust zu gering für Halbierungs-Bonus</div>';
+            buddyBox.style.display = '';
+          }
         }
 
         const ruleBox = document.getElementById('hand-rule-box');
