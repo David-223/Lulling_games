@@ -1159,6 +1159,7 @@
     const PHASE_LABEL = { preflop: 'Pre-Flop', flop: 'Flop', turn: 'Turn', river: 'River', showdown: 'Showdown', ended: 'Beendet', setup: 'Setup' };
 
     // ── Render ──
+    let _drinkRenderKey = null;
     async function render(g) {
       if (!g || g.phase === 'setup') { showNoGame(); return; }
       showGame();
@@ -1378,6 +1379,11 @@
         // Show drink amount for current player (+ Binding Vows / Trink-Buddy)
         const myDrinkBox = document.getElementById('my-drink-box');
         const buddyBox   = document.getElementById('buddy-drink-box');
+        const _drinkKey  = JSON.stringify(g.handStartChips);
+        if (_drinkKey === _drinkRenderKey) {
+          // State unchanged — skip re-render to avoid flicker
+        } else {
+        _drinkRenderKey = _drinkKey;
         myDrinkBox.style.display = 'none';
         buddyBox.style.display   = 'none';
         document.getElementById('buddy-drink-text').innerHTML = '';
@@ -1446,6 +1452,7 @@
             buddyBox.style.display = '';
           }
         }
+        } // end drink render key guard
 
         const ruleBox = document.getElementById('hand-rule-box');
         if (g.winningHand) {
@@ -1564,6 +1571,7 @@
     });
 
     async function dealHand() {
+      _drinkRenderKey = null; // reset so drink display re-renders for new hand
       try {
         const res = await fetch('/api/poker/deal', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
         const data = await res.json();
