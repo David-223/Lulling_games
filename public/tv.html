@@ -1984,8 +1984,11 @@
       mainBody.style.display = show ? 'none' : '';
       header.style.display   = show ? 'none' : '';
       footer.style.display   = show ? 'none' : '';
-      // Clear seat cache when game ends so stale names can't persist
-      if (!show) seatNodeMap.clear();
+      // Clear seat cache and reset domain guard when game ends
+      if (!show) {
+        seatNodeMap.clear();
+        lastDEHandNum = -1;
+      }
     }
 
     // ── Flame generator ──
