@@ -418,18 +418,16 @@ app.post('/api/poker/deal', (req, res) => {
     g._communityCards = [deck.pop(), deck.pop(), deck.pop(), deck.pop(), deck.pop()];
   }
 
-  // Domain Expansion: manual activation takes priority over random roll
+  // Domain Expansion: manual activation takes priority, otherwise 20% random chance
   g.domainExpansion = null;
   if (pendingDomainActivation) {
     g.domainExpansion = pendingDomainActivation.domain;
     pendingDomainActivation = null;
-  } else {
+  } else if (Math.random() < 0.20) {
     const de = readDE();
-    if (de.enabled) {
-      const triggered = de.expansions.filter(e => e.enabled && Math.random() * 100 < (e.chance || 0));
-      if (triggered.length > 0)
-        g.domainExpansion = triggered[Math.floor(Math.random() * triggered.length)];
-    }
+    const pool = (de.expansions || []).filter(e => e.enabled);
+    if (pool.length > 0)
+      g.domainExpansion = pool[Math.floor(Math.random() * pool.length)];
   }
 
   res.json(g);
