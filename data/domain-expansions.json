@@ -52,6 +52,16 @@
       "chance": 10
     },
     {
+      "id": "gebaermutterschoss",
+      "name": "Gebärmutterschoß",
+      "subname": "Womb Profusion",
+      "caster": "Ozan",
+      "theme": "shuku",
+      "effect": "Immer wenn ein Mitspieler foldet, darf der Nutzer sofort eine Handkarte tauschen. Zu Rundenstart muss eine Karte als Cursed Technique markiert werden — diese ist unveränderlich.",
+      "enabled": true,
+      "chance": 0
+    },
+    {
       "id": "wuerfelnder_walpa",
       "name": "Der würfelnde Walpa",
       "subname": "The Gambling Walpa",

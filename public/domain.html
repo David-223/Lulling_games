@@ -298,6 +298,44 @@
       75%     { opacity: 0.9; transform: rotate(1.5deg) scale(1.03); }
     }
 
+    /* ══════════════════════════════
+       11 · GEBÄRMUTTERSCHOSS — Ozan
+    ══════════════════════════════ */
+    .domain-gebaermutter {
+      background: radial-gradient(ellipse at 50% 60%, #1a0010 0%, #0d0008 55%, #000 100%);
+    }
+    .domain-gebaermutter::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 65% 55% at 50% 55%, rgba(180,20,60,0.28) 0%, transparent 70%),
+        radial-gradient(ellipse 35% 50% at 20% 80%, rgba(140,10,40,0.18) 0%, transparent 65%),
+        radial-gradient(ellipse 40% 35% at 80% 25%, rgba(160,15,50,0.16) 0%, transparent 65%);
+      animation: womb-pulse 3.2s ease-in-out infinite;
+    }
+    .domain-gebaermutter::after {
+      content: '';
+      position: fixed; inset: -5%;
+      background-image:
+        radial-gradient(ellipse 8% 15% at 25% 35%, rgba(200,30,70,0.22) 0%, transparent 100%),
+        radial-gradient(ellipse 6% 18% at 75% 28%, rgba(180,20,60,0.18) 0%, transparent 100%),
+        radial-gradient(ellipse 10% 12% at 50% 70%, rgba(200,25,65,0.20) 0%, transparent 100%),
+        radial-gradient(ellipse 7% 14% at 15% 65%, rgba(160,15,50,0.16) 0%, transparent 100%),
+        radial-gradient(ellipse 9% 11% at 85% 72%, rgba(180,20,55,0.17) 0%, transparent 100%),
+        radial-gradient(ellipse 5% 20% at 40% 20%, rgba(200,30,70,0.14) 0%, transparent 100%),
+        radial-gradient(ellipse 6% 16% at 62% 85%, rgba(160,15,50,0.15) 0%, transparent 100%);
+      animation: womb-vein 5s ease-in-out infinite alternate;
+    }
+    @keyframes womb-pulse {
+      0%,100% { opacity: 0.75; transform: scale(1);    }
+      40%     { opacity: 1;    transform: scale(1.03); }
+      70%     { opacity: 0.85; transform: scale(0.99); }
+    }
+    @keyframes womb-vein {
+      from { opacity: 0.5; transform: scale(1)    rotate(0deg);   }
+      to   { opacity: 0.9; transform: scale(1.06) rotate(-1.5deg); }
+    }
+
     /* ── Content overlay ── */
     .domain-content {
       position: relative;
@@ -609,6 +647,12 @@
         desc: 'Das Schicksal liegt in den Händen des Würfels.',
         color: '#c060ff', theme: 'yami', caster: 'Felix',
         expansionId: 'wuerfelnder_walpa',
+      },
+      {
+        cls: 'domain-gebaermutter', jp: 'Gebärmutterschoß', en: 'Womb Profusion',
+        desc: 'Im Schoß des Fluchs wird alles neu geboren.',
+        color: '#c02858', theme: 'shuku', caster: 'Ozan',
+        expansionId: 'gebaermutterschoss',
       },
     ];
 
