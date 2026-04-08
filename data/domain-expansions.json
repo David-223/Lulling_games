@@ -52,6 +52,16 @@
       "chance": 10
     },
     {
+      "id": "wuerfelnder_walpa",
+      "name": "Der würfelnde Walpa",
+      "subname": "The Gambling Walpa",
+      "caster": "Felix",
+      "theme": "yami",
+      "effect": "Vor jeder Aktion wird gewürfelt: 🎲 1–2 = Check/Call · 3–4 = Raise · 5–6 = Fold. Für 3 Schlücke darf einmal neu gewürfelt werden. Bei Raise: Einsatzhöhe = Augenzahl × 50.",
+      "enabled": true,
+      "chance": 0
+    },
+    {
       "id": "wandelnder_barnabas",
       "name": "Der wandelnde Barnabas",
       "subname": "The Wandering Barnabas",

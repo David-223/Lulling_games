@@ -252,6 +252,52 @@
     @keyframes barnabas-shift   { from{ transform: scale(1) } to{ transform: scale(1.08) translateX(-3%) } }
     @keyframes barnabas-flicker { 0%,100%{ opacity:0.4 } 30%{ opacity:1 } 60%{ opacity:0.6 } 80%{ opacity:0.9 } }
 
+    /* ══════════════════════════════
+       10 · DER WÜRFELNDE WALPA — Felix
+    ══════════════════════════════ */
+    .domain-walpa {
+      background: radial-gradient(ellipse at 50% 40%, #1a0030 0%, #0d0020 55%, #000 100%);
+    }
+    .domain-walpa::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 70% 50% at 50% 30%, rgba(160,60,255,0.22) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 60% at 20% 80%, rgba(120,40,200,0.15) 0%, transparent 65%),
+        radial-gradient(ellipse 35% 45% at 80% 70%, rgba(180,80,255,0.12) 0%, transparent 65%);
+      animation: walpa-pulse 4s ease-in-out infinite alternate;
+    }
+    .domain-walpa::after {
+      content: '';
+      position: fixed; inset: 0;
+      /* floating dice-dot pattern */
+      background-image:
+        radial-gradient(3px 3px at 18% 20%, rgba(200,120,255,0.7) 0%, transparent 100%),
+        radial-gradient(3px 3px at 82% 18%, rgba(200,120,255,0.7) 0%, transparent 100%),
+        radial-gradient(3px 3px at 50% 48%, rgba(200,120,255,0.6) 0%, transparent 100%),
+        radial-gradient(3px 3px at 22% 75%, rgba(180,100,240,0.55) 0%, transparent 100%),
+        radial-gradient(3px 3px at 78% 72%, rgba(180,100,240,0.55) 0%, transparent 100%),
+        radial-gradient(3px 3px at 38% 33%, rgba(160,80,220,0.45) 0%, transparent 100%),
+        radial-gradient(3px 3px at 62% 33%, rgba(160,80,220,0.45) 0%, transparent 100%),
+        radial-gradient(3px 3px at 38% 65%, rgba(160,80,220,0.45) 0%, transparent 100%),
+        radial-gradient(3px 3px at 62% 65%, rgba(160,80,220,0.45) 0%, transparent 100%),
+        radial-gradient(2px 2px at 10% 50%, rgba(140,60,200,0.35) 0%, transparent 100%),
+        radial-gradient(2px 2px at 90% 50%, rgba(140,60,200,0.35) 0%, transparent 100%),
+        radial-gradient(2px 2px at 50% 10%, rgba(140,60,200,0.35) 0%, transparent 100%),
+        radial-gradient(2px 2px at 50% 88%, rgba(140,60,200,0.35) 0%, transparent 100%);
+      animation: walpa-dice 6s ease-in-out infinite;
+    }
+    @keyframes walpa-pulse {
+      from { opacity: 0.7; transform: scale(1);    }
+      to   { opacity: 1;   transform: scale(1.04); }
+    }
+    @keyframes walpa-dice {
+      0%,100% { opacity: 0.5; transform: rotate(0deg)   scale(1);    }
+      25%     { opacity: 0.8; transform: rotate(3deg)   scale(1.02); }
+      50%     { opacity: 0.6; transform: rotate(-2deg)  scale(0.98); }
+      75%     { opacity: 0.9; transform: rotate(1.5deg) scale(1.03); }
+    }
+
     /* ── Content overlay ── */
     .domain-content {
       position: relative;
@@ -557,6 +603,12 @@
         desc: 'Barnabas sieht alles. Barnabas spricht nicht.',
         color: '#b8a020', theme: 'yami', caster: 'Shanon',
         expansionId: 'wandelnder_barnabas',
+      },
+      {
+        cls: 'domain-walpa', jp: 'Der würfelnde Walpa', en: 'The Gambling Walpa',
+        desc: 'Das Schicksal liegt in den Händen des Würfels.',
+        color: '#c060ff', theme: 'yami', caster: 'Felix',
+        expansionId: 'wuerfelnder_walpa',
       },
     ];
 
