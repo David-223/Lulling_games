@@ -1565,6 +1565,7 @@
         const el = playerNodeMap.get(key);
         el.className = `tv-card ${rClass}`;
         el.querySelector('.tv-rank-badge').textContent = badge;
+        el.querySelector('.tv-name').textContent = player.name;
         el.querySelector('.tv-pts').textContent = player.points;
         el.querySelector('.tv-bar').style.width = pct + '%';
       }
@@ -1724,6 +1725,7 @@
       } else {
         const el = seatNodeMap.get(key);
         el.className = cls;
+        el.querySelector('.ptv-seat-name').textContent = player.name;
         el.querySelector('.ptv-seat-chips span').textContent = player.chips;
         const betEl = el.querySelector('.ptv-seat-bet');
         betEl.textContent = player.roundBet;
@@ -1982,6 +1984,8 @@
       mainBody.style.display = show ? 'none' : '';
       header.style.display   = show ? 'none' : '';
       footer.style.display   = show ? 'none' : '';
+      // Clear seat cache when game ends so stale names can't persist
+      if (!show) seatNodeMap.clear();
     }
 
     // ── Flame generator ──
