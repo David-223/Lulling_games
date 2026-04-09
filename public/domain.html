@@ -336,6 +336,45 @@
       to   { opacity: 0.9; transform: scale(1.06) rotate(-1.5deg); }
     }
 
+    /* ══════════════════════════════
+       12 · DIE GIERIGE NASE — Lovis
+    ══════════════════════════════ */
+    .domain-gierige-nase {
+      background: radial-gradient(ellipse at 50% 35%, #1a1700 0%, #0e0c00 55%, #000 100%);
+    }
+    .domain-gierige-nase::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 85% 45% at 50% 25%, rgba(255,245,160,0.22) 0%, transparent 70%),
+        radial-gradient(ellipse 45% 55% at 15% 75%, rgba(220,195,100,0.14) 0%, transparent 65%),
+        radial-gradient(ellipse 55% 30% at 82% 60%, rgba(255,240,140,0.16) 0%, transparent 65%);
+      animation: nose-shimmer 2.6s ease-in-out infinite;
+    }
+    .domain-gierige-nase::after {
+      content: '';
+      position: fixed; inset: -5%;
+      background-image:
+        radial-gradient(circle 3px at 28% 22%, rgba(255,255,230,0.8) 0%, transparent 100%),
+        radial-gradient(circle 2px at 68% 18%, rgba(255,252,210,0.7) 0%, transparent 100%),
+        radial-gradient(circle 4px at 48% 48%, rgba(255,255,255,0.9) 0%, transparent 100%),
+        radial-gradient(circle 2px at 18% 60%, rgba(255,248,180,0.6) 0%, transparent 100%),
+        radial-gradient(circle 3px at 82% 55%, rgba(255,250,200,0.7) 0%, transparent 100%),
+        radial-gradient(circle 2px at 38% 78%, rgba(255,255,220,0.8) 0%, transparent 100%),
+        radial-gradient(circle 4px at 88% 28%, rgba(255,245,180,0.6) 0%, transparent 100%),
+        radial-gradient(circle 2px at 58% 88%, rgba(255,252,200,0.7) 0%, transparent 100%),
+        radial-gradient(circle 3px at 72% 72%, rgba(255,248,160,0.5) 0%, transparent 100%);
+      animation: nose-glint 3.4s ease-in-out infinite alternate;
+    }
+    @keyframes nose-shimmer {
+      0%,100% { opacity: 0.55; transform: scale(1);    }
+      50%     { opacity: 1;    transform: scale(1.05); }
+    }
+    @keyframes nose-glint {
+      from { opacity: 0.35; transform: scale(1)    rotate(0deg);  }
+      to   { opacity: 1;    transform: scale(1.09) rotate(0.8deg); }
+    }
+
     /* ── Content overlay ── */
     .domain-content {
       position: relative;
@@ -653,6 +692,12 @@
         desc: 'Im Schoß des Fluchs wird alles neu geboren.',
         color: '#c02858', theme: 'shuku', caster: 'Ozan',
         expansionId: 'gebaermutterschoss',
+      },
+      {
+        cls: 'domain-gierige-nase', jp: 'Die gierige Nase', en: 'The Greedy Nostril',
+        desc: 'Die Nase vergisst nicht. Die Nase vergibt nicht.',
+        color: '#d4b830', theme: 'kin', caster: 'Lovis',
+        expansionId: 'gierige_nase',
       },
     ];
 
