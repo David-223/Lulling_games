@@ -87,7 +87,7 @@
       "subname": "The Greedy Nostril",
       "caster": "Lovis",
       "theme": "kin",
-      "effect": "Jedes Mal wenn ein Spieler foldet, muss er doppelt so viel schnupfen wie Lovis selbst in dieser Runde – oder einen Shot trinken, falls er sich weigert.",
+      "effect": "Lovis wählt einen der gefoldeten Spieler aus: dieser muss doppelt so viel schnupfen wie Lovis selbst in dieser Runde – oder einen Shot trinken, falls er sich weigert.",
       "enabled": true,
       "chance": 0
     }
