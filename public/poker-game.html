@@ -1817,6 +1817,16 @@
         }
       } catch {}
 
+      // Pre-populate blind inputs from saved admin settings
+      try {
+        const res = await fetch('/api/settings');
+        if (res.ok) {
+          const s = await res.json();
+          if (s.blindSmall) document.getElementById('blind-small').value = s.blindSmall;
+          if (s.blindBig)   document.getElementById('blind-big').value   = s.blindBig;
+        }
+      } catch {}
+
       try {
         const res = await fetch('/api/poker/state');
         if (res.ok) {
