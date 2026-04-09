@@ -794,6 +794,9 @@
     function logout() {
       adminPassword = '';
       adminPlayerId = null;
+      blindsLoaded = false;
+      rosterLoaded = false;
+      deSettings = null;
       document.getElementById('admin-screen').style.display = 'none';
       document.getElementById('login-screen').style.display = 'block';
       document.getElementById('login-password').value = '';
@@ -1447,7 +1450,11 @@
     }
 
     // ── Blinds ──
+    let blindsLoaded = false;
+
     async function loadBlinds() {
+      if (blindsLoaded) return;
+      blindsLoaded = true;
       try {
         const res = await fetch('/api/settings');
         const s = await res.json();
