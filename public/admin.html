@@ -531,6 +531,20 @@
 
       <hr class="divider" style="margin-top:2rem;" />
 
+      <!-- Knuggelige Rad -->
+      <h2 class="section-title">☠ Knuggeliges Rad</h2>
+      <div class="form-card" style="margin-top:0;" id="knugg-card">
+        <div style="font-family:var(--font-ui);font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.6rem;">Aktive Einträge</div>
+        <div id="knugg-entries-list" style="display:flex;flex-direction:column;gap:0.4rem;margin-bottom:1rem;"></div>
+        <div style="border-top:1px solid var(--border-mid);padding-top:1rem;display:flex;gap:0.5rem;">
+          <input id="knugg-new-entry" type="text" placeholder="Neuer Eintrag…" autocapitalize="sentences"
+            style="flex:1;background:var(--bg-card2);border:1px solid var(--border-mid);border-radius:6px;color:var(--text);font-family:var(--font-ui);font-size:0.9rem;padding:0.5rem 0.7rem;outline:none;" />
+          <button class="btn btn-primary" onclick="knuggAddEntry()">+</button>
+        </div>
+      </div>
+
+      <hr class="divider" style="margin-top:2rem;" />
+
       <!-- Einstellungen -->
       <h2 class="section-title">Einstellungen</h2>
       <div class="form-card" style="margin-top:0;">
@@ -556,6 +570,26 @@
           <button id="cards-toggle-btn" class="toggle-switch" onclick="toggleCardsEnabled()" title="Digitale Karten ein/ausschalten">
             <span class="toggle-knob"></span>
           </button>
+        </div>
+
+        <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border-mid);">
+          <div style="font-family:var(--font-ui);font-size:0.88rem;color:var(--text);letter-spacing:0.04em;margin-bottom:0.5rem;">🃏 Standard Blinds</div>
+          <div style="font-size:0.74rem;color:var(--text-dim);font-family:var(--font-ui);margin-bottom:0.9rem;line-height:1.4;">
+            Werden beim Starten eines neuen Pokerspiels als Standardwert verwendet.
+          </div>
+          <div style="display:flex;gap:0.8rem;align-items:flex-end;flex-wrap:wrap;">
+            <div style="display:flex;flex-direction:column;gap:0.3rem;flex:1;min-width:90px;">
+              <label style="font-size:0.72rem;font-family:var(--font-ui);color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;">Small Blind</label>
+              <input type="number" id="blind-small-input" min="1" max="9999" placeholder="5"
+                style="background:var(--bg-card2);border:1px solid var(--border-mid);border-radius:6px;color:var(--text);font-family:var(--font-ui);font-size:0.9rem;padding:0.5rem 0.7rem;outline:none;width:100%;" />
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.3rem;flex:1;min-width:90px;">
+              <label style="font-size:0.72rem;font-family:var(--font-ui);color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;">Big Blind</label>
+              <input type="number" id="blind-big-input" min="2" max="9999" placeholder="10"
+                style="background:var(--bg-card2);border:1px solid var(--border-mid);border-radius:6px;color:var(--text);font-family:var(--font-ui);font-size:0.9rem;padding:0.5rem 0.7rem;outline:none;width:100%;" />
+            </div>
+            <button class="btn btn-primary" onclick="saveBlinds()" style="padding:0.5rem 1rem;white-space:nowrap;">Speichern</button>
+          </div>
         </div>
 
         <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border-mid);">
@@ -1015,10 +1049,17 @@
           </div>
           <div class="player-admin-body">
             <span class="player-role-tag">${escHtml(p.role)}</span>
-            <div class="pts-controls">
-              <button class="btn-pts" onclick="adjustPoints(${p.id}, -10)">−</button>
-              <span class="pts-display" id="pts-${p.id}">${p.points} Pts</span>
-              <button class="btn-pts" onclick="adjustPoints(${p.id}, +10)">+</button>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.4rem;">
+              <div class="pts-controls">
+                <button class="btn-pts" onclick="adjustPoints(${p.id}, -10)">−</button>
+                <span class="pts-display" id="pts-${p.id}">${p.points} Pts</span>
+                <button class="btn-pts" onclick="adjustPoints(${p.id}, +10)">+</button>
+              </div>
+              <div class="pts-controls">
+                <button class="btn-pts" onclick="adjustDomainCoins(${p.id}, -1)" style="color:var(--p-glow);border-color:var(--p-dim);">−</button>
+                <span class="pts-display" id="dc-${p.id}" style="color:var(--p-glow);font-size:0.88rem;">💎 ${p.domainCoins ?? 0}</span>
+                <button class="btn-pts" onclick="adjustDomainCoins(${p.id}, +1)" style="color:var(--p-glow);border-color:var(--p-dim);">+</button>
+              </div>
             </div>
           </div>
         </div>
@@ -1105,6 +1146,25 @@
           if (el) el.textContent = `${updated.points} Pts`;
           const p = players.find(x => x.id === id);
           if (p) p.points = updated.points;
+        } else {
+          showToast('Fehler beim Anpassen.', 'error');
+        }
+      } catch (e) { showToast('Verbindungsfehler', 'error'); }
+    }
+
+    async function adjustDomainCoins(id, delta) {
+      try {
+        const res = await fetch(`/api/players/${id}/domain-coins`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...adminAuthBody(), delta })
+        });
+        if (res.ok) {
+          const updated = await res.json();
+          const el = document.getElementById(`dc-${id}`);
+          if (el) el.textContent = `💎 ${updated.domainCoins ?? 0}`;
+          const p = players.find(x => x.id === id);
+          if (p) p.domainCoins = updated.domainCoins;
         } else {
           showToast('Fehler beim Anpassen.', 'error');
         }
@@ -1327,6 +1387,92 @@
       } catch { showToast('Fehler', 'error'); }
     }
 
+    // ── Knuggelige Rad ──
+    let knuggEntries = [];
+
+    async function loadKnugg() {
+      try {
+        const res = await fetch('/api/knuggelige-rad');
+        knuggEntries = await res.json();
+        renderKnugg();
+      } catch { /* silent */ }
+    }
+
+    function renderKnugg() {
+      const list = document.getElementById('knugg-entries-list');
+      if (!list) return;
+      if (knuggEntries.length === 0) {
+        list.innerHTML = '<div style="color:var(--text-dim);font-size:0.82rem;font-family:var(--font-ui);padding:0.3rem 0;">Keine Einträge.</div>';
+        return;
+      }
+      list.innerHTML = knuggEntries.map((e, i) => `
+        <div style="display:flex;align-items:center;gap:0.6rem;background:var(--bg-card2);border:1px solid var(--border-mid);border-radius:6px;padding:0.5rem 0.8rem;">
+          <span style="flex:1;font-family:var(--font-ui);font-size:0.85rem;color:var(--text);">☠ ${escHtml(e)}</span>
+          <button onclick="knuggDeleteEntry(${i})" style="font-size:0.65rem;color:var(--accent-glow);background:none;border:1px solid var(--accent-dim);border-radius:4px;padding:0.2rem 0.5rem;cursor:pointer;letter-spacing:0.05em;">✕</button>
+        </div>`).join('');
+    }
+
+    async function knuggSaveEntries() {
+      try {
+        const res = await fetch('/api/knuggelige-rad', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...adminAuthBody(), entries: knuggEntries })
+        });
+        if (!res.ok) { showToast('Fehler', 'error'); return false; }
+        return true;
+      } catch { showToast('Verbindungsfehler', 'error'); return false; }
+    }
+
+    async function knuggAddEntry() {
+      const input = document.getElementById('knugg-new-entry');
+      const text = input.value.trim();
+      if (!text) return;
+      knuggEntries.push(text);
+      input.value = '';
+      if (await knuggSaveEntries()) {
+        renderKnugg();
+        showToast('Eintrag hinzugefügt!', 'success');
+      } else {
+        knuggEntries.pop();
+      }
+    }
+
+    async function knuggDeleteEntry(idx) {
+      knuggEntries.splice(idx, 1);
+      if (await knuggSaveEntries()) {
+        renderKnugg();
+        showToast('Eintrag entfernt.', 'success');
+      }
+    }
+
+    // ── Blinds ──
+    async function loadBlinds() {
+      try {
+        const res = await fetch('/api/settings');
+        const s = await res.json();
+        const sb = document.getElementById('blind-small-input');
+        const bb = document.getElementById('blind-big-input');
+        if (sb) sb.value = s.blindSmall || 5;
+        if (bb) bb.value = s.blindBig   || 10;
+      } catch {}
+    }
+
+    async function saveBlinds() {
+      const sb = parseInt(document.getElementById('blind-small-input').value) || 5;
+      const bb = parseInt(document.getElementById('blind-big-input').value)   || 10;
+      if (sb >= bb) { showToast('Big Blind muss größer als Small Blind sein', 'error'); return; }
+      try {
+        const res = await fetch('/api/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...adminAuthBody(), blindSmall: sb, blindBig: bb })
+        });
+        if (res.ok) showToast('Blinds gespeichert!', 'success');
+        else { const d = await res.json(); showToast(d.error || 'Fehler', 'error'); }
+      } catch { showToast('Verbindungsfehler', 'error'); }
+    }
+
     // Load when admin panel becomes visible
     // ── Roster management ──
     let rosterLoaded = false;
@@ -1377,6 +1523,8 @@
         if (!deSettings) loadDE();
         loadCardsEnabled();
         loadRoster();
+        loadKnugg();
+        loadBlinds();
       }
     });
     _deObserver.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['style'] });

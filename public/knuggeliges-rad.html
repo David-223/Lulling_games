@@ -335,21 +335,35 @@
   </main>
 
   <script>
-    const ENTRIES = [
+    let ENTRIES = [
       '3 Jelly Beans essen',
       'Bordstein fressen',
       'Mischtrunk aus der Hölle',
       'David Ms linke Socke essen',
     ];
 
-    // ── Render entry list ──
-    const list = document.getElementById('entries-list');
-    list.innerHTML = ENTRIES.map(e =>
-      `<div class="entry-item">
-        <span class="entry-skull">☠</span>
-        <span class="entry-name">${e}</span>
-      </div>`
-    ).join('');
+    function renderEntries() {
+      const list = document.getElementById('entries-list');
+      list.innerHTML = ENTRIES.map(e =>
+        `<div class="entry-item">
+          <span class="entry-skull">☠</span>
+          <span class="entry-name">${e}</span>
+        </div>`
+      ).join('');
+    }
+
+    // Load from server, fall back to defaults
+    (async () => {
+      try {
+        const res = await fetch('/api/knuggelige-rad');
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) ENTRIES = data;
+        }
+      } catch {}
+      renderEntries();
+      drawWheel(currentAngle);
+    })();
 
     // ── Wheel drawing ──
     const SEG_COLORS = ['#1a0000', '#0d0000', '#200000', '#100000'];
@@ -500,9 +514,6 @@
     function closeResult() {
       document.getElementById('result-panel').classList.remove('visible');
     }
-
-    // Initial draw
-    drawWheel(currentAngle);
 
     // ── Nav dropdown + theme switcher ──
     const moreBtn  = document.getElementById('nav-more-btn');

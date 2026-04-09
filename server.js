@@ -333,6 +333,7 @@ function pokerAdvancePhase(game) {
 app.post('/api/poker/new', (req, res) => {
   const { blindSmall, blindBig } = req.body;
   const pdata = readPlayers();
+  const stngs = readSettings();
   if (pdata.players.length < 2) return res.status(400).json({ error: 'Mindestens 2 Spieler nötig' });
   pokerGame = {
     phase: 'setup',
@@ -342,8 +343,8 @@ app.post('/api/poker/new', (req, res) => {
       id: p.id, name: p.name, chips: p.points,
       roundBet: 0, totalBet: 0, folded: false, allIn: false
     })),
-    blindSmall: Math.max(1, parseInt(blindSmall) || 5),
-    blindBig: Math.max(2, parseInt(blindBig) || 10),
+    blindSmall: Math.max(1, parseInt(blindSmall) || stngs.blindSmall || 5),
+    blindBig: Math.max(2, parseInt(blindBig) || stngs.blindBig || 10),
     handNum: 0, winner: null, winnerId: null,
     awayEvents: [],
   };
@@ -604,6 +605,38 @@ app.post('/api/wheel', (req, res) => {
   res.json({ success: true });
 });
 
+// ── Knuggelige Rad entries ──
+
+const KNUGG_FILE = path.join(__dirname, 'data', 'knuggelige-rad.json');
+
+const KNUGG_DEFAULTS = [
+  '3 Jelly Beans essen',
+  'Bordstein fressen',
+  'Mischtrunk aus der Hölle',
+  "David Ms linke Socke essen",
+];
+
+function readKnugg() {
+  if (!fs.existsSync(KNUGG_FILE)) return { entries: KNUGG_DEFAULTS };
+  return JSON.parse(fs.readFileSync(KNUGG_FILE, 'utf-8'));
+}
+
+function writeKnugg(data) {
+  fs.writeFileSync(KNUGG_FILE, JSON.stringify(data, null, 2), 'utf-8');
+}
+
+app.get('/api/knuggelige-rad', (req, res) => {
+  res.json(readKnugg().entries);
+});
+
+app.post('/api/knuggelige-rad', (req, res) => {
+  if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
+  const { entries } = req.body;
+  if (!Array.isArray(entries)) return res.status(400).json({ error: 'entries must be array' });
+  writeKnugg({ entries: entries.slice(0, 30) });
+  res.json({ success: true, entries: entries.slice(0, 30) });
+});
+
 // ── Wheel last result (for TV display) ──
 const WHEEL_RESULT_FILE = path.join(__dirname, 'data', 'wheel-result.json');
 
@@ -677,8 +710,11 @@ app.delete('/api/binding-vows/:id', (req, res) => {
 const SETTINGS_FILE = path.join(__dirname, 'data', 'settings.json');
 
 function readSettings() {
-  if (!fs.existsSync(SETTINGS_FILE)) return { cardsEnabled: false };
-  return JSON.parse(fs.readFileSync(SETTINGS_FILE, 'utf-8'));
+  if (!fs.existsSync(SETTINGS_FILE)) return { cardsEnabled: false, blindSmall: 5, blindBig: 10 };
+  const s = JSON.parse(fs.readFileSync(SETTINGS_FILE, 'utf-8'));
+  if (s.blindSmall === undefined) s.blindSmall = 5;
+  if (s.blindBig   === undefined) s.blindBig   = 10;
+  return s;
 }
 
 function writeSettings(data) {
@@ -690,8 +726,10 @@ app.get('/api/settings', (req, res) => res.json(readSettings()));
 app.post('/api/settings', (req, res) => {
   if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
   const current = readSettings();
-  const { cardsEnabled } = req.body;
+  const { cardsEnabled, blindSmall, blindBig } = req.body;
   if (cardsEnabled !== undefined) current.cardsEnabled = !!cardsEnabled;
+  if (blindSmall   !== undefined) current.blindSmall = Math.max(1, parseInt(blindSmall) || 5);
+  if (blindBig     !== undefined) current.blindBig   = Math.max(2, parseInt(blindBig)   || 10);
   writeSettings(current);
   res.json(current);
 });
@@ -856,6 +894,19 @@ app.post('/api/players/:id/wheel-spins/use', (req, res) => {
   player.wheelSpins = player.wheelSpins - 1;
   writePlayers(pdata);
   res.json({ success: true, wheelSpins: player.wheelSpins });
+});
+
+// Admin: adjust domain coins by delta (can be negative to subtract)
+app.patch('/api/players/:id/domain-coins', (req, res) => {
+  if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
+  const id = parseInt(req.params.id);
+  const delta = parseInt(req.body.delta) || 0;
+  const data = readPlayers();
+  const player = data.players.find(p => p.id === id);
+  if (!player) return res.status(404).json({ error: 'Spieler nicht gefunden' });
+  player.domainCoins = Math.max(0, (player.domainCoins ?? 0) + delta);
+  writePlayers(data);
+  res.json(player);
 });
 
 // Grant 1 domain coin to a player (e.g. triggered by wheel result)
