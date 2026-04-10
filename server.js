@@ -639,6 +639,7 @@ app.post('/api/poker/winner', (req, res) => {
     });
   }
   writePlayers(pdata);
+  writeAutoBackup();
   res.json(g);
 });
 
@@ -926,6 +927,36 @@ function runBotTick() {
 }
 
 setInterval(runBotTick, 1500);
+
+// ── Auto-Backup (nach jeder Hand, überschreibt sich selbst) ──
+
+const AUTO_BACKUP_FILE = path.join(__dirname, 'data', 'auto-backup.json');
+
+function writeAutoBackup() {
+  try {
+    const snapshot = {
+      ts: new Date().toISOString(),
+      players:  readPlayers(),
+      rules:    readData(),
+      wheel:    readWheel(),
+      knugg:    readKnugg(),
+      vows:     readVows(),
+      settings: readSettings(),
+      de:       readDE(),
+      bounties: readBounties(),
+      roster:   readRoster(),
+    };
+    fs.writeFileSync(AUTO_BACKUP_FILE, JSON.stringify(snapshot, null, 2), 'utf-8');
+  } catch (err) {
+    console.error('[Auto-Backup Fehler]', err.message);
+  }
+}
+
+app.get('/api/backup/auto', (req, res) => {
+  if (!checkAdminAuth(req.query)) return res.status(401).json({ error: 'Keine Berechtigung' });
+  if (!fs.existsSync(AUTO_BACKUP_FILE)) return res.status(404).json({ error: 'Kein Auto-Backup vorhanden' });
+  res.json(JSON.parse(fs.readFileSync(AUTO_BACKUP_FILE, 'utf-8')));
+});
 
 // ── Backup / Restore ──
 

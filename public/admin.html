@@ -656,6 +656,18 @@
           <div style="font-size:0.74rem;color:var(--text-dim);font-family:var(--font-ui);margin-bottom:0.9rem;line-height:1.4;">
             Alle Spieler, Regeln und Einstellungen sichern oder nach einem Neustart wiederherstellen.
           </div>
+
+          <!-- Auto-Backup -->
+          <div style="background:rgba(201,162,39,0.06);border:1px solid var(--border-mid);border-radius:6px;padding:0.75rem 1rem;margin-bottom:0.75rem;">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:0.6rem;flex-wrap:wrap;">
+              <div>
+                <div style="font-family:var(--font-ui);font-size:0.82rem;color:var(--text);letter-spacing:0.04em;">🔄 Auto-Backup</div>
+                <div id="auto-backup-ts" style="font-size:0.72rem;color:var(--text-dim);font-family:var(--font-ui);margin-top:0.2rem;">Wird nach jeder Hand automatisch gespeichert</div>
+              </div>
+              <button class="btn" onclick="restoreAutoBackup()" style="white-space:nowrap;font-size:0.82rem;padding:0.4rem 0.85rem;">↩ Wiederherstellen</button>
+            </div>
+          </div>
+
           <div style="display:flex;gap:0.7rem;flex-wrap:wrap;">
             <button class="btn" onclick="downloadBackup()" style="flex:1;min-width:120px;">⬇ Backup herunterladen</button>
             <label class="btn" style="flex:1;min-width:120px;text-align:center;cursor:pointer;">
@@ -755,6 +767,7 @@
       updateHandyToggleUI();
       loadCardsEnabled();
       loadTestMode();
+      loadAutoBackupInfo();
     }
 
     // ── Handy-Erkennung Toggle ──
@@ -852,6 +865,42 @@
           showToast('Testumgebung deaktiviert', 'success');
         }
         updateTestModeStatus(next);
+      } catch { showToast('Fehler', 'error'); }
+    }
+
+    // ── Auto-Backup ──
+    async function loadAutoBackupInfo() {
+      try {
+        const auth = adminAuthBody();
+        const params = new URLSearchParams(auth).toString();
+        const res = await fetch('/api/backup/auto?' + params);
+        const el = document.getElementById('auto-backup-ts');
+        if (!el) return;
+        if (!res.ok) { el.textContent = 'Noch kein Auto-Backup vorhanden'; return; }
+        const data = await res.json();
+        if (data.ts) {
+          const d = new Date(data.ts);
+          el.textContent = 'Letztes Backup: ' + d.toLocaleDateString('de-DE') + ' ' + d.toLocaleTimeString('de-DE');
+        }
+      } catch {}
+    }
+
+    async function restoreAutoBackup() {
+      try {
+        const auth = adminAuthBody();
+        const params = new URLSearchParams(auth).toString();
+        const res = await fetch('/api/backup/auto?' + params);
+        if (!res.ok) { showToast('Kein Auto-Backup vorhanden', 'error'); return; }
+        const data = await res.json();
+        const r2 = await fetch('/api/restore', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...adminAuthBody(), ...data })
+        });
+        if (!r2.ok) { showToast('Fehler beim Wiederherstellen', 'error'); return; }
+        showToast('Auto-Backup wiederhergestellt', 'success');
+        loadAdminPlayers();
+        loadAdminRules();
       } catch { showToast('Fehler', 'error'); }
     }
 
