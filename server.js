@@ -399,10 +399,18 @@ app.post('/api/poker/new', (req, res) => {
   const pdata = readPlayers();
   const stngs = readSettings();
   if (pdata.players.length < 2) return res.status(400).json({ error: 'Mindestens 2 Spieler nötig' });
+
+  // Dealer-Position vom letzten Spiel wiederherstellen
+  let startDealerIdx = 0;
+  if (stngs.nextDealerPlayerId) {
+    const idx = pdata.players.findIndex(p => p.id === stngs.nextDealerPlayerId);
+    if (idx !== -1) startDealerIdx = idx;
+  }
+
   pokerGame = {
     phase: 'setup',
     pot: 0, currentBet: 0,
-    dealerIdx: 0, sbIdx: -1, bbIdx: -1, currentPlayerIdx: -1, toAct: [],
+    dealerIdx: startDealerIdx, sbIdx: -1, bbIdx: -1, currentPlayerIdx: -1, toAct: [],
     players: pdata.players.map(p => ({
       id: p.id, name: p.name, chips: p.points,
       roundBet: 0, totalBet: 0, folded: false, allIn: false
@@ -640,6 +648,18 @@ app.post('/api/poker/end', (req, res) => {
     const pdata = readPlayers();
     pokerGame.players.forEach(gp => { const pp = pdata.players.find(p => p.id === gp.id); if (pp) pp.points = gp.chips; });
     writePlayers(pdata);
+
+    // Nächsten Dealer merken, damit das nächste Spiel dort weitermacht
+    const g = pokerGame;
+    const n = g.players.length;
+    if (n > 0) {
+      let nextIdx = (g.dealerIdx + 1) % n;
+      let tries = 0;
+      while (g.players[nextIdx].chips <= 0 && tries < n) { nextIdx = (nextIdx + 1) % n; tries++; }
+      const settings = readSettings();
+      settings.nextDealerPlayerId = g.players[nextIdx].id;
+      writeSettings(settings);
+    }
   }
   pokerGame = null;
   pendingDomainActivation = null;
