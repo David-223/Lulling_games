@@ -936,15 +936,16 @@ function writeAutoBackup() {
   try {
     const snapshot = {
       ts: new Date().toISOString(),
-      players:  readPlayers(),
-      rules:    readData(),
-      wheel:    readWheel(),
-      knugg:    readKnugg(),
-      vows:     readVows(),
-      settings: readSettings(),
-      de:       readDE(),
-      bounties: readBounties(),
-      roster:   readRoster(),
+      players:   readPlayers(),
+      rules:     readData(),
+      wheel:     readWheel(),
+      knugg:     readKnugg(),
+      vows:      readVows(),
+      settings:  readSettings(),
+      de:        readDE(),
+      bounties:  readBounties(),
+      roster:    readRoster(),
+      handRules: readHandRules(),
     };
     fs.writeFileSync(AUTO_BACKUP_FILE, JSON.stringify(snapshot, null, 2), 'utf-8');
   } catch (err) {
@@ -963,30 +964,32 @@ app.get('/api/backup/auto', (req, res) => {
 app.get('/api/backup', (req, res) => {
   if (!checkAdminAuth(req.query)) return res.status(401).json({ error: 'Keine Berechtigung' });
   res.json({
-    players:  readPlayers(),
-    rules:    readData(),
-    wheel:    readWheel(),
-    knugg:    readKnugg(),
-    vows:     readVows(),
-    settings: readSettings(),
-    de:       readDE(),
-    bounties: readBounties(),
-    roster:   readRoster(),
+    players:   readPlayers(),
+    rules:     readData(),
+    wheel:     readWheel(),
+    knugg:     readKnugg(),
+    vows:      readVows(),
+    settings:  readSettings(),
+    de:        readDE(),
+    bounties:  readBounties(),
+    roster:    readRoster(),
+    handRules: readHandRules(),
   });
 });
 
 app.post('/api/restore', (req, res) => {
   if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
-  const { players, rules, wheel, knugg, vows, settings, de, bounties, roster } = req.body;
-  if (players)  writePlayers(players);
-  if (rules)    writeData(rules);
-  if (wheel)    writeWheel(wheel);
-  if (knugg)    writeKnugg(knugg);
-  if (vows)     writeVows(vows);
-  if (settings) writeSettings(settings);
-  if (de)       writeDE(de);
-  if (bounties) writeBounties(bounties);
-  if (roster)   writeRoster(roster);
+  const { players, rules, wheel, knugg, vows, settings, de, bounties, roster, handRules } = req.body;
+  if (players)   writePlayers(players);
+  if (rules)     writeData(rules);
+  if (wheel)     writeWheel(wheel);
+  if (knugg)     writeKnugg(knugg);
+  if (vows)      writeVows(vows);
+  if (settings)  writeSettings(settings);
+  if (de)        writeDE(de);
+  if (bounties)  writeBounties(bounties);
+  if (roster)    writeRoster(roster);
+  if (handRules) writeHandRules(handRules);
   res.json({ success: true });
 });
 
@@ -1159,6 +1162,10 @@ function readHandRules() {
   return JSON.parse(fs.readFileSync(HAND_RULES_FILE, 'utf-8'));
 }
 
+function writeHandRules(data) {
+  fs.writeFileSync(HAND_RULES_FILE, JSON.stringify(data, null, 2), 'utf-8');
+}
+
 app.get('/api/hand-rules', (req, res) => {
   res.json(readHandRules());
 });
@@ -1181,15 +1188,16 @@ function autoBackup() {
   const ts = new Date().toISOString().replace(/[:.]/g, '-');
   const snapshot = {
     ts,
-    players:  readPlayers(),
-    rules:    readData(),
-    wheel:    readWheel(),
-    knugg:    readKnugg(),
-    vows:     readVows(),
-    settings: readSettings(),
-    de:       readDE(),
-    bounties: readBounties(),
-    roster:   readRoster(),
+    players:   readPlayers(),
+    rules:     readData(),
+    wheel:     readWheel(),
+    knugg:     readKnugg(),
+    vows:      readVows(),
+    settings:  readSettings(),
+    de:        readDE(),
+    bounties:  readBounties(),
+    roster:    readRoster(),
+    handRules: readHandRules(),
   };
   const file = path.join(BACKUPS_DIR, `backup-${ts}.json`);
   fs.writeFileSync(file, JSON.stringify(snapshot, null, 2));
