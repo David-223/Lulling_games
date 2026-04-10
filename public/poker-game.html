@@ -882,13 +882,13 @@
 </head>
 <body>
 
-  <!-- Hintergrundvideo (looped, stumm) -->
+  <!-- Hintergrundvideo – nur bei Deignersche Notengebung -->
   <video id="bg-video" src="/videos/background.mp4"
-    autoplay loop muted playsinline
+    loop muted playsinline
     style="
       position:fixed;inset:0;width:100%;height:100%;
       object-fit:cover;z-index:-1;
-      opacity:0.15;pointer-events:none;
+      opacity:0.15;pointer-events:none;display:none;
     "
   ></video>
 
@@ -1174,6 +1174,16 @@
       if (!g || g.phase === 'setup') { showNoGame(); return; }
       showGame();
       game = g;
+
+      // ── Hintergrundvideo bei Deignersche Notengebung ──
+      const bgVid = document.getElementById('bg-video');
+      if (g.domainExpansion && g.domainExpansion.id === 'deignersche_notengebung') {
+        bgVid.style.display = 'block';
+        if (bgVid.paused) bgVid.play().catch(() => {});
+      } else {
+        bgVid.style.display = 'none';
+        bgVid.pause();
+      }
 
       // ── Detect new hand → vibrate + clear turn key ──
       if (lastHandNum !== -1 && g.handNum > lastHandNum) {
