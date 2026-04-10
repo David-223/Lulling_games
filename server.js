@@ -796,12 +796,13 @@ app.delete('/api/binding-vows/:id', (req, res) => {
 const SETTINGS_FILE = path.join(__dirname, 'data', 'settings.json');
 
 function readSettings() {
-  if (!fs.existsSync(SETTINGS_FILE)) return { cardsEnabled: false, blindSmall: 5, blindBig: 10, bountyEnabled: true };
+  if (!fs.existsSync(SETTINGS_FILE)) return { cardsEnabled: false, blindSmall: 5, blindBig: 10, bountyEnabled: true, testMode: false };
   const s = JSON.parse(fs.readFileSync(SETTINGS_FILE, 'utf-8'));
   if (s.blindSmall    === undefined) s.blindSmall    = 5;
   if (s.blindBig      === undefined) s.blindBig      = 10;
   if (s.bountyEnabled === undefined) s.bountyEnabled = true;
   if (s.bountyChance  === undefined) s.bountyChance  = 35;
+  if (s.testMode      === undefined) s.testMode      = false;
   return s;
 }
 
@@ -814,15 +815,97 @@ app.get('/api/settings', (req, res) => res.json(readSettings()));
 app.post('/api/settings', (req, res) => {
   if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
   const current = readSettings();
-  const { cardsEnabled, blindSmall, blindBig, bountyEnabled, bountyChance } = req.body;
+  const { cardsEnabled, blindSmall, blindBig, bountyEnabled, bountyChance, testMode } = req.body;
   if (cardsEnabled  !== undefined) current.cardsEnabled  = !!cardsEnabled;
   if (blindSmall    !== undefined) current.blindSmall    = Math.max(1, parseInt(blindSmall) || 5);
   if (blindBig      !== undefined) current.blindBig      = Math.max(2, parseInt(blindBig)   || 10);
   if (bountyEnabled !== undefined) current.bountyEnabled = !!bountyEnabled;
   if (bountyChance  !== undefined) current.bountyChance  = Math.min(100, Math.max(0, parseInt(bountyChance) || 35));
+  if (testMode      !== undefined) current.testMode      = !!testMode;
   writeSettings(current);
   res.json(current);
 });
+
+// ── Test-Umgebung ──
+
+const TEST_BOT_EXEMPT = ['david', 'felix']; // Diese Spieler spielen manuell
+
+// Alle Roster-Spieler automatisch einloggen (Testmodus)
+app.post('/api/test-mode/checkin-all', (req, res) => {
+  if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
+  const { players: roster } = readRoster();
+  const ALWAYS_ADMIN = ['david', 'felix'];
+  const pdata = readPlayers();
+  let added = 0;
+  for (const entry of roster) {
+    const isAdmin = ALWAYS_ADMIN.includes(entry.name.toLowerCase());
+    let player = pdata.players.find(p => p.rosterPlayerId === entry.id);
+    if (!player) {
+      player = {
+        id: pdata.nextId++,
+        name: entry.name,
+        role: 'Normaler Mensch',
+        points: 1000,
+        domainCoins: 3,
+        isAdmin,
+        domainIdx: entry.domainIdx ?? 0,
+        rosterPlayerId: entry.id,
+      };
+      pdata.players.push(player);
+      added++;
+    } else {
+      player.domainIdx = entry.domainIdx ?? player.domainIdx;
+      player.isAdmin = isAdmin;
+    }
+  }
+  writePlayers(pdata);
+  res.json({ success: true, added, total: pdata.players.length });
+});
+
+// Bot-Tick: Automatisch callen/checken für alle Spieler außer David und Felix
+function runBotTick() {
+  try {
+    const settings = readSettings();
+    if (!settings.testMode) return;
+    if (!pokerGame) return;
+    const g = pokerGame;
+    if (!['preflop', 'flop', 'turn', 'river'].includes(g.phase)) return;
+    if (g.toAct.length === 0) return;
+    const currentIdx = g.currentPlayerIdx;
+    if (currentIdx === -1 || currentIdx === undefined) return;
+    const currentPlayer = g.players[currentIdx];
+    if (!currentPlayer || currentPlayer.folded || currentPlayer.allIn) return;
+    if (TEST_BOT_EXEMPT.includes(currentPlayer.name.toLowerCase())) return;
+
+    // Bot-Aktion: call wenn nötig, sonst check
+    const action = g.currentBet > currentPlayer.roundBet ? 'call' : 'check';
+    g.toAct.shift();
+
+    if (action === 'call') {
+      const toCall = Math.min(g.currentBet - currentPlayer.roundBet, currentPlayer.chips);
+      currentPlayer.chips -= toCall;
+      currentPlayer.roundBet += toCall;
+      currentPlayer.totalBet += toCall;
+      g.pot += toCall;
+      if (currentPlayer.chips === 0) currentPlayer.allIn = true;
+    }
+    // check: keine Chip-Änderung nötig
+
+    const active = g.players.filter(p => !p.folded);
+    if (active.length === 1) {
+      g.phase = 'showdown'; g.toAct = []; g.currentPlayerIdx = -1;
+    } else if (g.toAct.length === 0) {
+      g.currentPlayerIdx = -1;
+    } else {
+      g.currentPlayerIdx = g.toAct[0];
+    }
+    console.log(`[Bot] ${currentPlayer.name} → ${action}`);
+  } catch (err) {
+    console.error('[Bot-Tick Fehler]', err.message);
+  }
+}
+
+setInterval(runBotTick, 1500);
 
 // ── Backup / Restore ──
 
