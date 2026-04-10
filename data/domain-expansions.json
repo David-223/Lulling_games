@@ -42,6 +42,16 @@
       "chance": 20
     },
     {
+      "id": "fuchs_geht_um",
+      "name": "Der Fuchs geht um",
+      "subname": "The Circling Fox",
+      "caster": "Julian",
+      "theme": "kin",
+      "effect": "Auf dem Turn würfelt Julian. Um die Anzahl der Augen werden die Handkarten im Uhrzeigersinn am Tisch weitergegeben. Jeder Spieler erhält die Karten seines Nachbarn.",
+      "enabled": true,
+      "chance": 20
+    },
+    {
       "id": "deignersche_notengebung",
       "name": "Deignersche Notengebung",
       "subname": "Deigner's Grading System",
