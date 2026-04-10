@@ -2047,10 +2047,16 @@
     function playDomainAudio(id) {
       if (_domainAudio) { _domainAudio.pause(); _domainAudio.currentTime = 0; }
       const src = DOMAIN_AUDIO[id];
-      if (!src) return;
-      _domainAudio = new Audio(src);
-      _domainAudio.volume = 1.0;
-      _domainAudio.play().catch(() => {});
+      const intro = new Audio('/audio/domain/domain_trigger.wav');
+      intro.volume = 1.0;
+      intro.play().catch(() => {});
+      if (src) {
+        intro.addEventListener('ended', () => {
+          _domainAudio = new Audio(src);
+          _domainAudio.volume = 1.0;
+          _domainAudio.play().catch(() => {});
+        }, { once: true });
+      }
     }
 
     function showDomainExpansion(de) {
