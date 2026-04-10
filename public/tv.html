@@ -1432,15 +1432,6 @@
   <canvas id="tv-stars"></canvas>
   <div class="tv-scanlines"></div>
 
-  <!-- Hintergrundvideo – nur bei Deignersche Notengebung -->
-  <video id="bg-video" src="/videos/background.mp4"
-    loop muted playsinline
-    style="
-      position:fixed;inset:0;width:100%;height:100%;
-      object-fit:cover;z-index:0;
-      opacity:0.22;pointer-events:none;display:none;
-    "
-  ></video>
   <button id="audio-react-btn" title="Audio-Reaktion (Spotify / Mikrofon)">🎵</button>
 
   <header class="tv-header">
@@ -1509,6 +1500,17 @@
 
   <!-- ═══ POKER OVERLAY ═══ -->
   <div id="tv-poker-overlay">
+
+    <!-- Hintergrundvideo – nur bei Deignersche Notengebung -->
+    <video id="bg-video" src="/videos/background.mp4"
+      loop muted playsinline
+      style="
+        position:absolute;inset:0;width:100%;height:100%;
+        object-fit:cover;z-index:0;
+        opacity:0.28;pointer-events:none;display:none;
+      "
+    ></video>
+
     <div class="ptv-topbar">
       <div class="ptv-hand-badge" id="ptv-hand-badge">Hand —</div>
       <div class="ptv-logo">Lalling Games · Poker</div>
@@ -1956,9 +1958,11 @@
       if (de && de.id === 'deignersche_notengebung') {
         bgVid.style.display = 'block';
         if (bgVid.paused) bgVid.play().catch(() => {});
+        overlay.style.background = 'rgba(0,5,20,0.55)'; // semi-transparent damit Video sichtbar
       } else {
         bgVid.style.display = 'none';
         bgVid.pause();
+        overlay.style.background = ''; // Standard-Hintergrund wiederherstellen
       }
       overlay.classList.remove('de-bg-ao', 'de-bg-shuku', 'de-bg-yami', 'de-bg-kin');
       if (de) {
