@@ -40,6 +40,16 @@
       "effect": "Lovis wählt einen der gefoldeten Spieler aus: dieser muss doppelt so viel schnupfen wie Lovis selbst in dieser Runde – oder einen Shot trinken, falls er sich weigert.",
       "enabled": true,
       "chance": 20
+    },
+    {
+      "id": "deignersche_notengebung",
+      "name": "Deignersche Notengebung",
+      "subname": "Deigner's Grading System",
+      "caster": "David",
+      "theme": "ao",
+      "effect": "Jeder Spieler würfelt — das Ergebnis bestimmt die Anzahl seiner Hole Cards (Minimum 1, Maximum 5). David würfelt 3-mal und darf sich aussuchen, welchen Wurf er nimmt. Anschließend würfelt David für jeden Spieler die Karten aus: Er zieht blind aus dem verdeckten Deck und verteilt — jeder bekommt genau so viele Karten, wie er gewürfelt hat.",
+      "enabled": true,
+      "chance": 20
     }
   ]
 }
