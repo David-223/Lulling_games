@@ -42,6 +42,16 @@
       "chance": 20
     },
     {
+      "id": "lallender_libero",
+      "name": "Der lallende Libero",
+      "subname": "The Slurring Libero",
+      "caster": "Marlon",
+      "theme": "shuku",
+      "effect": "Marlon trinkt einen Trichter und bekommt dafür eine zusätzliche Handkarte.",
+      "enabled": true,
+      "chance": 20
+    },
+    {
       "id": "fuchs_geht_um",
       "name": "Der Fuchs geht um",
       "subname": "The Circling Fox",

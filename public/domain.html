@@ -250,6 +250,42 @@
       to   { opacity: 1;   transform: scale(1.08) rotate(0.5deg);  }
     }
 
+    /* ══════════════════════════════
+       7 · DER LALLENDE LIBERO — Marlon
+    ══════════════════════════════ */
+    .domain-libero {
+      background: radial-gradient(ellipse at 50% 45%, #001a0a 0%, #000d05 100%);
+    }
+    .domain-libero::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 70% 50% at 20% 80%, rgba(0,200,80,0.18) 0%, transparent 65%),
+        radial-gradient(ellipse 50% 70% at 80% 20%, rgba(0,180,60,0.14) 0%, transparent 65%);
+      animation: libero-pulse 5s ease-in-out infinite alternate;
+    }
+    .domain-libero::after {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(1px 1px at 20% 30%, rgba(40,240,100,0.55) 0%, transparent 100%),
+        radial-gradient(1px 1px at 45% 12%, rgba(20,220,80,0.45)  0%, transparent 100%),
+        radial-gradient(1px 1px at 75% 38%, rgba(50,240,110,0.5)  0%, transparent 100%),
+        radial-gradient(1px 1px at 32% 68%, rgba(30,210,90,0.4)   0%, transparent 100%),
+        radial-gradient(1px 1px at 63% 78%, rgba(40,230,100,0.45) 0%, transparent 100%),
+        radial-gradient(2px 2px at 85% 55%, rgba(60,250,120,0.3)  0%, transparent 100%),
+        radial-gradient(1px 1px at 12% 55%, rgba(20,210,80,0.4)   0%, transparent 100%);
+      animation: libero-glint 4s ease-in-out infinite alternate;
+    }
+    @keyframes libero-pulse {
+      from { opacity: 0.7; transform: scale(1);    }
+      to   { opacity: 1;   transform: scale(1.06); }
+    }
+    @keyframes libero-glint {
+      from { opacity: 0.4; transform: scale(1)    rotate(0deg);    }
+      to   { opacity: 1;   transform: scale(1.08) rotate(-0.5deg); }
+    }
+
     /* ── Content overlay ── */
     .domain-content {
       position: relative;
@@ -537,6 +573,12 @@
         desc: 'Der Fuchs schleicht. Der Fuchs nimmt. Der Fuchs gibt weiter.',
         color: '#e07820', theme: 'kin', caster: 'Julian',
         expansionId: 'fuchs_geht_um',
+      },
+      {
+        cls: 'domain-libero', jp: 'Der lallende Libero', en: 'The Slurring Libero',
+        desc: 'Ein Trichter. Eine Karte mehr. Kein Erbarmen.',
+        color: '#20e060', theme: 'shuku', caster: 'Marlon',
+        expansionId: 'lallender_libero',
       },
     ];
 
