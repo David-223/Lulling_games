@@ -935,21 +935,27 @@ app.get('/api/backup', (req, res) => {
     players:  readPlayers(),
     rules:    readData(),
     wheel:    readWheel(),
+    knugg:    readKnugg(),
     vows:     readVows(),
     settings: readSettings(),
     de:       readDE(),
+    bounties: readBounties(),
+    roster:   readRoster(),
   });
 });
 
 app.post('/api/restore', (req, res) => {
   if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
-  const { players, rules, wheel, vows, settings, de } = req.body;
+  const { players, rules, wheel, knugg, vows, settings, de, bounties, roster } = req.body;
   if (players)  writePlayers(players);
   if (rules)    writeData(rules);
   if (wheel)    writeWheel(wheel);
+  if (knugg)    writeKnugg(knugg);
   if (vows)     writeVows(vows);
   if (settings) writeSettings(settings);
   if (de)       writeDE(de);
+  if (bounties) writeBounties(bounties);
+  if (roster)   writeRoster(roster);
   res.json({ success: true });
 });
 
@@ -1147,9 +1153,12 @@ function autoBackup() {
     players:  readPlayers(),
     rules:    readData(),
     wheel:    readWheel(),
+    knugg:    readKnugg(),
     vows:     readVows(),
     settings: readSettings(),
     de:       readDE(),
+    bounties: readBounties(),
+    roster:   readRoster(),
   };
   const file = path.join(BACKUPS_DIR, `backup-${ts}.json`);
   fs.writeFileSync(file, JSON.stringify(snapshot, null, 2));
