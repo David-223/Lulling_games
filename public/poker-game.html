@@ -882,6 +882,16 @@
 </head>
 <body>
 
+  <!-- Hintergrundvideo (looped, stumm) -->
+  <video id="bg-video" src="/videos/background.mp4"
+    autoplay loop muted playsinline
+    style="
+      position:fixed;inset:0;width:100%;height:100%;
+      object-fit:cover;z-index:-1;
+      opacity:0.15;pointer-events:none;
+    "
+  ></video>
+
   <header class="site-header">
     <div class="logo-text">Lalling Games</div>
     <div class="logo-sub">Das Culling Spiel · Das Trinkspiel</div>
