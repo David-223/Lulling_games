@@ -26,205 +26,7 @@
     }
 
     /* ══════════════════════════════
-       1 · INFINITE VOID — Gojo
-    ══════════════════════════════ */
-    .domain-void {
-      background: #000;
-    }
-    .domain-void::before {
-      content: '';
-      position: fixed; inset: 0;
-      background:
-        repeating-linear-gradient(0deg,   transparent, transparent 59px, rgba(120,200,255,0.07) 60px),
-        repeating-linear-gradient(90deg,  transparent, transparent 59px, rgba(120,200,255,0.07) 60px);
-      animation: void-grid 8s linear infinite;
-    }
-    .domain-void::after {
-      content: '';
-      position: fixed; inset: 0;
-      background: radial-gradient(ellipse 80% 60% at 50% 50%, rgba(160,220,255,0.12) 0%, transparent 70%);
-      animation: void-pulse 4s ease-in-out infinite;
-    }
-    @keyframes void-grid  { from { transform: perspective(400px) rotateX(20deg) translateY(0); } to { transform: perspective(400px) rotateX(20deg) translateY(60px); } }
-    @keyframes void-pulse { 0%,100%{ opacity:0.5 } 50%{ opacity:1 } }
-
-    /* ══════════════════════════════
-       2 · MALEVOLENT SHRINE — Sukuna
-    ══════════════════════════════ */
-    .domain-shrine {
-      background: radial-gradient(ellipse at 50% 100%, #2a0000 0%, #0d0000 60%, #000 100%);
-    }
-    .domain-shrine::before {
-      content: '';
-      position: fixed; inset: 0;
-      background:
-        radial-gradient(ellipse 60% 40% at 50% 90%, rgba(200,20,20,0.25) 0%, transparent 70%);
-      animation: shrine-flicker 2s ease-in-out infinite;
-    }
-    .domain-shrine::after {
-      content: '';
-      position: fixed; inset: -10%;
-      background-image:
-        radial-gradient(1px 40px at 20% 80%, rgba(255,50,50,0.4) 0%, transparent 100%),
-        radial-gradient(1px 60px at 50% 90%, rgba(255,80,30,0.3) 0%, transparent 100%),
-        radial-gradient(1px 30px at 80% 85%, rgba(255,40,40,0.4) 0%, transparent 100%),
-        radial-gradient(1px 50px at 35% 75%, rgba(220,60,20,0.3) 0%, transparent 100%),
-        radial-gradient(1px 45px at 65% 88%, rgba(255,30,30,0.35) 0%, transparent 100%);
-      animation: shrine-flames 3s ease-in-out infinite alternate;
-    }
-    @keyframes shrine-flicker { 0%,100%{ opacity:0.6 } 50%{ opacity:1 } 75%{ opacity:0.4 } }
-    @keyframes shrine-flames  { from{ transform: scaleY(1) translateY(0) } to{ transform: scaleY(1.1) translateY(-8px) } }
-
-    /* ══════════════════════════════
-       3 · CHIMERA SHADOW — Megumi
-    ══════════════════════════════ */
-    .domain-shadow {
-      background: #050510;
-    }
-    .domain-shadow::before {
-      content: '';
-      position: fixed; inset: 0;
-      background:
-        radial-gradient(ellipse 50% 70% at 20% 50%, rgba(40,0,80,0.5) 0%, transparent 60%),
-        radial-gradient(ellipse 50% 70% at 80% 50%, rgba(0,20,60,0.4) 0%, transparent 60%);
-      animation: shadow-shift 6s ease-in-out infinite alternate;
-    }
-    .domain-shadow::after {
-      content: '';
-      position: fixed; inset: 0;
-      background: repeating-conic-gradient(from 0deg at 50% 50%, transparent 0deg, rgba(80,0,160,0.04) 1deg, transparent 2deg);
-      animation: shadow-rotate 20s linear infinite;
-    }
-    @keyframes shadow-shift  { from{ transform: scale(1) } to{ transform: scale(1.1) translateX(5%) } }
-    @keyframes shadow-rotate { from{ transform: rotate(0deg) } to{ transform: rotate(360deg) } }
-
-    /* ══════════════════════════════
-       4 · SELF-EMBODIMENT — Mahito
-    ══════════════════════════════ */
-    .domain-mahito {
-      background: radial-gradient(ellipse at 50% 50%, #1a0820 0%, #080008 100%);
-    }
-    .domain-mahito::before {
-      content: '';
-      position: fixed; inset: 0;
-      background:
-        radial-gradient(ellipse 30% 60% at 30% 40%, rgba(180,40,120,0.15) 0%, transparent 70%),
-        radial-gradient(ellipse 30% 60% at 70% 60%, rgba(100,20,180,0.15) 0%, transparent 70%);
-      animation: mahito-warp 5s ease-in-out infinite;
-    }
-    .domain-mahito::after {
-      content: '';
-      position: fixed; inset: 0;
-      background: repeating-radial-gradient(ellipse at 50% 50%, transparent 0px, transparent 40px, rgba(180,40,120,0.05) 41px, transparent 42px);
-      animation: mahito-pulse 3s ease-in-out infinite;
-    }
-    @keyframes mahito-warp  { 0%,100%{ transform: scale(1) } 50%{ transform: scale(1.05) skewX(1deg) } }
-    @keyframes mahito-pulse { 0%,100%{ opacity:0.5 } 50%{ opacity:1 } }
-
-    /* ══════════════════════════════
-       5 · HORIZON — Geto
-    ══════════════════════════════ */
-    .domain-geto {
-      background: radial-gradient(ellipse at 50% 30%, #0a001a 0%, #000308 100%);
-    }
-    .domain-geto::before {
-      content: '';
-      position: fixed; inset: 0;
-      background:
-        radial-gradient(ellipse 80% 20% at 50% 50%, rgba(100,60,200,0.2) 0%, transparent 100%);
-      animation: geto-float 6s ease-in-out infinite;
-    }
-    .domain-geto::after {
-      content: '';
-      position: fixed; inset: 0;
-      background:
-        radial-gradient(2px 2px at 20% 30%, rgba(180,140,255,0.6) 0%, transparent 100%),
-        radial-gradient(2px 2px at 60% 20%, rgba(180,140,255,0.5) 0%, transparent 100%),
-        radial-gradient(2px 2px at 80% 50%, rgba(140,100,255,0.4) 0%, transparent 100%),
-        radial-gradient(2px 2px at 40% 70%, rgba(200,160,255,0.5) 0%, transparent 100%),
-        radial-gradient(2px 2px at 10% 60%, rgba(160,120,255,0.4) 0%, transparent 100%),
-        radial-gradient(2px 2px at 70% 80%, rgba(180,140,255,0.3) 0%, transparent 100%);
-      animation: geto-stars 8s ease-in-out infinite alternate;
-    }
-    @keyframes geto-float { 0%,100%{ transform: translateY(0) } 50%{ transform: translateY(-10px) } }
-    @keyframes geto-stars { from{ opacity:0.4 } to{ opacity:1 } }
-
-    /* ══════════════════════════════
-       6 · WOMB PROFUSION — Dagon
-    ══════════════════════════════ */
-    .domain-dagon {
-      background: radial-gradient(ellipse at 50% 100%, #001a2e 0%, #000a14 100%);
-    }
-    .domain-dagon::before {
-      content: '';
-      position: fixed; inset: 0;
-      background:
-        radial-gradient(ellipse 100% 30% at 50% 100%, rgba(0,80,140,0.4) 0%, transparent 100%);
-      animation: dagon-wave 4s ease-in-out infinite;
-    }
-    .domain-dagon::after {
-      content: '';
-      position: fixed; inset: 0;
-      background:
-        repeating-linear-gradient(180deg, transparent, transparent 29px, rgba(0,120,200,0.06) 30px);
-      animation: dagon-current 6s linear infinite;
-    }
-    @keyframes dagon-wave    { 0%,100%{ transform: scaleX(1) } 50%{ transform: scaleX(1.05) } }
-    @keyframes dagon-current { from{ transform: translateY(0) } to{ transform: translateY(30px) } }
-
-    /* ══════════════════════════════
-       7 · MOON PALACE — Tengen
-    ══════════════════════════════ */
-    .domain-tengen {
-      background: radial-gradient(ellipse at 50% 0%, #1a1200 0%, #080600 100%);
-    }
-    .domain-tengen::before {
-      content: '';
-      position: fixed; inset: 0;
-      background:
-        radial-gradient(ellipse 40% 40% at 50% 20%, rgba(255,200,60,0.15) 0%, transparent 70%),
-        repeating-conic-gradient(from 0deg at 50% 20%, transparent 0deg, rgba(255,180,40,0.03) 10deg, transparent 20deg);
-      animation: tengen-spin 30s linear infinite;
-    }
-    .domain-tengen::after {
-      content: '';
-      position: fixed; inset: 0;
-      background:
-        radial-gradient(ellipse 20% 20% at 50% 20%, rgba(255,220,100,0.2) 0%, transparent 100%);
-      animation: tengen-glow 4s ease-in-out infinite;
-    }
-    @keyframes tengen-spin { from{ transform: rotate(0deg) } to{ transform: rotate(360deg) } }
-    @keyframes tengen-glow { 0%,100%{ opacity:0.5 } 50%{ opacity:1 } }
-
-    /* ══════════════════════════════
-       8 · DEADLY SENTENCING — Naoya
-    ══════════════════════════════ */
-    .domain-naoya {
-      background: #020202;
-    }
-    .domain-naoya::before {
-      content: '';
-      position: fixed; inset: 0;
-      background:
-        linear-gradient(180deg, rgba(180,160,0,0.08) 0%, transparent 30%),
-        linear-gradient(0deg,   rgba(180,160,0,0.08) 0%, transparent 30%);
-      animation: naoya-scan 2s linear infinite;
-    }
-    .domain-naoya::after {
-      content: '';
-      position: fixed; inset: 0;
-      background:
-        radial-gradient(1px 100vh at 15% 0%, rgba(200,180,0,0.3) 0%, transparent 100%),
-        radial-gradient(1px 100vh at 40% 0%, rgba(200,180,0,0.15) 0%, transparent 100%),
-        radial-gradient(1px 100vh at 70% 0%, rgba(200,180,0,0.25) 0%, transparent 100%),
-        radial-gradient(1px 100vh at 90% 0%, rgba(200,180,0,0.2) 0%, transparent 100%);
-      animation: naoya-strike 4s ease-in-out infinite;
-    }
-    @keyframes naoya-scan   { from{ transform: translateY(-100%) } to{ transform: translateY(100%) } }
-    @keyframes naoya-strike { 0%,90%,100%{ opacity:0 } 92%,98%{ opacity:1 } }
-
-    /* ══════════════════════════════
-       9 · DER WANDELNDE BARNABAS — Shanon
+       1 · DER WANDELNDE BARNABAS — Shanon
     ══════════════════════════════ */
     .domain-barnabas {
       background: radial-gradient(ellipse at 40% 60%, #0a0a00 0%, #000000 100%);
@@ -253,7 +55,7 @@
     @keyframes barnabas-flicker { 0%,100%{ opacity:0.4 } 30%{ opacity:1 } 60%{ opacity:0.6 } 80%{ opacity:0.9 } }
 
     /* ══════════════════════════════
-       10 · DER WÜRFELNDE WALPA — Felix
+       2 · DER WÜRFELNDE WALPA — Felix
     ══════════════════════════════ */
     .domain-walpa {
       background: radial-gradient(ellipse at 50% 40%, #1a0030 0%, #0d0020 55%, #000 100%);
@@ -299,7 +101,7 @@
     }
 
     /* ══════════════════════════════
-       11 · GEBÄRMUTTERSCHOSS — Ozan
+       3 · GEBÄRMUTTERSCHOSS — Ozan
     ══════════════════════════════ */
     .domain-gebaermutter {
       background: radial-gradient(ellipse at 50% 60%, #1a0010 0%, #0d0008 55%, #000 100%);
@@ -337,7 +139,7 @@
     }
 
     /* ══════════════════════════════
-       12 · DIE GIERIGE NASE — Lovis
+       4 · DIE GIERIGE NASE — Lovis
     ══════════════════════════════ */
     .domain-gierige-nase {
       background: radial-gradient(ellipse at 50% 35%, #1a1700 0%, #0e0c00 55%, #000 100%);
@@ -627,54 +429,6 @@
 
   <script>
     const DOMAINS = [
-      {
-        cls: 'domain-void', jp: '無量空処', en: 'Infinite Void',
-        desc: 'Alles. Nichts. Unendlichkeit.',
-        color: '#a0dcff', theme: 'ao', caster: 'Gojo Satoru',
-        expansionId: 'infinite_void',
-      },
-      {
-        cls: 'domain-shrine', jp: '伏魔御廚子', en: 'Malevolent Shrine',
-        desc: 'Zerstörung kennt keine Grenzen.',
-        color: '#ff6060', theme: 'shuku', caster: 'Ryomen Sukuna',
-        expansionId: 'malevolent_shrine',
-      },
-      {
-        cls: 'domain-shadow', jp: '嵌合暗翳庭', en: 'Chimera Shadow Garden',
-        desc: 'Schatten verschlingen alles.',
-        color: '#9d60ff', theme: 'yami', caster: 'Fushiguro Megumi',
-        expansionId: 'chimera_shadow',
-      },
-      {
-        cls: 'domain-mahito', jp: '自閉円頓裹', en: 'Self-Embodiment of Perfection',
-        desc: 'Die Seele verformt sich nach deinem Willen.',
-        color: '#e060c0', theme: 'shuku', caster: 'Mahito',
-        expansionId: 'self_embodiment',
-      },
-      {
-        cls: 'domain-geto', jp: '嶄新な慄き', en: 'Horizon of the Captivating Skandha',
-        desc: 'Zwischen den Welten schweben.',
-        color: '#b49fff', theme: 'yami', caster: 'Geto Suguru',
-        expansionId: 'horizon_captivating',
-      },
-      {
-        cls: 'domain-dagon', jp: '蕩蕩跋扈魑魅魍魎', en: 'Womb Profusion',
-        desc: 'Tiefe ohne Ende.',
-        color: '#40a0e0', theme: 'ao', caster: 'Dagon',
-        expansionId: null,
-      },
-      {
-        cls: 'domain-tengen', jp: '無為転変', en: 'Idle Death Gamble',
-        desc: 'Ewiges Licht übersteigt jeden Fluch.',
-        color: '#ffd060', theme: 'kin', caster: 'Tengen',
-        expansionId: null,
-      },
-      {
-        cls: 'domain-naoya', jp: '死刑宣告', en: 'Deadly Sentencing',
-        desc: 'Das Urteil ist unausweichlich.',
-        color: '#c8c020', theme: 'kin', caster: 'Naoya Zenin',
-        expansionId: null,
-      },
       {
         cls: 'domain-barnabas', jp: 'Der wandelnde Barnabas', en: 'The Wandering Barnabas',
         desc: 'Barnabas sieht alles. Barnabas spricht nicht.',

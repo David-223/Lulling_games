@@ -2,62 +2,12 @@
   "enabled": true,
   "expansions": [
     {
-      "id": "infinite_void",
-      "name": "無量空処",
-      "subname": "Infinite Void",
-      "caster": "Gojo Satoru",
-      "theme": "ao",
-      "effect": "Alle Spieler trinken 3 Schlucke, bevor sie setzen.",
-      "enabled": true,
-      "chance": 20
-    },
-    {
-      "id": "malevolent_shrine",
-      "name": "嗤う蝉",
-      "subname": "Malevolent Shrine",
-      "caster": "Ryomen Sukuna",
-      "theme": "shuku",
-      "effect": "Die Blinds werden diese Runde verdoppelt.",
-      "enabled": true,
-      "chance": 15
-    },
-    {
-      "id": "chimera_shadow",
-      "name": "嵌合暗翳庭",
-      "subname": "Chimera Shadow Garden",
-      "caster": "Fushiguro Megumi",
+      "id": "wandelnder_barnabas",
+      "name": "Der wandelnde Barnabas",
+      "subname": "The Wandering Barnabas",
+      "caster": "Shanon",
       "theme": "yami",
-      "effect": "Jeder Spieler muss seinen Einsatz verdoppeln oder folden.",
-      "enabled": true,
-      "chance": 15
-    },
-    {
-      "id": "horizon_captivating",
-      "name": "蕩ケシ",
-      "subname": "Horizon of the Captivating Skandha",
-      "caster": "Geto Suguru",
-      "theme": "yami",
-      "effect": "Alle zahlen 10 Punkte zusätzlich in den Pot.",
-      "enabled": true,
-      "chance": 10
-    },
-    {
-      "id": "self_embodiment",
-      "name": "自己身体変容",
-      "subname": "Self-Embodiment of Perfection",
-      "caster": "Mahito",
-      "theme": "shuku",
-      "effect": "Der Spieler mit den wenigsten Chips trinkt 5 Schlucke.",
-      "enabled": true,
-      "chance": 10
-    },
-    {
-      "id": "gebaermutterschoss",
-      "name": "Gebärmutterschoß",
-      "subname": "Womb Profusion",
-      "caster": "Ozan",
-      "theme": "shuku",
-      "effect": "Immer wenn ein Mitspieler foldet, darf der Nutzer sofort eine Handkarte tauschen. Zu Rundenstart muss eine Karte als Cursed Technique markiert werden — diese ist unveränderlich.",
+      "effect": "Ein Mitspieler wird mit '67' auf der Stirn zum Shikigami ernannt und nimmt diese Hand nicht als Spieler teil. Das Shikigami stellt sich hinter den Gegner, auf den ich zeige, und darf dessen Karten sehen — Hinweise jedoch nur durch Tiergeräusche. Verliere ich die Hand, trinken ich und mein Shikigami je 2 Strafschlücke.",
       "enabled": true,
       "chance": 0
     },
@@ -72,12 +22,12 @@
       "chance": 0
     },
     {
-      "id": "wandelnder_barnabas",
-      "name": "Der wandelnde Barnabas",
-      "subname": "The Wandering Barnabas",
-      "caster": "Shanon",
-      "theme": "yami",
-      "effect": "Ein Mitspieler wird mit '67' auf der Stirn zum Shikigami ernannt und nimmt diese Hand nicht als Spieler teil. Das Shikigami stellt sich hinter den Gegner, auf den ich zeige, und darf dessen Karten sehen — Hinweise jedoch nur durch Tiergeräusche. Verliere ich die Hand, trinken ich und mein Shikigami je 2 Strafschlücke.",
+      "id": "gebaermutterschoss",
+      "name": "Gebärmutterschoß",
+      "subname": "Womb Profusion",
+      "caster": "Ozan",
+      "theme": "shuku",
+      "effect": "Immer wenn ein Mitspieler foldet, darf der Nutzer sofort eine Handkarte tauschen. Zu Rundenstart muss eine Karte als Cursed Technique markiert werden — diese ist unveränderlich.",
       "enabled": true,
       "chance": 0
     },
