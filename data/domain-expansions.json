@@ -9,7 +9,7 @@
       "theme": "yami",
       "effect": "Ein Mitspieler wird mit '67' auf der Stirn zum Shikigami ernannt und nimmt diese Hand nicht als Spieler teil. Das Shikigami stellt sich hinter den Gegner, auf den ich zeige, und darf dessen Karten sehen — Hinweise jedoch nur durch Tiergeräusche. Verliere ich die Hand, trinken ich und mein Shikigami je 2 Strafschlücke.",
       "enabled": true,
-      "chance": 0
+      "chance": 20
     },
     {
       "id": "wuerfelnder_walpa",
@@ -19,7 +19,7 @@
       "theme": "yami",
       "effect": "Vor jeder Aktion wird gewürfelt: 🎲 1–2 = Check/Call · 3–4 = Raise · 5–6 = Fold. Für 3 Schlücke darf einmal neu gewürfelt werden. Bei Raise: Einsatzhöhe = Augenzahl × 50.",
       "enabled": true,
-      "chance": 0
+      "chance": 20
     },
     {
       "id": "gebaermutterschoss",
@@ -29,7 +29,7 @@
       "theme": "shuku",
       "effect": "Immer wenn ein Mitspieler foldet, darf der Nutzer sofort eine Handkarte tauschen. Zu Rundenstart muss eine Karte als Cursed Technique markiert werden — diese ist unveränderlich.",
       "enabled": true,
-      "chance": 0
+      "chance": 20
     },
     {
       "id": "gierige_nase",
@@ -39,7 +39,7 @@
       "theme": "kin",
       "effect": "Lovis wählt einen der gefoldeten Spieler aus: dieser muss doppelt so viel schnupfen wie Lovis selbst in dieser Runde – oder einen Shot trinken, falls er sich weigert.",
       "enabled": true,
-      "chance": 0
+      "chance": 20
     }
   ]
 }
