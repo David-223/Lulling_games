@@ -1956,12 +1956,7 @@
       // Hintergrundvideo nur bei Deignersche Notengebung
       const bgVid = document.getElementById('bg-video');
       if (de && de.id === 'deignersche_notengebung') {
-        // Ton-Setting live lesen
-        try {
-          const sr = await fetch('/api/settings');
-          const ss = await sr.json();
-          bgVid.muted = !(ss.bgVideoAudio !== false);
-        } catch { bgVid.muted = false; }
+        bgVid.muted = !_bgVideoAudio;
         bgVid.style.display = 'block';
         if (bgVid.paused) bgVid.play().catch(() => {});
         overlay.style.background = 'rgba(0,5,20,0.55)';
@@ -2008,6 +2003,7 @@
 
     let pokerActive = false;
     let lastDEHandNum = -1;
+    let _bgVideoAudio = true; // cached setting, updated each poll
 
     // Domain expansion colour themes
     const DE_COLORS = {
@@ -2117,6 +2113,11 @@
 
     async function pollPoker() {
       try {
+        // Ton-Setting cachen (feuert parallel, blockiert nicht)
+        fetch('/api/settings').then(r => r.json()).then(s => {
+          _bgVideoAudio = s.bgVideoAudio !== false;
+        }).catch(() => {});
+
         const res = await fetch('/api/poker/state');
         if (!res.ok) {
           setPokerView(false); return;
