@@ -1,6 +1,6 @@
 {
   "players": [
-    { "id": 1,  "name": "David",   "pin": "4721", "domainIdx": 0 },
+    { "id": 1,  "name": "David",   "pin": "4721", "domainIdx": 4 },
     { "id": 2,  "name": "Felix",   "pin": "8834", "domainIdx": 1 },
     { "id": 3,  "name": "Ratko",   "pin": "2293", "domainIdx": 2 },
     { "id": 4,  "name": "Julian",  "pin": "6157", "domainIdx": 3 },

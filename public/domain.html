@@ -177,6 +177,42 @@
       to   { opacity: 1;    transform: scale(1.09) rotate(0.8deg); }
     }
 
+    /* ══════════════════════════════
+       5 · DEIGNERSCHE NOTENGEBUNG — David
+    ══════════════════════════════ */
+    .domain-notengebung {
+      background: radial-gradient(ellipse at 50% 45%, #000820 0%, #000510 100%);
+    }
+    .domain-notengebung::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 70% 50% at 20% 80%, rgba(20,80,255,0.18) 0%, transparent 65%),
+        radial-gradient(ellipse 50% 70% at 80% 20%, rgba(0,60,220,0.14) 0%, transparent 65%);
+      animation: noten-pulse 5s ease-in-out infinite alternate;
+    }
+    .domain-notengebung::after {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(1px 1px at 20% 30%, rgba(80,140,255,0.55) 0%, transparent 100%),
+        radial-gradient(1px 1px at 45% 12%, rgba(60,120,255,0.45) 0%, transparent 100%),
+        radial-gradient(1px 1px at 75% 38%, rgba(90,150,255,0.5)  0%, transparent 100%),
+        radial-gradient(1px 1px at 32% 68%, rgba(70,130,255,0.4)  0%, transparent 100%),
+        radial-gradient(1px 1px at 63% 78%, rgba(80,140,255,0.45) 0%, transparent 100%),
+        radial-gradient(2px 2px at 85% 55%, rgba(100,160,255,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 12% 55%, rgba(60,120,255,0.4)  0%, transparent 100%);
+      animation: noten-glint 4s ease-in-out infinite alternate;
+    }
+    @keyframes noten-pulse {
+      from { opacity: 0.7; transform: scale(1);    }
+      to   { opacity: 1;   transform: scale(1.06); }
+    }
+    @keyframes noten-glint {
+      from { opacity: 0.4; transform: scale(1)    rotate(0deg);   }
+      to   { opacity: 1;   transform: scale(1.08) rotate(-0.5deg); }
+    }
+
     /* ── Content overlay ── */
     .domain-content {
       position: relative;
@@ -452,6 +488,12 @@
         desc: 'Die Nase vergisst nicht. Die Nase vergibt nicht.',
         color: '#d4b830', theme: 'kin', caster: 'Lovis',
         expansionId: 'gierige_nase',
+      },
+      {
+        cls: 'domain-notengebung', jp: 'Deignersche Notengebung', en: "Deigner's Grading System",
+        desc: 'Der Würfel entscheidet. Der Lehrer verteilt.',
+        color: '#4488ff', theme: 'ao', caster: 'David',
+        expansionId: 'deignersche_notengebung',
       },
     ];
 
