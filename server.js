@@ -186,6 +186,19 @@ app.delete('/api/players/:id', (req, res) => {
   res.json({ success: true });
 });
 
+/// Admin: Spieler-Reihenfolge festlegen
+app.post('/api/players/reorder', (req, res) => {
+  if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
+  const { ids } = req.body;
+  if (!Array.isArray(ids)) return res.status(400).json({ error: 'ids array erforderlich' });
+  const pdata = readPlayers();
+  const ordered = ids.map(id => pdata.players.find(p => p.id === parseInt(id))).filter(Boolean);
+  const remaining = pdata.players.filter(p => !ids.map(Number).includes(p.id));
+  pdata.players = [...ordered, ...remaining];
+  writePlayers(pdata);
+  res.json(pdata.players);
+});
+
 // Public self-registration: returns existing player by name or creates a new one
 app.post('/api/players/register', (req, res) => {
   const { name, role } = req.body;
