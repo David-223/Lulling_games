@@ -615,6 +615,18 @@
           </button>
         </div>
 
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border-mid);">
+          <div>
+            <div style="font-family:var(--font-ui);font-size:0.88rem;color:var(--text);letter-spacing:0.04em;">🔊 Domain-Video Ton (TV)</div>
+            <div style="font-size:0.74rem;color:var(--text-dim);font-family:var(--font-ui);margin-top:0.3rem;line-height:1.4;">
+              Ton des Hintergrundvideos bei Deignersche Notengebung auf dem TV.
+            </div>
+          </div>
+          <button id="bg-video-audio-btn" class="toggle-switch" onclick="toggleBgVideoAudio()" title="Video-Ton ein/ausschalten">
+            <span class="toggle-knob"></span>
+          </button>
+        </div>
+
         <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border-mid);">
           <div style="font-family:var(--font-ui);font-size:0.88rem;color:var(--text);letter-spacing:0.04em;margin-bottom:0.5rem;">🃏 Standard Blinds</div>
           <div style="font-size:0.74rem;color:var(--text-dim);font-family:var(--font-ui);margin-bottom:0.9rem;line-height:1.4;">
@@ -766,6 +778,7 @@
       loadAdminPlayers();
       updateHandyToggleUI();
       loadCardsEnabled();
+      loadBgVideoAudio();
       loadTestMode();
       loadAutoBackupInfo();
     }
@@ -805,6 +818,31 @@
         });
         document.getElementById('cards-toggle-btn').classList.toggle('on', next);
         showToast(next ? 'Digitale Karten aktiviert' : 'Digitale Karten deaktiviert', 'success');
+      } catch { showToast('Fehler', 'error'); }
+    }
+
+    // ── Domain-Video Ton ──
+    async function loadBgVideoAudio() {
+      try {
+        const res = await fetch('/api/settings');
+        const s = await res.json();
+        const btn = document.getElementById('bg-video-audio-btn');
+        if (btn) btn.classList.toggle('on', s.bgVideoAudio !== false);
+      } catch {}
+    }
+
+    async function toggleBgVideoAudio() {
+      try {
+        const res = await fetch('/api/settings');
+        const s = await res.json();
+        const next = !(s.bgVideoAudio !== false);
+        await fetch('/api/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...adminAuthBody(), bgVideoAudio: next })
+        });
+        document.getElementById('bg-video-audio-btn').classList.toggle('on', next);
+        showToast(next ? 'Video-Ton aktiviert' : 'Video-Ton deaktiviert', 'success');
       } catch { showToast('Fehler', 'error'); }
     }
 

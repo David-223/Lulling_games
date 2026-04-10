@@ -1956,13 +1956,19 @@
       // Hintergrundvideo nur bei Deignersche Notengebung
       const bgVid = document.getElementById('bg-video');
       if (de && de.id === 'deignersche_notengebung') {
+        // Ton-Setting live lesen
+        try {
+          const sr = await fetch('/api/settings');
+          const ss = await sr.json();
+          bgVid.muted = !(ss.bgVideoAudio !== false);
+        } catch { bgVid.muted = false; }
         bgVid.style.display = 'block';
         if (bgVid.paused) bgVid.play().catch(() => {});
-        overlay.style.background = 'rgba(0,5,20,0.55)'; // semi-transparent damit Video sichtbar
+        overlay.style.background = 'rgba(0,5,20,0.55)';
       } else {
         bgVid.style.display = 'none';
         bgVid.pause();
-        overlay.style.background = ''; // Standard-Hintergrund wiederherstellen
+        overlay.style.background = '';
       }
       overlay.classList.remove('de-bg-ao', 'de-bg-shuku', 'de-bg-yami', 'de-bg-kin');
       if (de) {

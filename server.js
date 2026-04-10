@@ -824,6 +824,7 @@ function readSettings() {
   if (s.bountyEnabled === undefined) s.bountyEnabled = true;
   if (s.bountyChance  === undefined) s.bountyChance  = 35;
   if (s.testMode      === undefined) s.testMode      = false;
+  if (s.bgVideoAudio  === undefined) s.bgVideoAudio  = true;
   return s;
 }
 
@@ -836,13 +837,14 @@ app.get('/api/settings', (req, res) => res.json(readSettings()));
 app.post('/api/settings', (req, res) => {
   if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
   const current = readSettings();
-  const { cardsEnabled, blindSmall, blindBig, bountyEnabled, bountyChance, testMode } = req.body;
+  const { cardsEnabled, blindSmall, blindBig, bountyEnabled, bountyChance, testMode, bgVideoAudio } = req.body;
   if (cardsEnabled  !== undefined) current.cardsEnabled  = !!cardsEnabled;
   if (blindSmall    !== undefined) current.blindSmall    = Math.max(1, parseInt(blindSmall) || 5);
   if (blindBig      !== undefined) current.blindBig      = Math.max(2, parseInt(blindBig)   || 10);
   if (bountyEnabled !== undefined) current.bountyEnabled = !!bountyEnabled;
   if (bountyChance  !== undefined) current.bountyChance  = Math.min(100, Math.max(0, parseInt(bountyChance) || 35));
   if (testMode      !== undefined) current.testMode      = !!testMode;
+  if (bgVideoAudio  !== undefined) current.bgVideoAudio  = !!bgVideoAudio;
   writeSettings(current);
   res.json(current);
 });
