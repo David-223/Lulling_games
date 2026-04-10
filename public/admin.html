@@ -572,6 +572,18 @@
           </button>
         </div>
 
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border-mid);">
+          <div>
+            <div style="font-family:var(--font-ui);font-size:0.88rem;color:var(--text);letter-spacing:0.04em;">👻 Cursed Spirit Bounty</div>
+            <div style="font-size:0.74rem;color:var(--text-dim);font-family:var(--font-ui);margin-top:0.3rem;line-height:1.4;">
+              Zufällige Kopfgelder auf dem TV erscheinen während einer Hand (~35% Chance).
+            </div>
+          </div>
+          <button id="bounty-toggle-btn" class="toggle-switch" onclick="toggleBountyEnabled()" title="Cursed Spirit Bounty ein/ausschalten">
+            <span class="toggle-knob"></span>
+          </button>
+        </div>
+
         <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border-mid);">
           <div style="font-family:var(--font-ui);font-size:0.88rem;color:var(--text);letter-spacing:0.04em;margin-bottom:0.5rem;">🃏 Standard Blinds</div>
           <div style="font-size:0.74rem;color:var(--text-dim);font-family:var(--font-ui);margin-bottom:0.9rem;line-height:1.4;">
@@ -1449,6 +1461,31 @@
       }
     }
 
+    // ── Cursed Spirit Bounty toggle ──
+    async function loadBountyEnabled() {
+      try {
+        const res = await fetch('/api/settings');
+        const s = await res.json();
+        const btn = document.getElementById('bounty-toggle-btn');
+        if (btn) btn.classList.toggle('on', s.bountyEnabled !== false);
+      } catch {}
+    }
+
+    async function toggleBountyEnabled() {
+      try {
+        const res = await fetch('/api/settings');
+        const s = await res.json();
+        const next = !( s.bountyEnabled !== false );
+        await fetch('/api/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...adminAuthBody(), bountyEnabled: next })
+        });
+        document.getElementById('bounty-toggle-btn').classList.toggle('on', next);
+        showToast(next ? 'Cursed Spirit Bounty aktiviert' : 'Cursed Spirit Bounty deaktiviert', 'success');
+      } catch { showToast('Fehler', 'error'); }
+    }
+
     // ── Blinds ──
     let blindsLoaded = false;
 
@@ -1529,6 +1566,7 @@
       if (screen && screen.style.display !== 'none') {
         if (!deSettings) loadDE();
         loadCardsEnabled();
+        loadBountyEnabled();
         loadRoster();
         loadKnugg();
         loadBlinds();

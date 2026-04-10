@@ -297,6 +297,21 @@ app.post('/api/auth', (req, res) => {
 
 // ── Poker ──
 
+const BOUNTIES = [
+  { spirit: 'Jogo',   condition: 'Wer als nächster foldet, trinkt 3 Schlücke.' },
+  { spirit: 'Jogo',   condition: 'Wer raised, ohne zu gewinnen, trinkt 2 Schlücke.' },
+  { spirit: 'Hanami', condition: 'Der Gewinner verteilt 4 Schlücke frei.' },
+  { spirit: 'Hanami', condition: 'Wer als erster checked, trinkt 2 Schlücke.' },
+  { spirit: 'Dagon',  condition: 'Wer die wenigsten Chips hat und foldet, trinkt 3 Schlücke.' },
+  { spirit: 'Dagon',  condition: 'Alle aktiven Spieler trinken 1 Schluck vor ihrer ersten Aktion.' },
+  { spirit: 'Choso',  condition: 'Wer mehr als einmal raised, trinkt 3 Schlücke.' },
+  { spirit: 'Choso',  condition: 'Der Verlierer trinkt 2 Schlücke extra.' },
+  { spirit: 'Rika',   condition: 'Wer allin geht und verliert, trinkt 5 Schlücke.' },
+  { spirit: 'Rika',   condition: 'Wer foldet ohne jemals geraised zu haben, trinkt 2 Schlücke.' },
+  { spirit: 'Mahito', condition: 'Alle zahlen 1 Schluck Eintritt vor dem Preflop.' },
+  { spirit: 'Mahito', condition: 'Wer nach dem River foldet, trinkt 4 Schlücke.' },
+];
+
 let pokerGame = null;
 let pendingDomainActivation = null; // { playerId, playerName, domain }
 
@@ -346,7 +361,7 @@ app.post('/api/poker/new', (req, res) => {
     blindSmall: Math.max(1, parseInt(blindSmall) || stngs.blindSmall || 5),
     blindBig: Math.max(2, parseInt(blindBig) || stngs.blindBig || 10),
     handNum: 0, winner: null, winnerId: null,
-    awayEvents: [],
+    awayEvents: [], sipTotals: {},
   };
   res.json(pokerGame);
 });
@@ -429,6 +444,12 @@ app.post('/api/poker/deal', (req, res) => {
     const pool = (de.expansions || []).filter(e => e.enabled);
     if (pool.length > 0)
       g.domainExpansion = pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  // Cursed Spirit Bounty: 35% chance per hand when enabled
+  g.cursedSpiritBounty = null;
+  if (settings.bountyEnabled !== false && Math.random() < 0.35) {
+    g.cursedSpiritBounty = BOUNTIES[Math.floor(Math.random() * BOUNTIES.length)];
   }
 
   res.json(g);
@@ -535,6 +556,21 @@ app.post('/api/poker/winner', (req, res) => {
   g.winnerPot = g.pot;
   g.pot = 0; g.phase = 'ended';
   g.winningHand = req.body.winningHand || null;
+
+  // Accumulate sip totals (1 sip per 25 chips lost vs hand start)
+  if (!g.sipTotals) g.sipTotals = {};
+  if (g.handStartChips) {
+    g.players.forEach(p => {
+      const start = g.handStartChips[p.id];
+      if (start === undefined) return;
+      const lost = start - p.chips;
+      if (lost > 0) {
+        const sips = Math.floor(lost / 25);
+        if (sips > 0) g.sipTotals[p.id] = (g.sipTotals[p.id] || 0) + sips;
+      }
+    });
+  }
+
   const pdata = readPlayers();
   g.players.forEach(gp => { const pp = pdata.players.find(p => p.id === gp.id); if (pp) pp.points = gp.chips; });
   // Vierling (Four of a Kind) grants +1 domain coin to the winner(s)
@@ -710,10 +746,11 @@ app.delete('/api/binding-vows/:id', (req, res) => {
 const SETTINGS_FILE = path.join(__dirname, 'data', 'settings.json');
 
 function readSettings() {
-  if (!fs.existsSync(SETTINGS_FILE)) return { cardsEnabled: false, blindSmall: 5, blindBig: 10 };
+  if (!fs.existsSync(SETTINGS_FILE)) return { cardsEnabled: false, blindSmall: 5, blindBig: 10, bountyEnabled: true };
   const s = JSON.parse(fs.readFileSync(SETTINGS_FILE, 'utf-8'));
-  if (s.blindSmall === undefined) s.blindSmall = 5;
-  if (s.blindBig   === undefined) s.blindBig   = 10;
+  if (s.blindSmall    === undefined) s.blindSmall    = 5;
+  if (s.blindBig      === undefined) s.blindBig      = 10;
+  if (s.bountyEnabled === undefined) s.bountyEnabled = true;
   return s;
 }
 
@@ -727,9 +764,10 @@ app.post('/api/settings', (req, res) => {
   if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
   const current = readSettings();
   const { cardsEnabled, blindSmall, blindBig } = req.body;
-  if (cardsEnabled !== undefined) current.cardsEnabled = !!cardsEnabled;
-  if (blindSmall   !== undefined) current.blindSmall = Math.max(1, parseInt(blindSmall) || 5);
-  if (blindBig     !== undefined) current.blindBig   = Math.max(2, parseInt(blindBig)   || 10);
+  if (cardsEnabled  !== undefined) current.cardsEnabled  = !!cardsEnabled;
+  if (blindSmall    !== undefined) current.blindSmall    = Math.max(1, parseInt(blindSmall) || 5);
+  if (blindBig      !== undefined) current.blindBig      = Math.max(2, parseInt(blindBig)   || 10);
+  if (bountyEnabled !== undefined) current.bountyEnabled = !!bountyEnabled;
   writeSettings(current);
   res.json(current);
 });

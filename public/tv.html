@@ -723,6 +723,72 @@
       text-shadow: 0 0 8px rgba(201,162,39,0.5);
     }
 
+    /* ── Sip counter on seat ── */
+    .ptv-seat-sips {
+      font-family: var(--font-ui);
+      font-size: 0.7rem;
+      color: rgba(255,175,80,0.45);
+      text-align: center;
+      margin-top: 0.15rem;
+      min-height: 1rem;
+      letter-spacing: 0.04em;
+      transition: color 0.3s;
+    }
+    .ptv-seat-sips.has-sips {
+      color: rgba(255,175,80,0.82);
+    }
+
+    /* ── Cursed Spirit Bounty overlay ── */
+    #tv-bounty-overlay {
+      position: fixed;
+      top: 4.2rem;
+      right: 1.5rem;
+      z-index: 200;
+      display: none;
+      flex-direction: column;
+      gap: 0.25rem;
+      background: linear-gradient(135deg, rgba(50,0,5,0.94) 0%, rgba(22,0,10,0.97) 100%);
+      border: 1px solid rgba(180,30,55,0.55);
+      border-left: 3px solid #cc2840;
+      border-radius: 8px;
+      padding: 0.75rem 1.1rem;
+      max-width: 280px;
+      box-shadow: 0 0 22px rgba(180,30,55,0.3), 0 4px 18px rgba(0,0,0,0.85);
+      animation: bounty-glow 2.6s ease-in-out infinite;
+    }
+    #tv-bounty-overlay.visible { display: flex; }
+    @keyframes bounty-glow {
+      0%,100% { box-shadow: 0 0 14px rgba(180,30,55,0.22), 0 4px 18px rgba(0,0,0,0.85); }
+      50%     { box-shadow: 0 0 32px rgba(220,40,65,0.48), 0 4px 18px rgba(0,0,0,0.85); }
+    }
+    .bounty-label {
+      font-family: var(--font-ui);
+      font-size: 0.52rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: rgba(220,100,115,0.6);
+    }
+    .bounty-spirit {
+      font-family: var(--font-title);
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: #ff3050;
+      text-shadow: 0 0 14px rgba(255,35,65,0.5);
+      line-height: 1;
+    }
+    .bounty-divider {
+      width: 100%;
+      height: 1px;
+      background: rgba(180,30,55,0.32);
+      margin: 0.15rem 0;
+    }
+    .bounty-condition {
+      font-family: var(--font-ui);
+      font-size: 0.8rem;
+      color: rgba(255,205,205,0.9);
+      line-height: 1.45;
+    }
+
     .ptv-seat-drink {
       font-family: var(--font-ui);
       font-size: 0.78rem;
@@ -1443,6 +1509,14 @@
     </div>
   </div>
 
+  <!-- ═══ CURSED SPIRIT BOUNTY ═══ -->
+  <div id="tv-bounty-overlay">
+    <div class="bounty-label">— Verfluchter Geist erscheint —</div>
+    <div class="bounty-spirit" id="bounty-spirit-name"></div>
+    <div class="bounty-divider"></div>
+    <div class="bounty-condition" id="bounty-condition-text"></div>
+  </div>
+
   <!-- ═══ WHEEL RESULT OVERLAY ═══ -->
   <div id="tv-wheel-overlay">
     <div class="wheel-ov-symbol">呪</div>
@@ -1717,6 +1791,7 @@
       const holeCards = (state.holeCards && state.holeCards[player.id]) || [];
       const holeHtml  = holeCards.map(tvCardHtml).join('');
       const showCards = holeCards.length > 0;
+      const totalSips = (state.sipTotals || {})[player.id] || 0;
 
       if (!seatNodeMap.has(key)) {
         const el = document.createElement('div');
@@ -1728,6 +1803,7 @@
             <div class="ptv-badges">${badges.join('')}</div>
             <div class="ptv-seat-holecards${showCards ? ' visible' : ''}">${holeHtml}</div>
             <div class="ptv-seat-drink${drinkText ? ' visible' : ''}">${escHtml(drinkText || '')}</div>
+            <div class="ptv-seat-sips${totalSips > 0 ? ' has-sips' : ''}">${totalSips > 0 ? '🥃 ' + totalSips : ''}</div>
           </div>`;
         el.className = cls;
         seatNodeMap.set(key, el);
@@ -1746,6 +1822,9 @@
         const drinkEl = el.querySelector('.ptv-seat-drink');
         drinkEl.textContent = drinkText || '';
         drinkEl.classList.toggle('visible', !!drinkText);
+        const sipsEl = el.querySelector('.ptv-seat-sips');
+        sipsEl.textContent = totalSips > 0 ? '🥃 ' + totalSips : '';
+        sipsEl.classList.toggle('has-sips', totalSips > 0);
       }
 
       const el = seatNodeMap.get(key);
@@ -1979,6 +2058,16 @@
             lastDEHandNum = state.handNum;
             showDomainExpansion(state.domainExpansion);
           }
+          // Cursed Spirit Bounty
+          const bountyOverlay = document.getElementById('tv-bounty-overlay');
+          const bounty = state.cursedSpiritBounty;
+          if (bounty) {
+            document.getElementById('bounty-spirit-name').textContent   = bounty.spirit;
+            document.getElementById('bounty-condition-text').textContent = bounty.condition;
+            bountyOverlay.classList.add('visible');
+          } else {
+            bountyOverlay.classList.remove('visible');
+          }
         }
       } catch {
         setPokerView(false);
@@ -2000,6 +2089,7 @@
       if (!show) {
         seatNodeMap.clear();
         lastDEHandNum = -1;
+        document.getElementById('tv-bounty-overlay').classList.remove('visible');
       }
     }
 
