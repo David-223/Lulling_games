@@ -297,20 +297,69 @@ app.post('/api/auth', (req, res) => {
 
 // ── Poker ──
 
-const BOUNTIES = [
-  { spirit: 'Jogo',   condition: 'Wer als nächster foldet, trinkt 3 Schlücke.' },
-  { spirit: 'Jogo',   condition: 'Wer raised, ohne zu gewinnen, trinkt 2 Schlücke.' },
-  { spirit: 'Hanami', condition: 'Der Gewinner verteilt 4 Schlücke frei.' },
-  { spirit: 'Hanami', condition: 'Wer als erster checked, trinkt 2 Schlücke.' },
-  { spirit: 'Dagon',  condition: 'Wer die wenigsten Chips hat und foldet, trinkt 3 Schlücke.' },
-  { spirit: 'Dagon',  condition: 'Alle aktiven Spieler trinken 1 Schluck vor ihrer ersten Aktion.' },
-  { spirit: 'Choso',  condition: 'Wer mehr als einmal raised, trinkt 3 Schlücke.' },
-  { spirit: 'Choso',  condition: 'Der Verlierer trinkt 2 Schlücke extra.' },
-  { spirit: 'Rika',   condition: 'Wer allin geht und verliert, trinkt 5 Schlücke.' },
-  { spirit: 'Rika',   condition: 'Wer foldet ohne jemals geraised zu haben, trinkt 2 Schlücke.' },
-  { spirit: 'Mahito', condition: 'Alle zahlen 1 Schluck Eintritt vor dem Preflop.' },
-  { spirit: 'Mahito', condition: 'Wer nach dem River foldet, trinkt 4 Schlücke.' },
+const BOUNTIES_FILE = path.join(__dirname, 'data', 'bounties.json');
+const BOUNTIES_DEFAULT = [
+  { id: 1,  spirit: 'Jogo',   condition: 'Wer als nächster foldet, trinkt 3 Schlücke.' },
+  { id: 2,  spirit: 'Jogo',   condition: 'Wer raised, ohne zu gewinnen, trinkt 2 Schlücke.' },
+  { id: 3,  spirit: 'Hanami', condition: 'Der Gewinner verteilt 4 Schlücke frei.' },
+  { id: 4,  spirit: 'Hanami', condition: 'Wer als erster checked, trinkt 2 Schlücke.' },
+  { id: 5,  spirit: 'Dagon',  condition: 'Wer die wenigsten Chips hat und foldet, trinkt 3 Schlücke.' },
+  { id: 6,  spirit: 'Dagon',  condition: 'Alle aktiven Spieler trinken 1 Schluck vor ihrer ersten Aktion.' },
+  { id: 7,  spirit: 'Choso',  condition: 'Wer mehr als einmal raised, trinkt 3 Schlücke.' },
+  { id: 8,  spirit: 'Choso',  condition: 'Der Verlierer trinkt 2 Schlücke extra.' },
+  { id: 9,  spirit: 'Rika',   condition: 'Wer allin geht und verliert, trinkt 5 Schlücke.' },
+  { id: 10, spirit: 'Rika',   condition: 'Wer foldet ohne jemals geraised zu haben, trinkt 2 Schlücke.' },
+  { id: 11, spirit: 'Mahito', condition: 'Alle zahlen 1 Schluck Eintritt vor dem Preflop.' },
+  { id: 12, spirit: 'Mahito', condition: 'Wer nach dem River foldet, trinkt 4 Schlücke.' },
 ];
+
+function readBounties() {
+  if (!fs.existsSync(BOUNTIES_FILE)) return { entries: BOUNTIES_DEFAULT, nextId: 13 };
+  return JSON.parse(fs.readFileSync(BOUNTIES_FILE, 'utf-8'));
+}
+
+function writeBounties(data) {
+  fs.writeFileSync(BOUNTIES_FILE, JSON.stringify(data, null, 2), 'utf-8');
+}
+
+app.get('/api/bounties', (req, res) => {
+  res.json(readBounties().entries);
+});
+
+app.post('/api/bounties', (req, res) => {
+  if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
+  const { spirit, condition } = req.body;
+  if (!spirit || !condition) return res.status(400).json({ error: 'Spirit und Bedingung erforderlich' });
+  const data = readBounties();
+  const entry = { id: data.nextId++, spirit: spirit.trim(), condition: condition.trim() };
+  data.entries.push(entry);
+  writeBounties(data);
+  res.status(201).json(entry);
+});
+
+app.put('/api/bounties/:id', (req, res) => {
+  if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
+  const id = parseInt(req.params.id);
+  const { spirit, condition } = req.body;
+  const data = readBounties();
+  const idx = data.entries.findIndex(e => e.id === id);
+  if (idx === -1) return res.status(404).json({ error: 'Nicht gefunden' });
+  if (spirit)    data.entries[idx].spirit    = spirit.trim();
+  if (condition) data.entries[idx].condition = condition.trim();
+  writeBounties(data);
+  res.json(data.entries[idx]);
+});
+
+app.delete('/api/bounties/:id', (req, res) => {
+  if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
+  const id = parseInt(req.params.id);
+  const data = readBounties();
+  const idx = data.entries.findIndex(e => e.id === id);
+  if (idx === -1) return res.status(404).json({ error: 'Nicht gefunden' });
+  data.entries.splice(idx, 1);
+  writeBounties(data);
+  res.json({ success: true });
+});
 
 let pokerGame = null;
 let pendingDomainActivation = null; // { playerId, playerName, domain }
@@ -446,10 +495,11 @@ app.post('/api/poker/deal', (req, res) => {
       g.domainExpansion = pool[Math.floor(Math.random() * pool.length)];
   }
 
-  // Cursed Spirit Bounty: 35% chance per hand when enabled
+  // Cursed Spirit Bounty: configurable chance per hand when enabled
   g.cursedSpiritBounty = null;
-  if (settings.bountyEnabled !== false && Math.random() < 0.35) {
-    g.cursedSpiritBounty = BOUNTIES[Math.floor(Math.random() * BOUNTIES.length)];
+  if (settings.bountyEnabled !== false && Math.random() * 100 < (settings.bountyChance ?? 35)) {
+    const pool = readBounties().entries;
+    if (pool.length > 0) g.cursedSpiritBounty = pool[Math.floor(Math.random() * pool.length)];
   }
 
   res.json(g);
@@ -751,6 +801,7 @@ function readSettings() {
   if (s.blindSmall    === undefined) s.blindSmall    = 5;
   if (s.blindBig      === undefined) s.blindBig      = 10;
   if (s.bountyEnabled === undefined) s.bountyEnabled = true;
+  if (s.bountyChance  === undefined) s.bountyChance  = 35;
   return s;
 }
 
@@ -763,11 +814,12 @@ app.get('/api/settings', (req, res) => res.json(readSettings()));
 app.post('/api/settings', (req, res) => {
   if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
   const current = readSettings();
-  const { cardsEnabled, blindSmall, blindBig } = req.body;
+  const { cardsEnabled, blindSmall, blindBig, bountyEnabled, bountyChance } = req.body;
   if (cardsEnabled  !== undefined) current.cardsEnabled  = !!cardsEnabled;
   if (blindSmall    !== undefined) current.blindSmall    = Math.max(1, parseInt(blindSmall) || 5);
   if (blindBig      !== undefined) current.blindBig      = Math.max(2, parseInt(blindBig)   || 10);
   if (bountyEnabled !== undefined) current.bountyEnabled = !!bountyEnabled;
+  if (bountyChance  !== undefined) current.bountyChance  = Math.min(100, Math.max(0, parseInt(bountyChance) || 35));
   writeSettings(current);
   res.json(current);
 });

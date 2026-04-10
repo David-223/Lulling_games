@@ -545,6 +545,49 @@
 
       <hr class="divider" style="margin-top:2rem;" />
 
+      <!-- Cursed Spirit Bounty -->
+      <h2 class="section-title">👻 Cursed Spirit Bounty</h2>
+      <div class="form-card" style="margin-top:0;" id="bounty-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1rem;">
+          <div>
+            <div style="font-family:var(--font-ui);font-size:0.88rem;color:var(--text);letter-spacing:0.04em;">Aktiviert</div>
+            <div style="font-size:0.74rem;color:var(--text-dim);font-family:var(--font-ui);margin-top:0.3rem;line-height:1.4;">
+              Verfluchte Geister erscheinen zufällig während einer Pokerhand auf dem TV.
+            </div>
+          </div>
+          <button id="bounty-toggle-btn" class="toggle-switch" onclick="toggleBountyEnabled()" title="Cursed Spirit Bounty ein/ausschalten">
+            <span class="toggle-knob"></span>
+          </button>
+        </div>
+
+        <div id="bounty-controls">
+          <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:1.2rem;">
+            <span style="font-family:var(--font-ui);font-size:0.72rem;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;white-space:nowrap;">Chance</span>
+            <input type="range" min="0" max="100" step="5" value="35" id="bounty-chance-slider"
+              style="flex:1;accent-color:var(--p-glow);"
+              oninput="document.getElementById('bounty-chance-lbl').textContent=this.value+'%'"
+              onchange="saveBountyChance(this.value)" />
+            <span id="bounty-chance-lbl" style="font-family:var(--font-title);font-size:0.85rem;font-weight:700;color:var(--p-glow);min-width:2.8rem;text-align:right;">35%</span>
+          </div>
+
+          <div style="font-family:var(--font-ui);font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.6rem;">Aktive Bounties</div>
+          <div id="bounty-entries-list" style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:1.2rem;"></div>
+
+          <div style="border-top:1px solid var(--border-mid);padding-top:1rem;">
+            <div style="font-family:var(--font-ui);font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.7rem;">+ Neuen Bounty hinzufügen</div>
+            <div style="display:flex;flex-direction:column;gap:0.5rem;">
+              <input id="bounty-new-spirit" type="text" placeholder="Geist-Name (z.B. Jogo)" autocomplete="off"
+                style="background:var(--bg-card2);border:1px solid var(--border-mid);border-radius:6px;color:var(--text);font-family:var(--font-ui);font-size:0.9rem;padding:0.5rem 0.7rem;outline:none;" />
+              <textarea id="bounty-new-condition" placeholder="Bedingung (z.B. Wer als nächster foldet, trinkt 3 Schlücke.)" rows="2"
+                style="background:var(--bg-card2);border:1px solid var(--border-mid);border-radius:6px;color:var(--text);font-family:var(--font-ui);font-size:0.9rem;padding:0.5rem 0.7rem;outline:none;resize:vertical;"></textarea>
+              <button class="btn btn-primary" onclick="bountyAddEntry()" style="margin-top:0.3rem;">+ Bounty hinzufügen</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="divider" style="margin-top:2rem;" />
+
       <!-- Einstellungen -->
       <h2 class="section-title">Einstellungen</h2>
       <div class="form-card" style="margin-top:0;">
@@ -568,18 +611,6 @@
             </div>
           </div>
           <button id="cards-toggle-btn" class="toggle-switch" onclick="toggleCardsEnabled()" title="Digitale Karten ein/ausschalten">
-            <span class="toggle-knob"></span>
-          </button>
-        </div>
-
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border-mid);">
-          <div>
-            <div style="font-family:var(--font-ui);font-size:0.88rem;color:var(--text);letter-spacing:0.04em;">👻 Cursed Spirit Bounty</div>
-            <div style="font-size:0.74rem;color:var(--text-dim);font-family:var(--font-ui);margin-top:0.3rem;line-height:1.4;">
-              Zufällige Kopfgelder auf dem TV erscheinen während einer Hand (~35% Chance).
-            </div>
-          </div>
-          <button id="bounty-toggle-btn" class="toggle-switch" onclick="toggleBountyEnabled()" title="Cursed Spirit Bounty ein/ausschalten">
             <span class="toggle-knob"></span>
           </button>
         </div>
@@ -655,6 +686,26 @@
       <div class="modal-actions">
         <button class="btn btn-secondary" style="flex:1;" onclick="closeDeleteModal()">Abbrechen</button>
         <button class="btn btn-danger" style="flex:1; padding:0.65rem;" onclick="confirmDelete()">Löschen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOUNTY EDIT MODAL -->
+  <div class="modal-overlay" id="bounty-edit-modal">
+    <div class="modal">
+      <h3>✏️ Bounty bearbeiten</h3>
+      <input type="hidden" id="bounty-edit-id" />
+      <div class="form-group">
+        <label for="bounty-edit-spirit">Geist-Name</label>
+        <input type="text" id="bounty-edit-spirit" autocapitalize="words" />
+      </div>
+      <div class="form-group">
+        <label for="bounty-edit-condition">Bedingung</label>
+        <textarea id="bounty-edit-condition"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" style="flex:1;" onclick="closeBountyModal()">Abbrechen</button>
+        <button class="btn btn-primary" style="flex:2;" onclick="saveBountyEdit()">Speichern</button>
       </div>
     </div>
   </div>
@@ -1461,21 +1512,136 @@
       }
     }
 
-    // ── Cursed Spirit Bounty toggle ──
-    async function loadBountyEnabled() {
+    // ── Cursed Spirit Bounty ──
+    let bounties = [];
+    let bountiesLoaded = false;
+
+    async function loadBounties() {
+      if (bountiesLoaded) return;
+      bountiesLoaded = true;
       try {
-        const res = await fetch('/api/settings');
-        const s = await res.json();
+        const [bRes, sRes] = await Promise.all([fetch('/api/bounties'), fetch('/api/settings')]);
+        bounties = await bRes.json();
+        const s = await sRes.json();
         const btn = document.getElementById('bounty-toggle-btn');
         if (btn) btn.classList.toggle('on', s.bountyEnabled !== false);
+        const chance = s.bountyChance !== undefined ? s.bountyChance : 35;
+        const slider = document.getElementById('bounty-chance-slider');
+        const lbl    = document.getElementById('bounty-chance-lbl');
+        if (slider) slider.value = chance;
+        if (lbl)    lbl.textContent = chance + '%';
+        renderBounties();
+      } catch { /* silent */ }
+    }
+
+    function renderBounties() {
+      const list = document.getElementById('bounty-entries-list');
+      if (!list) return;
+      if (bounties.length === 0) {
+        list.innerHTML = '<div style="color:var(--text-dim);font-size:0.82rem;font-family:var(--font-ui);padding:0.3rem 0;">Keine Einträge.</div>';
+        return;
+      }
+      list.innerHTML = bounties.map(b => `
+        <div style="background:var(--bg-card2);border:1px solid var(--border-mid);border-radius:6px;padding:0.6rem 0.9rem;">
+          <div style="display:flex;align-items:flex-start;gap:0.8rem;">
+            <div style="flex:1;min-width:0;">
+              <div style="font-family:var(--font-title);font-size:0.88rem;color:#ff3050;font-weight:700;">${escHtml(b.spirit)}</div>
+              <div style="font-size:0.8rem;color:var(--text);font-family:var(--font-ui);margin-top:0.2rem;line-height:1.4;">${escHtml(b.condition)}</div>
+            </div>
+            <div style="display:flex;gap:0.4rem;flex-shrink:0;margin-top:0.1rem;">
+              <button onclick="openBountyEdit(${b.id})"
+                style="font-size:0.65rem;font-family:var(--font-ui);color:var(--p-glow);background:none;border:1px solid var(--p-dim);border-radius:4px;padding:0.2rem 0.5rem;cursor:pointer;letter-spacing:0.05em;">✏</button>
+              <button onclick="bountyDelete(${b.id})"
+                style="font-size:0.65rem;font-family:var(--font-ui);color:var(--accent-glow);background:none;border:1px solid var(--accent-dim);border-radius:4px;padding:0.2rem 0.5rem;cursor:pointer;letter-spacing:0.05em;">✕</button>
+            </div>
+          </div>
+        </div>`).join('');
+    }
+
+    async function bountyAddEntry() {
+      const spirit    = document.getElementById('bounty-new-spirit').value.trim();
+      const condition = document.getElementById('bounty-new-condition').value.trim();
+      if (!spirit || !condition) { showToast('Spirit und Bedingung erforderlich', 'error'); return; }
+      try {
+        const res = await fetch('/api/bounties', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...adminAuthBody(), spirit, condition })
+        });
+        if (!res.ok) { const d = await res.json(); showToast(d.error || 'Fehler', 'error'); return; }
+        bounties.push(await res.json());
+        document.getElementById('bounty-new-spirit').value    = '';
+        document.getElementById('bounty-new-condition').value = '';
+        renderBounties();
+        showToast('Bounty hinzugefügt!', 'success');
+      } catch { showToast('Verbindungsfehler', 'error'); }
+    }
+
+    async function bountyDelete(id) {
+      try {
+        const res = await fetch(`/api/bounties/${id}`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(adminAuthBody())
+        });
+        if (res.ok) {
+          bounties = bounties.filter(b => b.id !== id);
+          renderBounties();
+          showToast('Bounty entfernt.', 'success');
+        } else showToast('Fehler', 'error');
+      } catch { showToast('Verbindungsfehler', 'error'); }
+    }
+
+    function openBountyEdit(id) {
+      const b = bounties.find(x => x.id === id);
+      if (!b) return;
+      document.getElementById('bounty-edit-id').value        = id;
+      document.getElementById('bounty-edit-spirit').value    = b.spirit;
+      document.getElementById('bounty-edit-condition').value = b.condition;
+      document.getElementById('bounty-edit-modal').classList.add('open');
+    }
+
+    function closeBountyModal() {
+      document.getElementById('bounty-edit-modal').classList.remove('open');
+    }
+
+    async function saveBountyEdit() {
+      const id        = parseInt(document.getElementById('bounty-edit-id').value);
+      const spirit    = document.getElementById('bounty-edit-spirit').value.trim();
+      const condition = document.getElementById('bounty-edit-condition').value.trim();
+      if (!spirit || !condition) { showToast('Beide Felder erforderlich', 'error'); return; }
+      try {
+        const res = await fetch(`/api/bounties/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...adminAuthBody(), spirit, condition })
+        });
+        if (res.ok) {
+          const updated = await res.json();
+          const idx = bounties.findIndex(b => b.id === id);
+          if (idx !== -1) bounties[idx] = updated;
+          renderBounties();
+          closeBountyModal();
+          showToast('Bounty aktualisiert!', 'success');
+        } else { const d = await res.json(); showToast(d.error || 'Fehler', 'error'); }
+      } catch { showToast('Verbindungsfehler', 'error'); }
+    }
+
+    async function saveBountyChance(val) {
+      try {
+        await fetch('/api/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...adminAuthBody(), bountyChance: parseInt(val) })
+        });
       } catch {}
     }
 
     async function toggleBountyEnabled() {
       try {
-        const res = await fetch('/api/settings');
-        const s = await res.json();
-        const next = !( s.bountyEnabled !== false );
+        const res  = await fetch('/api/settings');
+        const s    = await res.json();
+        const next = !(s.bountyEnabled !== false);
         await fetch('/api/settings', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1566,7 +1732,7 @@
       if (screen && screen.style.display !== 'none') {
         if (!deSettings) loadDE();
         loadCardsEnabled();
-        loadBountyEnabled();
+        loadBounties();
         loadRoster();
         loadKnugg();
         loadBlinds();
