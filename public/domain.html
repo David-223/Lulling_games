@@ -286,6 +286,42 @@
       to   { opacity: 1;   transform: scale(1.08) rotate(-0.5deg); }
     }
 
+    /* ══════════════════════════════
+       8 · SERBISCHER STAMMBAUM — David M
+    ══════════════════════════════ */
+    .domain-stammbaum {
+      background: radial-gradient(ellipse at 50% 45%, #1a0010 0%, #0a0008 100%);
+    }
+    .domain-stammbaum::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 70% 50% at 20% 80%, rgba(180,0,80,0.22) 0%, transparent 65%),
+        radial-gradient(ellipse 50% 70% at 80% 20%, rgba(160,0,60,0.16) 0%, transparent 65%);
+      animation: stamm-pulse 5s ease-in-out infinite alternate;
+    }
+    .domain-stammbaum::after {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(1px 1px at 20% 30%, rgba(240,40,120,0.55) 0%, transparent 100%),
+        radial-gradient(1px 1px at 45% 12%, rgba(220,20,100,0.45) 0%, transparent 100%),
+        radial-gradient(1px 1px at 75% 38%, rgba(250,50,130,0.5)  0%, transparent 100%),
+        radial-gradient(1px 1px at 32% 68%, rgba(210,30,110,0.4)  0%, transparent 100%),
+        radial-gradient(1px 1px at 63% 78%, rgba(240,40,120,0.45) 0%, transparent 100%),
+        radial-gradient(2px 2px at 85% 55%, rgba(255,60,140,0.3)  0%, transparent 100%),
+        radial-gradient(1px 1px at 12% 55%, rgba(220,20,100,0.4)  0%, transparent 100%);
+      animation: stamm-glint 4s ease-in-out infinite alternate;
+    }
+    @keyframes stamm-pulse {
+      from { opacity: 0.7; transform: scale(1);    }
+      to   { opacity: 1;   transform: scale(1.06); }
+    }
+    @keyframes stamm-glint {
+      from { opacity: 0.4; transform: scale(1)    rotate(0deg);    }
+      to   { opacity: 1;   transform: scale(1.08) rotate(-0.5deg); }
+    }
+
     /* ── Content overlay ── */
     .domain-content {
       position: relative;
@@ -579,6 +615,12 @@
         desc: 'Ein Trichter. Eine Karte mehr. Kein Erbarmen.',
         color: '#20e060', theme: 'shuku', caster: 'Marlon',
         expansionId: 'lallender_libero',
+      },
+      {
+        cls: 'domain-stammbaum', jp: 'Serbischer Stammbaum', en: 'Serbian Family Tree',
+        desc: 'Blind. All In. Kein Zurück.',
+        color: '#f02880', theme: 'yami', caster: 'David M',
+        expansionId: 'serbischer_stammbaum',
       },
     ];
 

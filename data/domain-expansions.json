@@ -42,6 +42,16 @@
       "chance": 20
     },
     {
+      "id": "serbischer_stammbaum",
+      "name": "Serbischer Stammbaum",
+      "subname": "Serbian Family Tree",
+      "caster": "David M",
+      "theme": "yami",
+      "effect": "Wenn David M blind all in geht und die Hand gewinnt, müssen alle anderen Spieler einen Shot trinken.",
+      "enabled": true,
+      "chance": 20
+    },
+    {
       "id": "lallender_libero",
       "name": "Der lallende Libero",
       "subname": "The Slurring Libero",
