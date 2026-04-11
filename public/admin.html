@@ -1521,7 +1521,7 @@
             <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.4rem;">
               <div class="pts-controls">
                 <button class="btn-pts" onclick="adjustPoints(${p.id}, -10)">−</button>
-                <span class="pts-display" id="pts-${p.id}">${p.points} Pts</span>
+                <span class="pts-display" id="pts-${p.id}" onclick="editPoints(${p.id}, this)" title="Klicken um Wert direkt einzugeben" style="cursor:pointer;">${p.points} Pts</span>
                 <button class="btn-pts" onclick="adjustPoints(${p.id}, +10)">+</button>
               </div>
               <div class="pts-controls">
@@ -1619,6 +1619,43 @@
           showToast('Fehler beim Anpassen.', 'error');
         }
       } catch (e) { showToast('Verbindungsfehler', 'error'); }
+    }
+
+    function editPoints(id, el) {
+      const current = players.find(p => p.id === id)?.points ?? 0;
+      const inp = document.createElement('input');
+      inp.type = 'number';
+      inp.value = current;
+      inp.min = 0;
+      inp.style.cssText = 'width:70px;font-size:0.9rem;text-align:center;background:var(--bg-dark);color:var(--text);border:1px solid var(--accent-glow);border-radius:4px;padding:2px 4px;';
+      el.replaceWith(inp);
+      inp.select();
+
+      async function confirm() {
+        const val = parseInt(inp.value);
+        if (!isNaN(val)) {
+          try {
+            const res = await fetch(`/api/players/${id}/points`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ ...adminAuthBody(), value: val })
+            });
+            if (res.ok) {
+              const updated = await res.json();
+              el.textContent = `${updated.points} Pts`;
+              const p = players.find(x => x.id === id);
+              if (p) p.points = updated.points;
+            } else { showToast('Fehler beim Setzen.', 'error'); }
+          } catch (e) { showToast('Verbindungsfehler', 'error'); }
+        }
+        inp.replaceWith(el);
+      }
+
+      inp.addEventListener('blur', confirm);
+      inp.addEventListener('keydown', e => {
+        if (e.key === 'Enter') inp.blur();
+        if (e.key === 'Escape') inp.replaceWith(el);
+      });
     }
 
     async function adjustDomainCoins(id, delta) {

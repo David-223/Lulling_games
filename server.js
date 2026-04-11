@@ -154,12 +154,16 @@ app.post('/api/players', (req, res) => {
 
 app.patch('/api/players/:id/points', (req, res) => {
   if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
-  const { delta } = req.body;
+  const { delta, value } = req.body;
   const id = parseInt(req.params.id);
   const data = readPlayers();
   const idx = data.players.findIndex(p => p.id === id);
   if (idx === -1) return res.status(404).json({ error: 'Spieler nicht gefunden' });
-  data.players[idx].points = Math.max(0, data.players[idx].points + (parseInt(delta) || 0));
+  if (value !== undefined) {
+    data.players[idx].points = Math.max(0, parseInt(value) || 0);
+  } else {
+    data.players[idx].points = Math.max(0, data.players[idx].points + (parseInt(delta) || 0));
+  }
   writePlayers(data);
   res.json(data.players[idx]);
 });
