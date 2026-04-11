@@ -690,6 +690,18 @@
           </button>
         </div>
 
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border-mid);">
+          <div>
+            <div style="font-family:var(--font-ui);font-size:0.88rem;color:var(--text);letter-spacing:0.04em;">🔒 Tischansicht sperren</div>
+            <div style="font-size:0.74rem;color:var(--text-dim);font-family:var(--font-ui);margin-top:0.3rem;line-height:1.4;">
+              Nicht-Admins können die Tischansicht nicht auswählen und werden automatisch in die Listenansicht gezwungen.
+            </div>
+          </div>
+          <button id="lock-table-btn" class="toggle-switch" onclick="toggleLockTable()" title="Tischansicht für Nicht-Admins sperren">
+            <span class="toggle-knob"></span>
+          </button>
+        </div>
+
         <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border-mid);">
           <div style="font-family:var(--font-ui);font-size:0.88rem;color:var(--text);letter-spacing:0.04em;margin-bottom:0.5rem;">🃏 Standard Blinds</div>
           <div style="font-size:0.74rem;color:var(--text-dim);font-family:var(--font-ui);margin-bottom:0.9rem;line-height:1.4;">
@@ -856,6 +868,7 @@
       updateHandyToggleUI();
       loadCardsEnabled();
       loadBgVideoAudio();
+      loadLockTable();
       loadTestMode();
       loadAutoBackupInfo();
       loadPendingDomains();
@@ -921,6 +934,29 @@
         });
         document.getElementById('bg-video-audio-btn').classList.toggle('on', next);
         showToast(next ? 'Video-Ton aktiviert' : 'Video-Ton deaktiviert', 'success');
+      } catch { showToast('Fehler', 'error'); }
+    }
+
+    // ── Tischansicht sperren ──
+    async function loadLockTable() {
+      try {
+        const s = await fetch('/api/settings').then(r => r.json());
+        const btn = document.getElementById('lock-table-btn');
+        if (btn) btn.classList.toggle('on', !!s.lockTableView);
+      } catch {}
+    }
+
+    async function toggleLockTable() {
+      try {
+        const s = await fetch('/api/settings').then(r => r.json());
+        const next = !s.lockTableView;
+        await fetch('/api/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...adminAuthBody(), lockTableView: next })
+        });
+        document.getElementById('lock-table-btn').classList.toggle('on', next);
+        showToast(next ? 'Tischansicht gesperrt' : 'Tischansicht freigegeben', 'success');
       } catch { showToast('Fehler', 'error'); }
     }
 

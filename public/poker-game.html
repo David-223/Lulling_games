@@ -1170,8 +1170,26 @@
     }
 
     // ── View preference ──
+    let _lockTableView = false;
+
+    async function applyTableLock() {
+      try {
+        const s = await fetch('/api/settings').then(r => r.json());
+        _lockTableView = !!s.lockTableView;
+      } catch {}
+      const tableBtn = document.querySelector('.view-btn[data-view="table"]');
+      if (_lockTableView && !isAdmin()) {
+        if (tableBtn) tableBtn.style.display = 'none';
+        setPokerView('list');
+      } else {
+        if (tableBtn) tableBtn.style.display = '';
+        setPokerView(getPokerView());
+      }
+    }
+
     function getPokerView() { return localStorage.getItem('lalling-poker-view') || 'table'; }
     function setPokerView(v) {
+      if (v === 'table' && _lockTableView && !isAdmin()) v = 'list';
       localStorage.setItem('lalling-poker-view', v);
       document.querySelectorAll('.view-btn').forEach(b => b.classList.toggle('active', b.dataset.view === v));
       document.getElementById('table-scene').style.display    = v === 'table' ? '' : 'none';
@@ -1987,7 +2005,7 @@
       const btn = e.target.closest('.view-btn');
       if (btn) setPokerView(btn.dataset.view);
     });
-    setPokerView(getPokerView()); // apply on load
+    applyTableLock(); // apply lock + view on load
 
     // ── Theme ──
     const THEMES = ['ao', 'shuku', 'yami', 'kin'];
