@@ -253,6 +253,12 @@
   <script>
     // HANDS array is loaded from hands-data.js — add new hands there.
 
+    // ── Admin check ──
+    function isAdmin() {
+      try { const me = JSON.parse(localStorage.getItem('lalling-me')); return !!(me && me.isAdmin); }
+      catch { return false; }
+    }
+
     // ── Storage (server-side) ──
     let _cachedRules = {};
 
@@ -293,13 +299,28 @@
     // ── Render ──
     async function render() {
       const saved = await loadRules();
+      const admin = isAdmin();
       const list  = document.getElementById('hands-list');
+
+      // Show/hide admin-only controls
+      document.querySelector('.reset-row').style.display  = admin ? '' : 'none';
+      document.querySelector('.intro-note').style.display = admin ? '' : 'none';
 
       list.innerHTML = HANDS.map(h => {
         const value = saved[h.id] !== undefined ? saved[h.id] : h.def;
         const cards = h.cards.map(c =>
           `<span class="card-chip ${c.r ? 'red' : 'black'}">${c.v}</span>`
         ).join('');
+
+        const ruleHtml = admin
+          ? `<textarea
+               class="hand-rule-input"
+               id="rule-${h.id}"
+               placeholder="Regel für diese Hand eingeben…"
+               oninput="onRuleInput('${h.id}')"
+             >${escHtml(value)}</textarea>
+             <div class="save-indicator saved" id="ind-${h.id}">✓ Gespeichert</div>`
+          : `<div class="hand-rule-input" style="cursor:default;min-height:auto;padding:0.55rem 0.8rem;">${escHtml(value) || '<span style="opacity:0.4">—</span>'}</div>`;
 
         return `
           <div class="hand-card">
@@ -313,13 +334,7 @@
               <div class="hand-cards-display">${cards}</div>
               <div class="hand-desc">${h.desc}</div>
               <div class="hand-rule-label">⚔ Trinkrege</div>
-              <textarea
-                class="hand-rule-input"
-                id="rule-${h.id}"
-                placeholder="Regel für diese Hand eingeben…"
-                oninput="onRuleInput('${h.id}')"
-              >${escHtml(value)}</textarea>
-              <div class="save-indicator saved" id="ind-${h.id}">✓ Gespeichert</div>
+              ${ruleHtml}
             </div>
           </div>
         `;

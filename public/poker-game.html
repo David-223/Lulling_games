@@ -964,7 +964,7 @@
       </div>
       <div class="setup-card" id="setup-card">
         <h3>⚔ Neue Pokerrunde</h3>
-        <div class="blind-row">
+        <div class="blind-row" id="blind-row">
           <div class="blind-group">
             <label>Small Blind</label>
             <input id="blind-small" type="number" min="1" value="5" />
@@ -975,7 +975,7 @@
           </div>
         </div>
         <div class="setup-players" id="setup-players">Lade Spieler…</div>
-        <button class="btn btn-primary btn-full" id="start-game-btn">Spiel starten</button>
+        <button class="btn btn-primary btn-full" id="start-game-btn" style="display:none">Spiel starten</button>
       </div>
     </div>
 
@@ -1643,10 +1643,17 @@
       }
     };
 
+    function applyAdminSetup() {
+      const admin = isAdmin();
+      document.getElementById('blind-row').style.display       = admin ? '' : 'none';
+      document.getElementById('start-game-btn').style.display  = admin ? '' : 'none';
+    }
+
     function showNoGame() {
       document.getElementById('view-nogame').style.display = '';
       document.getElementById('view-game').style.display = 'none';
       document.body.style.background = '';
+      applyAdminSetup();
       loadSetupPlayers();
       startWaiting();
     }
