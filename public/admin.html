@@ -727,6 +727,20 @@
         </div>
 
         <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border-mid);">
+          <div style="font-family:var(--font-ui);font-size:0.88rem;color:var(--text);letter-spacing:0.04em;margin-bottom:0.3rem;">🌀 Domains nächste Hand</div>
+          <div style="font-size:0.74rem;color:var(--text-dim);font-family:var(--font-ui);margin-bottom:0.7rem;line-height:1.4;">
+            Legt fest welche Domains in der nächsten Hand zwangsweise aktiv sind.
+          </div>
+          <div id="pending-domain-list" style="display:flex;flex-direction:column;gap:0.3rem;margin-bottom:0.6rem;"></div>
+          <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+            <button class="btn" onclick="setPendingDomains(false)" style="flex:1;min-width:110px;font-size:0.78rem;">✓ Aktivieren</button>
+            <button class="btn" onclick="setPendingDomains(true)"  style="flex:1;min-width:110px;font-size:0.78rem;color:#ff6666;border-color:rgba(255,34,34,0.4);">🃏 7-2: Alle</button>
+            <button class="btn" onclick="clearPendingDomains()"    style="flex:1;min-width:110px;font-size:0.78rem;color:var(--text-dim);">✕ Reset</button>
+          </div>
+          <div id="pending-domain-status" style="font-size:0.72rem;color:var(--text-dim);font-family:var(--font-ui);margin-top:0.4rem;"></div>
+        </div>
+
+        <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border-mid);">
           <div style="font-family:var(--font-ui);font-size:0.88rem;color:var(--text);letter-spacing:0.04em;margin-bottom:0.5rem;">💾 Datensicherung</div>
           <div style="font-size:0.74rem;color:var(--text-dim);font-family:var(--font-ui);margin-bottom:0.9rem;line-height:1.4;">
             Alle Spieler, Regeln und Einstellungen sichern oder nach einem Neustart wiederherstellen.
@@ -844,6 +858,7 @@
       loadBgVideoAudio();
       loadTestMode();
       loadAutoBackupInfo();
+      loadPendingDomains();
     }
 
     // ── Handy-Erkennung Toggle ──
@@ -906,6 +921,69 @@
         });
         document.getElementById('bg-video-audio-btn').classList.toggle('on', next);
         showToast(next ? 'Video-Ton aktiviert' : 'Video-Ton deaktiviert', 'success');
+      } catch { showToast('Fehler', 'error'); }
+    }
+
+    // ── Domains nächste Hand ──
+    let _pendingDomainOptions = []; // alle enabled domains
+
+    async function loadPendingDomains() {
+      try {
+        const res = await fetch('/api/domain-expansion');
+        const d = await res.json();
+        _pendingDomainOptions = (d.expansions || []).filter(e => e.enabled);
+        const list = document.getElementById('pending-domain-list');
+        if (!list) return;
+        list.innerHTML = _pendingDomainOptions.map(e => `
+          <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;padding:0.25rem 0.4rem;border-radius:4px;background:var(--bg-card2);border:1px solid var(--border-mid);">
+            <input type="checkbox" class="pending-domain-cb" value="${escHtml(e.id)}" style="accent-color:var(--p-glow);width:0.85rem;height:0.85rem;">
+            <span style="font-family:var(--font-ui);font-size:0.78rem;color:var(--text);">${escHtml(e.name)} <span style="color:var(--text-dim);">(${escHtml(e.caster||'')})</span></span>
+          </label>`).join('');
+        // Show current pending state
+        await refreshPendingStatus();
+      } catch {}
+    }
+
+    async function refreshPendingStatus() {
+      try {
+        const auth = adminAuthBody();
+        const params = new URLSearchParams(auth).toString();
+        const res = await fetch('/api/admin/pending-domains?' + params);
+        if (!res.ok) return;
+        const d = await res.json();
+        const el = document.getElementById('pending-domain-status');
+        if (!el) return;
+        if (d.domains && d.domains.length > 0) {
+          el.innerHTML = `<span style="color:var(--p-glow);">Aktiv: ${d.domains.map(x => escHtml(x.name)).join(', ')}</span>`;
+        } else {
+          el.textContent = 'Keine Domains vorgemerkt';
+        }
+      } catch {}
+    }
+
+    async function setPendingDomains(allDomains) {
+      try {
+        const body = allDomains
+          ? { ...adminAuthBody(), allDomains: true }
+          : { ...adminAuthBody(), domainIds: [...document.querySelectorAll('.pending-domain-cb:checked')].map(el => el.value) };
+        const res = await fetch('/api/admin/pending-domains', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const d = await res.json();
+        showToast(d.domains.length > 0 ? `${d.domains.length} Domain(s) vorgemerkt` : 'Keine Domains ausgewählt', 'success');
+        await refreshPendingStatus();
+      } catch { showToast('Fehler', 'error'); }
+    }
+
+    async function clearPendingDomains() {
+      try {
+        await fetch('/api/admin/pending-domains', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...adminAuthBody(), clear: true })
+        });
+        showToast('Domains zurückgesetzt', 'success');
+        await refreshPendingStatus();
       } catch { showToast('Fehler', 'error'); }
     }
 

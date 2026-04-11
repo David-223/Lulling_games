@@ -376,6 +376,7 @@ app.delete('/api/bounties/:id', (req, res) => {
 
 let pokerGame = null;
 let pendingDomainActivation = null; // { playerId, playerName, domain }
+let pendingAdminDomains = null;     // array of domain objects for next hand (admin override)
 
 function pokerBuildToAct(game, startIdx) {
   const n = game.players.length;
@@ -504,16 +505,24 @@ app.post('/api/poker/deal', (req, res) => {
     g._communityCards = [deck.pop(), deck.pop(), deck.pop(), deck.pop(), deck.pop()];
   }
 
-  // Domain Expansion: manual activation takes priority, otherwise 20% random chance
+  // Domain Expansion: admin multi-override > player coin > random
   g.domainExpansion = null;
-  if (pendingDomainActivation) {
-    g.domainExpansion = pendingDomainActivation.domain;
+  g.domainExpansions = [];
+  if (pendingAdminDomains && pendingAdminDomains.length > 0) {
+    g.domainExpansions = pendingAdminDomains;
+    g.domainExpansion  = pendingAdminDomains[0];
+    pendingAdminDomains = null;
+  } else if (pendingDomainActivation) {
+    g.domainExpansion  = pendingDomainActivation.domain;
+    g.domainExpansions = [pendingDomainActivation.domain];
     pendingDomainActivation = null;
   } else if (Math.random() < 0.20) {
     const de = readDE();
     const pool = (de.expansions || []).filter(e => e.enabled);
-    if (pool.length > 0)
-      g.domainExpansion = pool[Math.floor(Math.random() * pool.length)];
+    if (pool.length > 0) {
+      g.domainExpansion  = pool[Math.floor(Math.random() * pool.length)];
+      g.domainExpansions = [g.domainExpansion];
+    }
   }
 
   // Cursed Spirit Bounty: configurable chance per hand when enabled
@@ -628,6 +637,12 @@ app.post('/api/poker/winner', (req, res) => {
   g.pot = 0; g.phase = 'ended';
   g.winningHand = req.body.winningHand || null;
 
+  // 7-2 Gewinn: alle aktivierten Domains nächste Hand
+  if (req.body.sevenTwo) {
+    const de = readDE();
+    pendingAdminDomains = (de.expansions || []).filter(e => e.enabled);
+  }
+
   // Accumulate sip totals (1 sip per 25 chips lost vs hand start)
   if (!g.sipTotals) g.sipTotals = {};
   if (g.handStartChips) {
@@ -677,6 +692,7 @@ app.post('/api/poker/end', (req, res) => {
   }
   pokerGame = null;
   pendingDomainActivation = null;
+  pendingAdminDomains = null;
   res.json({ success: true });
 });
 
@@ -1118,6 +1134,30 @@ app.delete('/api/domain-activation', (req, res) => {
   const player = pdata.players.find(p => p.id === parseInt(playerId));
   pendingDomainActivation = null;
   res.json({ success: true, myCoins: player ? (player.domainCoins ?? 0) : null });
+});
+
+// ── Admin: Domains für nächste Hand ──
+
+app.get('/api/admin/pending-domains', (req, res) => {
+  if (!checkAdminAuth(req.query)) return res.status(401).json({ error: 'Keine Berechtigung' });
+  res.json({ domains: pendingAdminDomains || [] });
+});
+
+app.post('/api/admin/pending-domains', (req, res) => {
+  if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
+  const { domainIds, allDomains, clear } = req.body;
+  const de = readDE();
+  const all = (de.expansions || []).filter(e => e.enabled);
+  if (clear) {
+    pendingAdminDomains = null;
+  } else if (allDomains) {
+    pendingAdminDomains = all;
+  } else if (Array.isArray(domainIds) && domainIds.length > 0) {
+    pendingAdminDomains = domainIds.map(id => all.find(e => e.id === id)).filter(Boolean);
+  } else {
+    pendingAdminDomains = null;
+  }
+  res.json({ success: true, domains: pendingAdminDomains || [] });
 });
 
 // Grant 1 wheel spin to a player (admin only)

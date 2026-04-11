@@ -1052,6 +1052,10 @@
               <option value="">— Keine Angabe —</option>
             </select>
           </div>
+          <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;margin-top:0.5rem;padding:0.35rem 0.5rem;border-radius:4px;background:rgba(255,34,34,0.08);border:1px solid rgba(255,34,34,0.3)">
+            <input type="checkbox" id="seven-two-check" style="accent-color:#ff2222;width:1rem;height:1rem">
+            <span style="font-family:var(--font-ui);font-size:0.82rem;color:#ff6666;font-weight:700">🃏 7-2 Gewinn → alle Domains nächste Hand</span>
+          </label>
           <button class="btn btn-primary btn-full" id="winner-btn" style="margin-top:0.5rem">
             Pot vergeben
           </button>
@@ -1661,10 +1665,11 @@
       if (!checked.length) { showToast('Gewinner auswählen', 'error'); return; }
       const winnerIds = checked.map(el => parseInt(el.value));
       const winningHand = document.getElementById('winning-hand-select').value || null;
+      const sevenTwo = document.getElementById('seven-two-check')?.checked || false;
       try {
         const res = await fetch('/api/poker/winner', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...adminAuthBody(), winnerIds, winningHand })
+          body: JSON.stringify({ ...adminAuthBody(), winnerIds, winningHand, sevenTwo })
         });
         const data = await res.json();
         if (!res.ok) { showToast(data.error || 'Fehler', 'error'); return; }

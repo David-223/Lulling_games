@@ -1229,6 +1229,70 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
+    /* ── Multi-Domain Grid ── */
+    #tv-multi-de-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(0,0,0,0.92);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    #tv-multi-de-overlay.visible { display: flex; }
+
+    .multi-de-title {
+      font-family: var(--font-ui);
+      font-size: clamp(0.9rem, 2.5vw, 1.8rem);
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+      font-weight: 700;
+      animation: de-fade-in 0.4s ease both;
+    }
+    .multi-de-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(260px, 38vw), 1fr));
+      gap: clamp(0.6rem, 2vw, 1.5rem);
+      padding: 0 2rem;
+      max-width: 95vw;
+      width: 100%;
+    }
+    .multi-de-card {
+      background: rgba(0,0,0,0.7);
+      border: 2px solid var(--card-color, #5a8af0);
+      border-radius: 10px;
+      padding: clamp(0.8rem, 2vw, 1.5rem);
+      text-align: center;
+      box-shadow: 0 0 24px var(--card-color, #5a8af0), inset 0 0 20px rgba(0,0,0,0.5);
+      animation: de-content-rise 0.5s ease both;
+    }
+    .multi-de-name {
+      font-family: var(--font-title);
+      font-size: clamp(0.9rem, 2.5vw, 2rem);
+      font-weight: 900;
+      color: var(--card-color, #5a8af0);
+      text-shadow: 0 0 20px var(--card-color, #5a8af0);
+      line-height: 1.1;
+    }
+    .multi-de-caster {
+      font-family: var(--font-ui);
+      font-size: clamp(0.55rem, 1.2vw, 0.9rem);
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.55);
+      margin-top: 0.4rem;
+    }
+    .multi-de-effect {
+      font-family: var(--font-ui);
+      font-size: clamp(0.55rem, 1.1vw, 0.82rem);
+      color: var(--gold);
+      margin-top: 0.6rem;
+      line-height: 1.5;
+    }
+
     /* Whole overlay fade out at the end */
     .de-fade-out {
       animation: de-overlay-out 0.8s ease forwards !important;
@@ -1486,6 +1550,12 @@
     <div class="tv-refresh-dot"></div>
     <div class="tv-stat">呪術廻戦 · Lalling Games</div>
   </footer>
+
+  <!-- ═══ MULTI-DOMAIN EXPANSION OVERLAY ═══ -->
+  <div id="tv-multi-de-overlay">
+    <div class="multi-de-title">— Domain Expansion · Alle —</div>
+    <div class="multi-de-grid" id="multi-de-grid"></div>
+  </div>
 
   <!-- ═══ DOMAIN EXPANSION OVERLAY ═══ -->
   <div id="tv-de-overlay">
@@ -2120,6 +2190,45 @@
       }, 5000);
     }
 
+    function showMultiDomainExpansion(domains) {
+      const overlay = document.getElementById('tv-multi-de-overlay');
+      const grid    = document.getElementById('multi-de-grid');
+
+      // Play trigger sound once, then all domain sounds simultaneously after it ends
+      const trigger = new Audio('/audio/domain/domain_trigger.wav');
+      trigger.volume = 1.0;
+      trigger.play().catch(() => {});
+      trigger.addEventListener('ended', () => {
+        domains.forEach(de => {
+          const src = DOMAIN_AUDIO[de.id];
+          if (src) {
+            const a = new Audio(src);
+            a.volume = 1.0;
+            a.play().catch(() => {});
+          }
+        });
+      }, { once: true });
+
+      // Build grid cards with staggered entrance animation
+      grid.innerHTML = domains.map((de, i) => {
+        const color = DE_COLORS[de.theme] || '#5a8af0';
+        return `<div class="multi-de-card" style="--card-color:${color};animation-delay:${i * 0.1}s">
+          <div class="multi-de-name">${escHtml(de.name)}</div>
+          <div class="multi-de-caster">${escHtml(de.caster || '')}</div>
+          <div class="multi-de-effect">${escHtml(de.effect || '')}</div>
+        </div>`;
+      }).join('');
+
+      overlay.classList.remove('de-fade-out');
+      overlay.classList.add('visible');
+
+      clearTimeout(overlay._hideTimer);
+      overlay._hideTimer = setTimeout(() => {
+        overlay.classList.add('de-fade-out');
+        setTimeout(() => overlay.classList.remove('visible', 'de-fade-out'), 800);
+      }, 7000);
+    }
+
     async function pollPoker() {
       try {
         // Ton-Setting cachen (feuert parallel, blockiert nicht)
@@ -2137,7 +2246,10 @@
         if (active) {
           renderPokerView(state);
           // Trigger domain expansion overlay on new hand
-          if (state.domainExpansion && state.handNum !== lastDEHandNum) {
+          if (state.domainExpansions && state.domainExpansions.length > 1 && state.handNum !== lastDEHandNum) {
+            lastDEHandNum = state.handNum;
+            showMultiDomainExpansion(state.domainExpansions);
+          } else if (state.domainExpansion && state.handNum !== lastDEHandNum) {
             lastDEHandNum = state.handNum;
             showDomainExpansion(state.domainExpansion);
           }
