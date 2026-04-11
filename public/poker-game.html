@@ -1207,15 +1207,24 @@
     }
     function applyDomainBg(de) {
       const DE_COLORS = { ao: '#20d8f0', shuku: '#cc3535', yami: '#9060d8', kin: '#c9a227' };
-      if (!de) { document.body.style.background = ''; return; }
-      if (de.id === 'deignersche_notengebung') { document.body.style.background = ''; return; }
+      const header = document.querySelector('.site-header');
+      if (!de) {
+        document.body.style.background = '';
+        if (header) header.style.boxShadow = '';
+        return;
+      }
+      if (de.id === 'deignersche_notengebung') {
+        if (header) header.style.boxShadow = '';
+        document.body.style.background = '';
+        return;
+      }
       const hex = de.color || DE_COLORS[de.theme] || '#5a8af0';
       const { r, g, b } = hexToRgb(hex);
       document.body.style.background =
-        `radial-gradient(ellipse 160% 60% at 50% 100%,
-          rgba(${r},${g},${b},0.22) 0%,
-          rgba(${Math.round(r*0.05)},${Math.round(g*0.05)},${Math.round(b*0.05)},0.98) 55%,
-          var(--bg-dark) 100%)`;
+        `radial-gradient(ellipse 180% 55% at 50% 0%,   rgba(${r},${g},${b},0.28) 0%, transparent 65%),
+         radial-gradient(ellipse 180% 65% at 50% 100%, rgba(${r},${g},${b},0.45) 0%, transparent 65%),
+         var(--bg-dark)`;
+      if (header) header.style.boxShadow = `0 2px 22px rgba(${r},${g},${b},0.45)`;
     }
 
     // ── Vibration helpers ──
