@@ -35,60 +35,48 @@
     .phase-step.done   { background: transparent; color: var(--text-dim); opacity: 0.35; }
 
     /* ══════════════════════════════════════
-       POKER TABLE SCENE
+       POKER TABLE SCENE  (TV-style ellipse layout)
     ══════════════════════════════════════ */
 
     .table-scene {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 3px;
-      margin: 0.4rem 0 0.6rem;
-      user-select: none;
-    }
-
-    .ts-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
+      position: relative;
       width: 100%;
+      height: 68vw;
+      margin: 0.4rem 0 3rem;
+      user-select: none;
+      overflow: visible;
     }
 
-    /* Side and corner seat slots */
+    /* Seat slots – absolutely positioned by positionMobileSeats() */
     .ts-slot {
-      width: 78px;
-      min-width: 78px;
-      flex-shrink: 0;
-      min-height: 4px; /* keeps row height stable when empty */
-    }
-
-    /* The oval takes up remaining space in the middle row */
-    .ts-mid .poker-oval-wrap {
-      flex: 1;
-      min-width: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      position: absolute;
+      transform: translate(-50%, -50%);
+      width: 23%;
+      min-width: 70px;
+      z-index: 2;
     }
 
     /* ── Oval table ── */
     .poker-oval {
-      width: 100%;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 52%;
       aspect-ratio: 16 / 9;
       background:
         radial-gradient(ellipse 55% 50% at 50% 42%,
           #38864a 0%, #22643a 45%, #153f25 100%);
       border-radius: 50%;
-      border: 7px solid #3a1c06;
+      border: 5px solid #3a1c06;
       box-shadow:
-        0 0 0 3px #5c2e0a,
-        inset 0 2px 14px rgba(0,0,0,0.45),
-        0 8px 28px rgba(0,0,0,0.65);
+        0 0 0 2px #5c2e0a,
+        inset 0 2px 12px rgba(0,0,0,0.45),
+        0 6px 22px rgba(0,0,0,0.65);
       display: flex;
       align-items: center;
       justify-content: center;
-      position: relative;
+      z-index: 1;
     }
 
     .table-inner {
@@ -137,120 +125,87 @@
       color: #88ee88;
     }
 
-    /* ── Seat cards ── */
+    /* ── Seat cards (TV-style) ── */
     .seat-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-mid);
-      border-radius: 5px;
-      padding: 0.35rem 0.4rem;
+      background: #0d0d1e;
+      border: 1.5px solid rgba(255,255,255,0.22);
+      border-radius: 6px;
+      padding: 0.3rem 0.35rem;
       width: 100%;
       box-sizing: border-box;
-      font-family: var(--font-ui);
+      text-align: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.8);
       transition: border-color 0.2s, box-shadow 0.2s;
     }
 
     .seat-card.is-turn {
-      border-color: var(--p);
-      box-shadow: 0 0 8px var(--p-bg);
+      border-color: #88ee88;
+      box-shadow: 0 0 10px rgba(100,220,100,0.4), 0 0 22px rgba(100,220,100,0.15);
     }
 
-    .seat-card.is-folded {
-      opacity: 0.28;
-    }
-
-    .seat-card.is-me {
-      border-color: var(--p-dim);
-      background: linear-gradient(135deg, var(--bg-card), var(--p-bg));
-    }
-
-    .seat-header {
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
-    }
-
-    .seat-av {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: var(--p-bg);
-      border: 1px solid var(--p-dim);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.6rem;
-      font-weight: 700;
-      color: var(--p-glow);
-      font-family: var(--font-title);
-      flex-shrink: 0;
-    }
-
-    .seat-av.is-turn { border-color: var(--p); background: var(--p-bg2); }
-
-    .seat-info {
-      min-width: 0;
-      flex: 1;
-    }
+    .seat-card.is-folded { opacity: 0.38; }
+    .seat-card.is-allin  { border-color: var(--gold-dim); }
+    .seat-card.is-me     { border-color: var(--p-dim); }
 
     .seat-name {
-      font-size: 0.68rem;
+      font-family: var(--font-title);
+      font-size: 0.72rem;
       font-weight: 700;
-      color: var(--text);
+      color: #fff;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 52px;
-      line-height: 1.2;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.8);
     }
 
-    .seat-name.is-me { color: var(--p-glow); }
+    .seat-card.is-turn   .seat-name { color: #88ee88; text-shadow: 0 0 8px rgba(100,220,100,0.6); }
+    .seat-card.is-folded .seat-name { color: var(--text-dim); }
+    .seat-card.is-me     .seat-name { color: var(--p-glow); }
 
     .seat-chips {
-      font-size: 0.6rem;
-      font-weight: 700;
-      color: var(--gold);
-      line-height: 1.2;
+      font-family: var(--font-title);
+      font-size: 0.7rem;
+      font-weight: 900;
+      color: #7bb8ff;
+      margin-top: 0.1rem;
+      text-shadow: 0 0 8px rgba(100,180,255,0.5);
     }
 
     .seat-bet {
-      display: inline-block;
-      font-size: 0.56rem;
-      font-weight: 700;
-      color: #7ddd7d;
-      background: rgba(80,200,80,0.1);
-      border: 1px solid rgba(80,200,80,0.18);
-      border-radius: 2px;
-      padding: 0 3px;
-      margin-top: 2px;
+      font-family: var(--font-title);
+      font-size: 0.65rem;
+      font-weight: 900;
+      color: var(--gold);
+      margin-top: 0.05rem;
+      text-shadow: 0 0 8px rgba(201,162,39,0.5);
     }
+
+    .seat-bet.zero { visibility: hidden; }
 
     .seat-badges {
       display: flex;
-      gap: 2px;
-      margin-top: 3px;
+      gap: 0.15rem;
+      justify-content: center;
       flex-wrap: wrap;
+      margin-top: 0.2rem;
     }
 
     .sb {
-      font-size: 0.5rem;
-      letter-spacing: 0.06em;
+      font-family: var(--font-ui);
+      font-size: 0.48rem;
+      font-weight: 700;
       padding: 1px 3px;
       border-radius: 2px;
-      font-weight: 700;
-      border: 1px solid;
+      text-transform: uppercase;
       white-space: nowrap;
-      font-family: var(--font-ui);
+      letter-spacing: 0.04em;
     }
 
-    .sb-d    { color: var(--gold);  border-color: var(--gold-dim);  background: rgba(201,162,39,0.1); }
-    .sb-sb   { color: #7cf;         border-color: #1a4466;          background: rgba(100,200,255,0.07); }
-    .sb-bb   { color: #adf;         border-color: #1a2a44;          background: rgba(150,200,255,0.07); }
-    .sb-ai   { color: #f84;         border-color: #663300;          background: rgba(255,130,60,0.1); }
-    .sb-fold { color: var(--text-dim); border-color: var(--border-mid); background: transparent; }
-
-    /* blinking "am Zug" indicator on avatar ring */
-    @keyframes ring-pulse { 0%,100%{box-shadow:0 0 0 2px var(--p)} 50%{box-shadow:0 0 0 3px var(--p-glow)} }
-    .seat-card.is-turn .seat-av { animation: ring-pulse 1.2s infinite; }
+    .sb-d    { background: var(--gold); color: #000; }
+    .sb-sb   { background: rgba(90,138,240,0.25); color: var(--p-glow); border: 1px solid var(--p-dim); }
+    .sb-bb   { background: rgba(90,138,240,0.4);  color: var(--p-glow); border: 1px solid var(--p-dim); }
+    .sb-ai   { background: rgba(201,162,39,0.2);  color: var(--gold-dim); border: 1px solid var(--border-gold); }
+    .sb-fold { background: rgba(100,100,120,0.3); color: var(--text-dim); }
 
     /* ══════════════════════════════════════
        ACTION PANEL
@@ -1004,44 +959,31 @@
         <div class="player-rows" id="player-rows"></div>
       </div>
 
-      <!-- ═══ Poker table scene ═══
-           Seat layout (8 slots, clockwise from bottom-center = slot 0):
-
-             [5]  [4]  [3]
-             [6] TABLE [2]
-             [7]  [0]  [1]
+      <!-- ═══ Poker table scene (TV-style ellipse layout) ═══
+           Seat slots are positioned absolutely in an ellipse by positionMobileSeats().
+           Seat 0 = me, seats 1-7 follow clockwise.
       -->
       <div class="table-scene" id="table-scene">
 
-        <!-- Top row: seats 5, 4, 3 -->
-        <div class="ts-row ts-top">
-          <div class="ts-slot" id="seat-5"></div>
-          <div class="ts-slot" id="seat-4"></div>
-          <div class="ts-slot" id="seat-3"></div>
-        </div>
-
-        <!-- Middle row: seats 6, oval, 2 -->
-        <div class="ts-row ts-mid">
-          <div class="ts-slot" id="seat-6"></div>
-          <div class="poker-oval-wrap">
-            <div class="poker-oval">
-              <div class="table-inner">
-                <div class="table-pot-lbl">Pot</div>
-                <div class="table-pot-val" id="pot-value">0</div>
-                <div class="table-cur-bet" id="table-cur-bet"></div>
-                <div class="table-status-txt" id="status-line"></div>
-              </div>
-            </div>
+        <!-- Central oval -->
+        <div class="poker-oval">
+          <div class="table-inner">
+            <div class="table-pot-lbl">Pot</div>
+            <div class="table-pot-val" id="pot-value">0</div>
+            <div class="table-cur-bet" id="table-cur-bet"></div>
+            <div class="table-status-txt" id="status-line"></div>
           </div>
-          <div class="ts-slot" id="seat-2"></div>
         </div>
 
-        <!-- Bottom row: seats 7, 0 (me), 1 -->
-        <div class="ts-row ts-bot">
-          <div class="ts-slot" id="seat-7"></div>
-          <div class="ts-slot" id="seat-0"></div>
-          <div class="ts-slot" id="seat-1"></div>
-        </div>
+        <!-- 8 seat slots – JS places them on the ellipse -->
+        <div class="ts-slot" id="seat-0"></div>
+        <div class="ts-slot" id="seat-1"></div>
+        <div class="ts-slot" id="seat-2"></div>
+        <div class="ts-slot" id="seat-3"></div>
+        <div class="ts-slot" id="seat-4"></div>
+        <div class="ts-slot" id="seat-5"></div>
+        <div class="ts-slot" id="seat-6"></div>
+        <div class="ts-slot" id="seat-7"></div>
 
       </div>
       <!-- end .table-scene -->
@@ -1217,6 +1159,23 @@
     // ── Busted popup state ──
     let lastBustedHandNum = -1;
     let shownBustedCount  = 0;
+
+    // ── Seat ellipse positioning (TV-style) ──
+    function positionMobileSeats(count) {
+      const ax = 36, ay = 34; // ellipse semi-axes in % of container
+      for (let i = 0; i < 8; i++) {
+        const slot = document.getElementById(`seat-${i}`);
+        if (!slot) continue;
+        if (i < count) {
+          const angle = -Math.PI / 2 + (2 * Math.PI * i / count);
+          slot.style.left = (50 + ax * Math.cos(angle)) + '%';
+          slot.style.top  = (50 + ay * Math.sin(angle)) + '%';
+        } else {
+          slot.style.left = '-300px';
+          slot.style.top  = '-300px';
+        }
+      }
+    }
 
     // ── Domain background helpers ──
     function hexToRgb(hex) {
@@ -1400,7 +1359,8 @@
       }
 
       // Render each player into their seat slot (skip busted players with 0 chips)
-      ordered.filter(p => g.phase !== 'ended' || p.chips > 0).forEach((p, seatIdx) => {
+      const activePlayers = ordered.filter(p => g.phase !== 'ended' || p.chips > 0);
+      activePlayers.forEach((p, seatIdx) => {
         if (seatIdx >= 8) return;
         const slot = document.getElementById(`seat-${seatIdx}`);
         if (!slot) return;
@@ -1425,23 +1385,17 @@
           ? `<div class="seat-badges">${badges.join('')}</div>`
           : '';
 
-        const betHtml = p.roundBet > 0
-          ? `<div class="seat-bet">+${p.roundBet}</div>`
-          : '';
-
         slot.innerHTML = `
-          <div class="seat-card${isTurn ? ' is-turn' : ''}${p.folded ? ' is-folded' : ''}${isMe ? ' is-me' : ''}">
-            <div class="seat-header">
-              <div class="seat-av${isTurn ? ' is-turn' : ''}">${escHtml(p.name.charAt(0).toUpperCase())}</div>
-              <div class="seat-info">
-                <div class="seat-name${isMe ? ' is-me' : ''}">${escHtml(p.name)}</div>
-                <div class="seat-chips">${p.chips}</div>
-              </div>
-            </div>
+          <div class="seat-card${isTurn ? ' is-turn' : ''}${p.folded ? ' is-folded' : ''}${p.allIn ? ' is-allin' : ''}${isMe ? ' is-me' : ''}">
+            <div class="seat-name">${escHtml(p.name)}</div>
+            <div class="seat-chips">${p.chips}</div>
+            <div class="seat-bet${p.roundBet === 0 ? ' zero' : ''}">+${p.roundBet}</div>
             ${badgesHtml}
-            ${betHtml}
           </div>`;
       });
+
+      // Position seat slots on ellipse (TV-style)
+      positionMobileSeats(Math.min(activePlayers.length, 8));
 
       // ── List view player rows ──
       renderListRows(g);
