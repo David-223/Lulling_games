@@ -574,6 +574,35 @@
       animation: pulse 1.5s infinite;
     }
 
+    /* ── List view collapse toggle ── */
+    .list-toggle-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid var(--border-mid);
+      border-radius: 5px;
+      padding: 0.45rem 0.8rem;
+      cursor: pointer;
+      font-family: var(--font-ui);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 0.4rem;
+      -webkit-tap-highlight-color: transparent;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .list-toggle-btn:hover { border-color: var(--p-dim); color: var(--p-glow); }
+    .list-toggle-btn .toggle-arrow {
+      font-style: normal;
+      transition: transform 0.25s ease;
+      display: inline-block;
+    }
+    .list-toggle-btn.expanded .toggle-arrow { transform: rotate(180deg); }
+
     .player-rows { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; }
 
     .player-row {
@@ -968,6 +997,10 @@
           <div class="list-pot-value" id="list-pot-value">0 <span style="font-size:1rem;color:var(--gold-dim)">Pts</span></div>
         </div>
         <div class="list-status-line" id="list-status-line"></div>
+        <button class="list-toggle-btn" id="list-toggle-btn" onclick="toggleListPlayers()">
+          <span id="list-toggle-label">Spieler</span>
+          <span class="toggle-arrow">▼</span>
+        </button>
         <div class="player-rows" id="player-rows"></div>
       </div>
 
@@ -1125,6 +1158,17 @@
     function isAdmin() { const me = getMe(); return !!(me && me.isAdmin); }
     function adminAuthBody() { const me = getMe(); return me && me.isAdmin ? { adminPlayerId: me.id } : {}; }
 
+    // ── List-view collapse state ──
+    let listCollapsed = true;
+
+    function toggleListPlayers() {
+      listCollapsed = !listCollapsed;
+      const btn = document.getElementById('list-toggle-btn');
+      if (btn) btn.classList.toggle('expanded', !listCollapsed);
+      // Re-render rows with current game state
+      if (game) renderListRows(game);
+    }
+
     // ── View preference ──
     function getPokerView() { return localStorage.getItem('lalling-poker-view') || 'table'; }
     function setPokerView(v) {
@@ -1173,6 +1217,45 @@
     const PHASE_LABEL = { preflop: 'Pre-Flop', flop: 'Flop', turn: 'Turn', river: 'River', showdown: 'Showdown', ended: 'Beendet', setup: 'Setup' };
 
     // ── Render ──
+    function renderListRows(g) {
+      const me2 = getMe();
+      const allPlayers = g.players.filter(p => g.phase !== 'ended' || p.chips > 0);
+      const toShow = (listCollapsed && me2)
+        ? allPlayers.filter(p => p.id === me2.id)
+        : allPlayers;
+
+      // Update toggle button
+      const btn = document.getElementById('list-toggle-btn');
+      const lbl = document.getElementById('list-toggle-label');
+      if (btn && lbl) {
+        btn.classList.toggle('expanded', !listCollapsed);
+        lbl.textContent = listCollapsed
+          ? `▾ Alle Spieler (${allPlayers.length})`
+          : `▴ Einklappen`;
+      }
+
+      document.getElementById('player-rows').innerHTML = toShow.map(p => {
+        const i = g.players.indexOf(p);
+        const isMe2   = me2 && p.id === me2.id;
+        const isTurn2 = i === g.currentPlayerIdx;
+        const badges2 = [];
+        if (i === g.dealerIdx && !['ended','setup'].includes(g.phase)) badges2.push('<span class="pr-badge badge-dealer">D</span>');
+        if (i === g.sbIdx && g.phase !== 'ended') badges2.push('<span class="pr-badge badge-sb">SB</span>');
+        if (i === g.bbIdx && g.phase !== 'ended') badges2.push('<span class="pr-badge badge-bb">BB</span>');
+        if (isMe2)    badges2.push('<span class="pr-badge badge-you">Du</span>');
+        if (isTurn2)  badges2.push('<span class="pr-badge badge-turn">am Zug</span>');
+        if (p.folded) badges2.push('<span class="pr-badge badge-folded">Fold</span>');
+        if (p.allIn)  badges2.push('<span class="pr-badge badge-allin">All-In</span>');
+        return `<div class="player-row${isTurn2 ? ' active-turn' : ''}${p.folded ? ' folded-row' : ''}">
+          <div class="pr-avatar">${escHtml(p.name.charAt(0).toUpperCase())}</div>
+          <div class="pr-name">${escHtml(p.name)}</div>
+          <div class="pr-bet">${p.roundBet > 0 ? '+' + p.roundBet : ''}</div>
+          <div class="pr-chips">${p.chips} Pts</div>
+          <div class="pr-badges">${badges2.join('')}</div>
+        </div>`;
+      }).join('');
+    }
+
     let _drinkRenderKey = null;
     async function render(g) {
       if (!g || g.phase === 'setup') { showNoGame(); return; }
@@ -1314,29 +1397,8 @@
           </div>`;
       });
 
-      // ── List view player rows (skip busted players with 0 chips) ──
-      document.getElementById('player-rows').innerHTML = g.players
-        .filter(p => g.phase !== 'ended' || p.chips > 0)
-        .map(p => {
-          const i = g.players.indexOf(p); // original index for dealer/blind/turn comparisons
-          const isMe2 = me && p.id === me.id;
-          const isTurn2 = i === g.currentPlayerIdx;
-          const badges2 = [];
-          if (i === g.dealerIdx && !['ended','setup'].includes(g.phase)) badges2.push('<span class="pr-badge badge-dealer">D</span>');
-          if (i === g.sbIdx && g.phase !== 'ended') badges2.push('<span class="pr-badge badge-sb">SB</span>');
-          if (i === g.bbIdx && g.phase !== 'ended') badges2.push('<span class="pr-badge badge-bb">BB</span>');
-          if (isMe2) badges2.push('<span class="pr-badge badge-you">Du</span>');
-          if (isTurn2) badges2.push('<span class="pr-badge badge-turn">am Zug</span>');
-          if (p.folded) badges2.push('<span class="pr-badge badge-folded">Fold</span>');
-          if (p.allIn)  badges2.push('<span class="pr-badge badge-allin">All-In</span>');
-          return `<div class="player-row${isTurn2 ? ' active-turn' : ''}${p.folded ? ' folded-row' : ''}">
-            <div class="pr-avatar">${escHtml(p.name.charAt(0).toUpperCase())}</div>
-            <div class="pr-name">${escHtml(p.name)}</div>
-            <div class="pr-bet">${p.roundBet > 0 ? '+' + p.roundBet : ''}</div>
-            <div class="pr-chips">${p.chips} Pts</div>
-            <div class="pr-badges">${badges2.join('')}</div>
-          </div>`;
-        }).join('');
+      // ── List view player rows ──
+      renderListRows(g);
 
       // ── Action panel (my turn) ──
       const actionPanel = document.getElementById('action-panel');
