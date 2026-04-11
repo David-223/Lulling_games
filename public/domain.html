@@ -766,9 +766,10 @@
 
     function updateHUD(me, data) {
       const coins        = data.myCoins ?? 0;
-      const pending      = data.pending;
-      const isMyPending  = pending && pending.playerId === me.id;
-      const someoneElse  = pending && !isMyPending;
+      const queue        = data.queue || (data.pending ? [data.pending] : []);
+      const myIdx        = queue.findIndex(a => a.playerId === me.id);
+      const isMyPending  = myIdx !== -1;
+      const queueSize    = queue.length;
 
       document.getElementById('hud-coin-count').textContent = coins;
 
@@ -777,19 +778,20 @@
       const cancelBtn   = document.getElementById('hud-cancel-btn');
 
       if (isMyPending) {
-        statusEl.textContent = '⚡ Deine Domain ist für die nächste Hand aktiviert!';
+        const pos = myIdx + 1;
+        statusEl.textContent = pos === 1
+          ? '⚡ Deine Domain ist für die nächste Hand aktiviert!'
+          : `⏳ Deine Domain ist in der Warteschlange (Position ${pos} von ${queueSize}).`;
         statusEl.className   = 'hud-status status-active';
         activateBtn.style.display = 'none';
         cancelBtn.style.display   = '';
         cancelBtn.disabled = false;
-      } else if (someoneElse) {
-        statusEl.textContent = '🔒 ' + pending.playerName + ' hat bereits eine Domain aktiviert.';
-        statusEl.className   = 'hud-status status-blocked';
-        activateBtn.style.display = '';
-        activateBtn.disabled = true;
-        cancelBtn.style.display = 'none';
       } else {
-        statusEl.textContent = 'Keine Domain aktiviert — du kannst deine für die nächste Hand einsetzen.';
+        if (queueSize > 0) {
+          statusEl.textContent = `⏳ ${queueSize} Domain${queueSize > 1 ? 's' : ''} in der Warteschlange — du kannst deine hinzufügen.`;
+        } else {
+          statusEl.textContent = 'Keine Domain aktiviert — du kannst deine für die nächste Hand einsetzen.';
+        }
         statusEl.className   = 'hud-status';
         activateBtn.style.display = '';
         activateBtn.disabled = coins < 1;
