@@ -342,17 +342,17 @@
 
     /* ══════════════════ RULES COLUMN ══════════════════ */
     .rule-row {
-      background: var(--bg-card);
-      border: 1px solid var(--border-mid);
-      border-left: 3px solid var(--p);
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-left: 3px solid var(--p-glow);
       border-radius: 4px;
-      padding: 0.45rem 0.8rem;
+      padding: 0.5rem 0.85rem;
       flex-shrink: 0;
     }
 
     .rule-row-num {
       font-family: var(--font-title);
-      font-size: 0.58rem;
+      font-size: 0.6rem;
       letter-spacing: 0.2em;
       text-transform: uppercase;
       color: var(--p-glow);
@@ -361,33 +361,35 @@
 
     .rule-row-title {
       font-family: var(--font-ui);
-      font-size: 0.82rem;
+      font-size: 0.9rem;
       font-weight: 700;
-      color: var(--text);
-      margin-bottom: 0.15rem;
+      color: #ffffff;
+      margin-bottom: 0.18rem;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.8);
     }
 
     .rule-row-desc {
       font-family: var(--font-ui);
-      font-size: 0.72rem;
-      color: var(--text-dim);
-      line-height: 1.4;
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.78);
+      line-height: 1.45;
     }
 
     .rule-row-pts {
       font-family: var(--font-ui);
-      font-size: 0.6rem;
-      color: var(--gold-dim);
+      font-size: 0.62rem;
+      color: var(--gold);
       margin-top: 0.2rem;
+      opacity: 0.85;
     }
 
     /* ══════════════════ HAND COLUMN ══════════════════ */
     .hand-row {
-      background: var(--bg-card);
-      border: 1px solid var(--border-mid);
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
       border-left: 3px solid var(--p-dim);
       border-radius: 4px;
-      padding: 0.45rem 0.8rem;
+      padding: 0.5rem 0.85rem;
       flex-shrink: 0;
     }
 
@@ -402,14 +404,15 @@
       font-family: var(--font-title);
       font-size: 0.58rem;
       letter-spacing: 0.15em;
-      color: var(--text-dim);
+      color: rgba(255,255,255,0.5);
     }
 
     .hand-row-name {
       font-family: var(--font-ui);
-      font-size: 0.82rem;
+      font-size: 0.9rem;
       font-weight: 700;
-      color: var(--text);
+      color: #ffffff;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.8);
     }
 
     .hand-row-cards {
@@ -421,22 +424,22 @@
 
     .hcard {
       font-family: var(--font-ui);
-      font-size: 0.6rem;
+      font-size: 0.62rem;
       font-weight: 700;
-      padding: 0.1rem 0.3rem;
+      padding: 0.12rem 0.35rem;
       border-radius: 3px;
-      border: 1px solid var(--border-mid);
-      background: var(--bg-card2);
-      color: var(--text-mid);
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.9);
     }
 
-    .hcard.red { color: #e05555; border-color: #3a1010; }
+    .hcard.red { color: #ff7070; border-color: rgba(255,80,80,0.4); background: rgba(255,80,80,0.12); }
 
     .hand-row-rule {
       font-family: var(--font-ui);
-      font-size: 0.72rem;
-      color: var(--text-dim);
-      line-height: 1.4;
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.78);
+      line-height: 1.45;
     }
 
     /* ── Footer ── */
