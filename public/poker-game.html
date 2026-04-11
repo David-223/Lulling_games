@@ -1738,8 +1738,8 @@
     // ── Instagram / Away detector ──
     (function() {
       let lastReport  = 0;
-      let wentAway    = false;
       let isUnloading = false;
+      let hiddenAt    = 0;
 
       // beforeunload fires BEFORE visibilitychange on reload / tab-close / navigation.
       // It does NOT fire on a plain app-switch (home button / switching to Instagram).
@@ -1748,7 +1748,6 @@
 
       function reportAway() {
         if (localStorage.getItem('lalling-handy-detect') !== '1') return; // feature disabled
-        if (isUnloading) return;          // reload or close — ignore
         if (!game) return;
         if (!['preflop', 'flop', 'turn', 'river', 'showdown'].includes(game.phase)) return;
         const me = getMe();
@@ -1756,26 +1755,25 @@
         const now = Date.now();
         if (now - lastReport < 4000) return;
         lastReport = now;
-        wentAway = true;
         const body = JSON.stringify({ playerId: me.id });
-        // sendBeacon survives the JS freeze that happens right after app-switching on iOS/Android
-        if (typeof navigator.sendBeacon === 'function') {
-          navigator.sendBeacon('/api/poker/away', new Blob([body], { type: 'application/json' }));
-        } else {
-          fetch('/api/poker/away', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            keepalive: true, body
-          }).catch(() => {});
-        }
+        fetch('/api/poker/away', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          keepalive: true, body
+        }).catch(() => {});
       }
 
       document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
-          reportAway();
+          // Record when the page was hidden (skip if it's a page navigation/reload)
+          if (!isUnloading) hiddenAt = Date.now();
         } else {
-          isUnloading = false; // page came back — reset flag
-          if (wentAway) {
-            wentAway = false;
+          isUnloading = false;
+          const hiddenFor = hiddenAt > 0 ? Date.now() - hiddenAt : 0;
+          hiddenAt = 0;
+          // Only report if hidden for more than 2 seconds — filters out brief triggers
+          // like notification shade, system dialogs, screen dimming, etc.
+          if (hiddenFor > 2000) {
+            reportAway();
             poll(); // immediate poll so popup shows the moment they return
           }
         }
