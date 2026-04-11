@@ -723,6 +723,21 @@
         </div>
 
         <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border-mid);">
+          <div style="font-family:var(--font-ui);font-size:0.88rem;color:var(--text);letter-spacing:0.04em;margin-bottom:0.5rem;">📜 Regelpreis</div>
+          <div style="font-size:0.74rem;color:var(--text-dim);font-family:var(--font-ui);margin-bottom:0.9rem;line-height:1.4;">
+            Punkte, die ein Spieler zahlen muss, um eine neue Regel hinzuzufügen.
+          </div>
+          <div style="display:flex;gap:0.8rem;align-items:flex-end;flex-wrap:wrap;">
+            <div style="display:flex;flex-direction:column;gap:0.3rem;flex:1;min-width:100px;">
+              <label style="font-size:0.72rem;font-family:var(--font-ui);color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;">Preis (Punkte)</label>
+              <input type="number" id="rule-price-input" min="1" max="99999" placeholder="670"
+                style="background:var(--bg-card2);border:1px solid var(--border-mid);border-radius:6px;color:var(--text);font-family:var(--font-ui);font-size:0.9rem;padding:0.5rem 0.7rem;outline:none;width:100%;" />
+            </div>
+            <button class="btn btn-primary" onclick="saveRulePrice()" style="padding:0.5rem 1rem;white-space:nowrap;">Speichern</button>
+          </div>
+        </div>
+
+        <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border-mid);">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:0.6rem;">
             <div>
               <div style="font-family:var(--font-ui);font-size:0.88rem;color:var(--text);letter-spacing:0.04em;">🤖 Testumgebung</div>
@@ -869,6 +884,7 @@
       loadCardsEnabled();
       loadBgVideoAudio();
       loadLockTable();
+      loadRulePrice();
       loadTestMode();
       loadAutoBackupInfo();
       loadPendingDomains();
@@ -2092,6 +2108,29 @@
           body: JSON.stringify({ ...adminAuthBody(), blindSmall: sb, blindBig: bb })
         });
         if (res.ok) showToast('Blinds gespeichert!', 'success');
+        else { const d = await res.json(); showToast(d.error || 'Fehler', 'error'); }
+      } catch { showToast('Verbindungsfehler', 'error'); }
+    }
+
+    // ── Regelpreis ──
+    async function loadRulePrice() {
+      try {
+        const s = await fetch('/api/settings').then(r => r.json());
+        const el = document.getElementById('rule-price-input');
+        if (el) el.value = s.ruleBuyPrice || 670;
+      } catch {}
+    }
+
+    async function saveRulePrice() {
+      const price = parseInt(document.getElementById('rule-price-input').value);
+      if (!price || price < 1) { showToast('Ungültiger Preis', 'error'); return; }
+      try {
+        const res = await fetch('/api/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...adminAuthBody(), ruleBuyPrice: price })
+        });
+        if (res.ok) showToast(`Regelpreis auf ${price} Punkte gesetzt`, 'success');
         else { const d = await res.json(); showToast(d.error || 'Fehler', 'error'); }
       } catch { showToast('Verbindungsfehler', 'error'); }
     }

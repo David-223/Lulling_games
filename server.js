@@ -241,24 +241,25 @@ app.post('/api/rules', (req, res) => {
   res.status(201).json(newRule);
 });
 
-// POST Regel kaufen (Spieler, kostet 670 Punkte)
+// POST Regel kaufen (Spieler, Preis aus settings.ruleBuyPrice)
 app.post('/api/rules/buy', (req, res) => {
   const { playerId, title, description } = req.body;
   if (!playerId || !title || !description) {
     return res.status(400).json({ error: 'Spieler, Titel und Beschreibung erforderlich' });
   }
+  const price = readSettings().ruleBuyPrice || 670;
   const pdata = readPlayers();
   const pidx = pdata.players.findIndex(p => p.id === parseInt(playerId));
   if (pidx === -1) return res.status(404).json({ error: 'Spieler nicht gefunden' });
-  if (pdata.players[pidx].points < 670) {
-    return res.status(400).json({ error: 'Nicht genug Punkte (670 benötigt)' });
+  if (pdata.players[pidx].points < price) {
+    return res.status(400).json({ error: `Nicht genug Punkte (${price} benötigt)` });
   }
-  pdata.players[pidx].points -= 670;
+  pdata.players[pidx].points -= price;
   writePlayers(pdata);
   // Keep in-memory poker chips in sync so the deduction isn't overwritten at showdown
   if (pokerGame) {
     const gp = pokerGame.players.find(p => p.id === parseInt(playerId));
-    if (gp) gp.chips = Math.max(0, gp.chips - 670);
+    if (gp) gp.chips = Math.max(0, gp.chips - price);
   }
   const rdata = readData();
   const newRule = { id: rdata.nextId, points: null, title: title.trim(), description: description.trim() };
@@ -866,7 +867,7 @@ app.get('/api/settings', (req, res) => res.json(readSettings()));
 app.post('/api/settings', (req, res) => {
   if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
   const current = readSettings();
-  const { cardsEnabled, blindSmall, blindBig, bountyEnabled, bountyChance, testMode, bgVideoAudio, lockTableView } = req.body;
+  const { cardsEnabled, blindSmall, blindBig, bountyEnabled, bountyChance, testMode, bgVideoAudio, lockTableView, ruleBuyPrice } = req.body;
   if (cardsEnabled   !== undefined) current.cardsEnabled   = !!cardsEnabled;
   if (blindSmall     !== undefined) current.blindSmall     = Math.max(1, parseInt(blindSmall) || 5);
   if (blindBig       !== undefined) current.blindBig       = Math.max(2, parseInt(blindBig)   || 10);
@@ -875,6 +876,7 @@ app.post('/api/settings', (req, res) => {
   if (testMode       !== undefined) current.testMode       = !!testMode;
   if (bgVideoAudio   !== undefined) current.bgVideoAudio   = !!bgVideoAudio;
   if (lockTableView  !== undefined) current.lockTableView  = !!lockTableView;
+  if (ruleBuyPrice   !== undefined) current.ruleBuyPrice   = Math.max(1, parseInt(ruleBuyPrice) || 670);
   writeSettings(current);
   res.json(current);
 });

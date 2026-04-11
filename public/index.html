@@ -406,7 +406,7 @@
       <button class="buy-rule-toggle" id="buy-rule-toggle">
         <span class="buy-rule-icon">⊕</span>
         Neue Regel hinzufügen
-        <span class="buy-rule-cost">− 670 Punkte</span>
+        <span class="buy-rule-cost" id="buy-rule-cost">− 670 Punkte</span>
         <span class="buy-rule-chevron" id="buy-rule-chevron">▾</span>
       </button>
       <div class="buy-rule-body" id="buy-rule-body" style="display:none">
@@ -426,6 +426,7 @@
             <textarea id="buy-desc" rows="3" placeholder="Was passiert bei Verstoß?" maxlength="400"></textarea>
           </div>
           <button class="btn btn-primary btn-full" id="buy-submit">Regel hinzufügen — 670 Punkte</button>
+
         </div>
       </div>
     </div>
@@ -488,6 +489,7 @@
     }
 
     loadRules();
+    loadRuleBuyPrice();
 
     // ── Identity (wer bin ich) ──
     const ME_KEY = 'lalling-me';
@@ -563,6 +565,20 @@
     })();
 
     // ── Regel kaufen ──
+    let _ruleBuyPrice = 670;
+
+    async function loadRuleBuyPrice() {
+      try {
+        const s = await fetch('/api/settings').then(r => r.json());
+        _ruleBuyPrice = s.ruleBuyPrice || 670;
+        // Update displayed price
+        const costEl = document.getElementById('buy-rule-cost');
+        const btnEl  = document.getElementById('buy-submit');
+        if (costEl) costEl.textContent = `− ${_ruleBuyPrice} Punkte`;
+        if (btnEl)  btnEl.textContent  = `Regel hinzufügen — ${_ruleBuyPrice} Punkte`;
+      } catch {}
+    }
+
     function updateBuyForm() {
       const me = getMe();
       document.getElementById('buy-no-identity').style.display  = me ? 'none' : '';
@@ -570,11 +586,11 @@
       document.getElementById('buy-fields').style.display        = me ? '' : 'none';
       if (me) {
         const el = document.getElementById('buy-player-pts');
-        if (me.points >= 670) {
+        if (me.points >= _ruleBuyPrice) {
           el.textContent = `${me.name} · ${me.points} Punkte — reicht für eine Regel`;
           el.className = 'buy-player-pts enough';
         } else {
-          el.textContent = `${me.name} · ${me.points} Punkte — nicht genug (670 benötigt)`;
+          el.textContent = `${me.name} · ${me.points} Punkte — nicht genug (${_ruleBuyPrice} benötigt)`;
           el.className = 'buy-player-pts broke';
         }
       }
