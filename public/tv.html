@@ -2035,17 +2035,16 @@
         bgVid.muted = !_bgVideoAudio;
         bgVid.style.display = 'block';
         if (bgVid.paused) bgVid.play().catch(() => {});
-        overlay.style.background = 'rgba(0,5,20,0.55)';
       } else {
         bgVid.style.display = 'none';
         bgVid.pause();
-        overlay.style.background = '';
       }
-      overlay.classList.remove('de-bg-ao', 'de-bg-shuku', 'de-bg-yami', 'de-bg-kin');
       if (de) {
         const color = de.color || DE_COLORS[de.theme] || DE_COLORS.ao;
         overlay.style.setProperty('--de-color', color);
-        overlay.classList.add('de-bg-' + (de.theme || 'ao'));
+        overlay.style.background = de.id === 'deignersche_notengebung'
+          ? 'rgba(0,5,20,0.55)'
+          : domainBg(color);
         document.getElementById('ptv-de-name').textContent   = de.name;
         document.getElementById('ptv-de-sub').textContent    = de.subname;
         document.getElementById('ptv-de-effect').textContent = de.effect;
@@ -2053,6 +2052,7 @@
         banner.classList.add('visible');
       } else {
         overlay.style.removeProperty('--de-color');
+        overlay.style.background = '';
         banner.classList.remove('visible');
       }
 
@@ -2080,6 +2080,25 @@
     let pokerActive = false;
     let lastDEHandNum = -1;
     let _bgVideoAudio = true; // cached setting, updated each poll
+
+    // Parse hex color → {r,g,b}
+    function hexToRgb(hex) {
+      const h = hex.replace('#', '');
+      return {
+        r: parseInt(h.slice(0,2), 16),
+        g: parseInt(h.slice(2,4), 16),
+        b: parseInt(h.slice(4,6), 16),
+      };
+    }
+
+    // Build a radial-gradient background for a domain color
+    function domainBg(hex) {
+      const { r, g, b } = hexToRgb(hex);
+      return `radial-gradient(ellipse 130% 85% at 50% 115%,
+        rgba(${r},${g},${b},0.32) 0%,
+        rgba(${Math.round(r*0.06)},${Math.round(g*0.06)},${Math.round(b*0.06)},0.97) 58%,
+        #020305 100%)`;
+    }
 
     // Domain expansion colour themes
     const DE_COLORS = {
