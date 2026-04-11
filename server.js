@@ -362,7 +362,7 @@ app.delete('/api/bounties/:id', (req, res) => {
 });
 
 let pokerGame = null;
-let pendingDomainActivation = null; // { playerId, playerName, domain }
+let pendingDomainActivations = []; // [{ playerId, playerName, domain }, ...] — FIFO queue, manual always beats random
 
 function pokerBuildToAct(game, startIdx) {
   const n = game.players.length;
@@ -483,11 +483,10 @@ app.post('/api/poker/deal', (req, res) => {
     g._communityCards = [deck.pop(), deck.pop(), deck.pop(), deck.pop(), deck.pop()];
   }
 
-  // Domain Expansion: manual activation takes priority, otherwise 20% random chance
+  // Domain Expansion: manual queue always takes priority, otherwise 20% random chance
   g.domainExpansion = null;
-  if (pendingDomainActivation) {
-    g.domainExpansion = pendingDomainActivation.domain;
-    pendingDomainActivation = null;
+  if (pendingDomainActivations.length > 0) {
+    g.domainExpansion = pendingDomainActivations.shift().domain;
   } else if (Math.random() < 0.20) {
     const de = readDE();
     const pool = (de.expansions || []).filter(e => e.enabled);
@@ -642,7 +641,7 @@ app.post('/api/poker/end', (req, res) => {
     writePlayers(pdata);
   }
   pokerGame = null;
-  pendingDomainActivation = null;
+  pendingDomainActivations = [];
   res.json({ success: true });
 });
 
@@ -933,33 +932,47 @@ app.get('/api/domain-activation', (req, res) => {
     const player = pdata.players.find(p => p.id === playerId);
     myCoins = player ? (player.domainCoins ?? 0) : 0;
   }
-  res.json({ pending: pendingDomainActivation, myCoins });
+  res.json({
+    pending: pendingDomainActivations[0] || null,
+    queue: pendingDomainActivations,
+    myCoins,
+  });
 });
 
 app.post('/api/domain-activation', (req, res) => {
   const { playerId, domain } = req.body;
   if (!playerId || !domain) return res.status(400).json({ error: 'playerId und domain erforderlich' });
-  if (pendingDomainActivation) return res.status(409).json({ error: 'Bereits eine Domain aktiviert' });
+  if (pendingDomainActivations.some(a => a.playerId === parseInt(playerId)))
+    return res.status(409).json({ error: 'Du hast bereits eine Domain in der Warteschlange' });
   const pdata = readPlayers();
   const player = pdata.players.find(p => p.id === parseInt(playerId));
   if (!player) return res.status(404).json({ error: 'Spieler nicht gefunden' });
   if ((player.domainCoins ?? 0) < 1) return res.status(402).json({ error: 'Nicht genug Domain-Münzen' });
   player.domainCoins = (player.domainCoins ?? 0) - 1;
   writePlayers(pdata);
-  pendingDomainActivation = { playerId: player.id, playerName: player.name, domain };
-  res.json({ success: true, myCoins: player.domainCoins, pending: pendingDomainActivation });
+  pendingDomainActivations.push({ playerId: player.id, playerName: player.name, domain });
+  res.json({
+    success: true,
+    myCoins: player.domainCoins,
+    pending: pendingDomainActivations[0] || null,
+    queue: pendingDomainActivations,
+  });
 });
 
 app.delete('/api/domain-activation', (req, res) => {
   const { playerId } = req.body;
-  if (!pendingDomainActivation) return res.status(404).json({ error: 'Keine aktive Reservierung' });
-  if (pendingDomainActivation.playerId !== parseInt(playerId))
-    return res.status(403).json({ error: 'Nicht deine Domain-Reservierung' });
+  const idx = pendingDomainActivations.findIndex(a => a.playerId === parseInt(playerId));
+  if (idx === -1) return res.status(404).json({ error: 'Keine aktive Reservierung' });
   // Coin is NOT refunded — spent permanently
+  pendingDomainActivations.splice(idx, 1);
   const pdata = readPlayers();
   const player = pdata.players.find(p => p.id === parseInt(playerId));
-  pendingDomainActivation = null;
-  res.json({ success: true, myCoins: player ? (player.domainCoins ?? 0) : null });
+  res.json({
+    success: true,
+    myCoins: player ? (player.domainCoins ?? 0) : null,
+    pending: pendingDomainActivations[0] || null,
+    queue: pendingDomainActivations,
+  });
 });
 
 // Grant 1 wheel spin to a player (admin only)
