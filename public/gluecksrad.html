@@ -223,8 +223,8 @@
       <button class="btn btn-secondary" onclick="closeResult()">Schließen</button>
     </div>
 
-    <!-- Add Entry -->
-    <div class="form-card" style="margin-top:1.5rem;">
+    <!-- Add Entry (admin only) -->
+    <div class="form-card" id="entry-form-card" style="margin-top:1.5rem;">
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
         <h2 class="section-title" style="margin:0; border:none; padding:0;">Einträge</h2>
         <button class="btn btn-secondary import-btn" onclick="importRules()" title="Regeln aus dem Spiel importieren">
@@ -250,6 +250,10 @@
 
     function getMe() {
       try { return JSON.parse(localStorage.getItem('lalling-me')); } catch { return null; }
+    }
+    function isAdmin() {
+      try { const me = JSON.parse(localStorage.getItem('lalling-me')); return !!(me && me.isAdmin); }
+      catch { return false; }
     }
 
     const DEFAULT_ENTRIES = [
@@ -552,11 +556,14 @@
       const palette = getPalette();
       const pGlow = getCSSVar('--p-glow');
 
+      const admin = isAdmin();
+      document.getElementById('entry-form-card').style.display = admin ? '' : 'none';
+
       list.innerHTML = entries.map((e, i) => `
         <div class="entry-item">
           <span class="entry-dot" style="background:${i % 2 === 0 ? pGlow : getCSSVar('--gold')}; box-shadow: 0 0 5px ${i % 2 === 0 ? pGlow : getCSSVar('--gold')}"></span>
           <span class="entry-name">${escHtml(e)}</span>
-          <button class="btn btn-danger" style="padding:0.2rem 0.5rem; font-size:0.7rem;" onclick="removeEntry(${i})">✕</button>
+          ${admin ? `<button class="btn btn-danger" style="padding:0.2rem 0.5rem; font-size:0.7rem;" onclick="removeEntry(${i})">✕</button>` : ''}
         </div>
       `).join('');
 
