@@ -483,10 +483,15 @@ app.post('/api/poker/deal', (req, res) => {
     g._communityCards = [deck.pop(), deck.pop(), deck.pop(), deck.pop(), deck.pop()];
   }
 
-  // Domain Expansion: nur manuelle Aktivierungen aus der Queue
+  // Domain Expansion: manual queue always takes priority, otherwise 20% random chance
   g.domainExpansion = null;
   if (pendingDomainActivations.length > 0) {
     g.domainExpansion = pendingDomainActivations.shift().domain;
+  } else if (Math.random() < 0.20) {
+    const de = readDE();
+    const pool = (de.expansions || []).filter(e => e.enabled);
+    if (pool.length > 0)
+      g.domainExpansion = pool[Math.floor(Math.random() * pool.length)];
   }
 
   // Cursed Spirit Bounty: configurable chance per hand when enabled
