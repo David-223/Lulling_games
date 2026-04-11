@@ -1553,6 +1553,7 @@
       document.getElementById('view-nogame').style.display = '';
       document.getElementById('view-game').style.display = 'none';
       loadSetupPlayers();
+      startWaiting();
     }
     function showGame() {
       document.getElementById('view-nogame').style.display = 'none';
@@ -1821,8 +1822,25 @@
         }
       } catch {}
     }
-    function startPolling() { stopPolling(); pollTimer = setInterval(poll, 1500); }
+    function startPolling() { stopPolling(); stopWaiting(); pollTimer = setInterval(poll, 1500); }
     function stopPolling()  { if (pollTimer) { clearInterval(pollTimer); pollTimer = null; } }
+
+    // ── Warte-Poll: läuft wenn kein Spiel aktiv, erkennt neues Spiel automatisch ──
+    let waitTimer = null;
+    async function waitPoll() {
+      try {
+        const res = await fetch('/api/poker/state');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data && !['setup'].includes(data.phase)) {
+          stopWaiting();
+          render(data);
+          startPolling();
+        }
+      } catch {}
+    }
+    function startWaiting() { stopWaiting(); waitTimer = setInterval(waitPoll, 2000); }
+    function stopWaiting()  { if (waitTimer) { clearInterval(waitTimer); waitTimer = null; } }
 
     // ── Init ──
     (async () => {
