@@ -377,20 +377,7 @@ app.delete('/api/bounties/:id', (req, res) => {
 
 let pokerGame = null;
 let pendingDomainActivation = null; // { playerId, playerName, domain }
-
-// pendingAdminDomains is persisted to settings.json so server restarts don't lose it
-let pendingAdminDomains = (() => {
-  try { const s = readSettings(); return s.pendingAdminDomains || null; } catch { return null; }
-})();
-
-function setPendingAdminDomains(arr) {
-  pendingAdminDomains = arr || null;
-  try {
-    const s = readSettings();
-    s.pendingAdminDomains = pendingAdminDomains;
-    writeSettings(s);
-  } catch {}
-}
+let pendingAdminDomains = null;     // array of domain objects for next hand (admin override)
 
 function pokerBuildToAct(game, startIdx) {
   const n = game.players.length;
@@ -525,7 +512,7 @@ app.post('/api/poker/deal', (req, res) => {
   if (pendingAdminDomains && pendingAdminDomains.length > 0) {
     g.domainExpansions = pendingAdminDomains;
     g.domainExpansion  = pendingAdminDomains[0];
-    setPendingAdminDomains(null);
+    pendingAdminDomains = null;
   } else if (pendingDomainActivation) {
     g.domainExpansion  = pendingDomainActivation.domain;
     g.domainExpansions = [pendingDomainActivation.domain];
@@ -651,10 +638,10 @@ app.post('/api/poker/winner', (req, res) => {
   g.pot = 0; g.phase = 'ended';
   g.winningHand = req.body.winningHand || null;
 
-  // 7-2 Gewinn: alle aktivierten Domains nächste Hand (nur wenn kein Admin-Override aktiv)
-  if (req.body.sevenTwo && (!pendingAdminDomains || pendingAdminDomains.length === 0)) {
+  // 7-2 Gewinn: alle aktivierten Domains nächste Hand
+  if (req.body.sevenTwo) {
     const de = readDE();
-    setPendingAdminDomains((de.expansions || []).filter(e => e.enabled));
+    pendingAdminDomains = (de.expansions || []).filter(e => e.enabled);
   }
 
   // Accumulate sip totals (1 sip per 25 chips lost vs hand start)
@@ -706,7 +693,7 @@ app.post('/api/poker/end', (req, res) => {
   }
   pokerGame = null;
   pendingDomainActivation = null;
-  setPendingAdminDomains(null);
+  pendingAdminDomains = null;
   res.json({ success: true });
 });
 
@@ -1165,13 +1152,13 @@ app.post('/api/admin/pending-domains', (req, res) => {
   const de = readDE();
   const all = (de.expansions || []).filter(e => e.enabled);
   if (clear) {
-    setPendingAdminDomains(null);
+    pendingAdminDomains = null;
   } else if (allDomains) {
-    setPendingAdminDomains(all);
+    pendingAdminDomains = all;
   } else if (Array.isArray(domainIds) && domainIds.length > 0) {
-    setPendingAdminDomains(domainIds.map(id => all.find(e => e.id === id)).filter(Boolean));
+    pendingAdminDomains = domainIds.map(id => all.find(e => e.id === id)).filter(Boolean);
   } else {
-    setPendingAdminDomains(null);
+    pendingAdminDomains = null;
   }
   res.json({ success: true, domains: pendingAdminDomains || [] });
 });
