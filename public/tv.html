@@ -2043,7 +2043,7 @@
       }
       overlay.classList.remove('de-bg-ao', 'de-bg-shuku', 'de-bg-yami', 'de-bg-kin');
       if (de) {
-        const color = DE_COLORS[de.theme] || DE_COLORS.ao;
+        const color = de.color || DE_COLORS[de.theme] || DE_COLORS.ao;
         overlay.style.setProperty('--de-color', color);
         overlay.classList.add('de-bg-' + (de.theme || 'ao'));
         document.getElementById('ptv-de-name').textContent   = de.name;
@@ -2136,7 +2136,7 @@
 
     function showDomainExpansion(de) {
       const overlay = document.getElementById('tv-de-overlay');
-      const color   = DE_COLORS[de.theme] || '#5a8af0';
+      const color   = de.color || DE_COLORS[de.theme] || '#5a8af0';
       playDomainAudio(de.id);
 
       // Set CSS var so all children inherit the theme colour
@@ -2211,7 +2211,7 @@
 
       // Build grid cards with staggered entrance animation
       grid.innerHTML = domains.map((de, i) => {
-        const color = DE_COLORS[de.theme] || '#5a8af0';
+        const color = de.color || DE_COLORS[de.theme] || '#5a8af0';
         return `<div class="multi-de-card" style="--card-color:${color};animation-delay:${i * 0.1}s">
           <div class="multi-de-name">${escHtml(de.name)}</div>
           <div class="multi-de-caster">${escHtml(de.caster || '')}</div>

@@ -7,6 +7,7 @@
       "subname": "The Wandering Barnabas",
       "caster": "Shanon",
       "theme": "yami",
+      "color": "#a8ff00",
       "effect": "Ein Mitspieler wird mit '67' auf der Stirn zum Shikigami ernannt und nimmt diese Hand nicht als Spieler teil. Das Shikigami stellt sich hinter den Gegner, auf den ich zeige, und darf dessen Karten sehen — Hinweise jedoch nur durch Tiergeräusche. Verliere ich die Hand, trinken ich und mein Shikigami je 2 Strafschlücke.",
       "enabled": true,
       "chance": 20
@@ -17,6 +18,7 @@
       "subname": "The Gambling Walpa",
       "caster": "Felix",
       "theme": "yami",
+      "color": "#c060ff",
       "effect": "Vor jeder Aktion wird gewürfelt: 🎲 1–2 = Check/Call · 3–4 = Raise · 5–6 = Fold. Für 3 Schlücke darf einmal neu gewürfelt werden. Bei Raise: Einsatzhöhe = Augenzahl × 50.",
       "enabled": true,
       "chance": 20
@@ -27,6 +29,7 @@
       "subname": "Womb Profusion",
       "caster": "Ozan",
       "theme": "shuku",
+      "color": "#c02858",
       "effect": "Immer wenn ein Mitspieler foldet, darf der Nutzer sofort eine Handkarte tauschen. Zu Rundenstart muss eine Karte als Cursed Technique markiert werden — diese ist unveränderlich.",
       "enabled": true,
       "chance": 20
@@ -37,6 +40,7 @@
       "subname": "The Greedy Nostril",
       "caster": "Lovis",
       "theme": "kin",
+      "color": "#d4b830",
       "effect": "Lovis wählt einen der gefoldeten Spieler aus: dieser muss doppelt so viel schnupfen wie Lovis selbst in dieser Runde – oder einen Shot trinken, falls er sich weigert.",
       "enabled": true,
       "chance": 20
@@ -47,6 +51,7 @@
       "subname": "Serbian Family Tree",
       "caster": "David M",
       "theme": "yami",
+      "color": "#ff10d0",
       "effect": "Wenn David M blind all in geht und die Hand gewinnt, müssen alle anderen Spieler einen Shot trinken.",
       "enabled": true,
       "chance": 20
@@ -57,6 +62,7 @@
       "subname": "The Slurring Libero",
       "caster": "Marlon",
       "theme": "shuku",
+      "color": "#0a8040",
       "effect": "Marlon trinkt einen Trichter und bekommt dafür eine zusätzliche Handkarte.",
       "enabled": true,
       "chance": 20
@@ -67,6 +73,7 @@
       "subname": "The Circling Fox",
       "caster": "Julian",
       "theme": "kin",
+      "color": "#e07820",
       "effect": "Auf dem Turn würfelt Julian. Um die Anzahl der Augen werden die Handkarten im Uhrzeigersinn am Tisch weitergegeben. Jeder Spieler erhält die Karten seines Nachbarn.",
       "enabled": true,
       "chance": 20
@@ -77,6 +84,7 @@
       "subname": "Deigner's Grading System",
       "caster": "David",
       "theme": "ao",
+      "color": "#20d8f0",
       "effect": "Jeder Spieler würfelt — das Ergebnis bestimmt die Anzahl seiner Hole Cards (Minimum 1, Maximum 5, 6 = NB(1 Shot) nochmal Würfeln. David würfelt 3-mal und darf sich aussuchen, welchen Wurf er nimmt. Anschließend würfelt jeder Spieler für sich die Karten aus: Er zieht blind aus dem verdeckten Deck und verteilt — jeder bekommt genau so viele Karten, wie er gewürfelt hat.",
       "enabled": true,
       "chance": 20
