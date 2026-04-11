@@ -715,7 +715,7 @@
             <div>
               <div style="font-family:var(--font-ui);font-size:0.88rem;color:var(--text);letter-spacing:0.04em;">🤖 Testumgebung</div>
               <div style="font-size:0.74rem;color:var(--text-dim);font-family:var(--font-ui);margin-top:0.3rem;line-height:1.4;">
-                Meldet alle Roster-Spieler an. Alle <b style="color:var(--text);">außer David &amp; Felix</b> callen/checken automatisch.
+                Meldet alle Roster-Spieler an. Alle <b style="color:var(--text);">außer David</b> callen/checken automatisch.
               </div>
             </div>
             <button id="test-mode-toggle-btn" class="toggle-switch" onclick="toggleTestMode()" title="Testumgebung ein/ausschalten">
@@ -928,8 +928,8 @@
       try {
         const res = await fetch('/api/players');
         const allPlayers = await res.json();
-        const bots = allPlayers.filter(p => !['david', 'felix'].includes(p.name.toLowerCase()));
-        const manual = allPlayers.filter(p => ['david', 'felix'].includes(p.name.toLowerCase()));
+        const bots = allPlayers.filter(p => !['david'].includes(p.name.toLowerCase()));
+        const manual = allPlayers.filter(p => ['david'].includes(p.name.toLowerCase()));
         const botNames = bots.map(p => p.name).join(', ') || '–';
         const manualNames = manual.map(p => p.name).join(', ') || '–';
         statusEl.innerHTML =

@@ -864,7 +864,7 @@ app.post('/api/settings', (req, res) => {
 
 // ── Test-Umgebung ──
 
-const TEST_BOT_EXEMPT = ['david', 'felix']; // Diese Spieler spielen manuell
+const TEST_BOT_EXEMPT = ['david']; // Diese Spieler spielen manuell
 
 // Alle Roster-Spieler automatisch einloggen (Testmodus)
 app.post('/api/test-mode/checkin-all', (req, res) => {
