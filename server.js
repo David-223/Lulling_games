@@ -382,6 +382,64 @@ app.delete('/api/bounties/:id', (req, res) => {
 let pokerGame = null;
 let pendingDomainActivations = []; // [{ playerId, playerName, domain }, ...] — FIFO queue, manual always beats random
 let pendingAdminDomains = null;     // array of domain objects for next hand (admin override)
+const DEAL_DEBOUNCE_MS = 1500;
+const DEFAULT_DOMAIN_CHANCE = 20;   // % pro Hand, dass überhaupt eine zufällige Domain auslöst
+
+function clampPercent(value, fallback) {
+  const n = Number(value);
+  return Number.isFinite(n) ? Math.min(100, Math.max(0, n)) : fallback;
+}
+
+// Zufällige Domain für eine Hand.
+//  - globaler Schalter aus            → nie
+//  - `chance` (global, Standard 20 %)  → ob überhaupt eine Domain auslöst
+//  - `chance` je Domain                → Gewicht bei der Auswahl (0 = nie zufällig)
+function pickRandomDomain(de, rand = Math.random) {
+  if (!de || !de.enabled) return null;
+  if (rand() * 100 >= clampPercent(de.chance, DEFAULT_DOMAIN_CHANCE)) return null;
+  const pool = (de.expansions || [])
+    .filter(e => e && e.enabled)
+    .map(e => ({ domain: e, weight: clampPercent(e.chance, DEFAULT_DOMAIN_CHANCE) }))
+    .filter(entry => entry.weight > 0);
+  const total = pool.reduce((sum, entry) => sum + entry.weight, 0);
+  if (total <= 0) return null;
+  let roll = rand() * total;
+  for (const entry of pool) {
+    roll -= entry.weight;
+    if (roll < 0) return entry.domain;
+  }
+  return pool[pool.length - 1].domain;
+}
+
+// Legt fest, welche Domain(s) in der nächsten Hand aktiv sind.
+function pickDomainsForHand(de, rand = Math.random) {
+  if (pendingAdminDomains && pendingAdminDomains.length > 0) {
+    const domains = pendingAdminDomains;
+    pendingAdminDomains = null;
+    return { domains, source: 'admin' };
+  }
+  if (pendingDomainActivations.length > 0) {
+    return { domains: [pendingDomainActivations.shift().domain], source: 'player' };
+  }
+  const random = pickRandomDomain(de, rand);
+  return random ? { domains: [random], source: 'random' } : { domains: [], source: null };
+}
+
+// Vom Handy gemeldete Domain auf den Server-Eintrag abbilden, damit manuell
+// und zufällig ausgelöste Domains identisch aussehen (Farbe, Effekt, Audio).
+function resolveDomain(de, clientDomain) {
+  if (!clientDomain || typeof clientDomain !== 'object') return null;
+  const known = (de.expansions || []).find(e => e.id === clientDomain.id);
+  if (known) return known;
+  const text = (value, max) => String(value ?? '').slice(0, max);
+  if (!clientDomain.id || !clientDomain.name) return null;
+  return {
+    id: text(clientDomain.id, 60), name: text(clientDomain.name, 80), subname: text(clientDomain.subname, 80),
+    caster: text(clientDomain.caster, 40), theme: text(clientDomain.theme, 20), effect: text(clientDomain.effect, 600),
+    ...(/^#[0-9a-f]{6}$/i.test(clientDomain.color || '') && { color: clientDomain.color }),
+    enabled: true,
+  };
+}
 
 function pokerBuildToAct(game, startIdx) {
   const n = game.players.length;
@@ -427,6 +485,7 @@ app.post('/api/poker/new', (req, res) => {
   }
 
   pokerGame = {
+    gameId: Date.now(),
     phase: 'setup',
     pot: 0, currentBet: 0,
     dealerIdx: startDealerIdx, sbIdx: -1, bbIdx: -1, currentPlayerIdx: -1, toAct: [],
@@ -447,6 +506,10 @@ app.post('/api/poker/deal', (req, res) => {
   const g = pokerGame;
   const n = g.players.length;
 
+  // Doppeltes Austeilen (Doppeltipp / zwei Admin-Geräte gleichzeitig) abfangen:
+  // sonst würde die zweite Anfrage die gerade ausgelöste Domain sofort wieder verwerfen.
+  if (g._dealtAt && Date.now() - g._dealtAt < DEAL_DEBOUNCE_MS) return res.json(g);
+
   // Need at least 2 players with chips to start a new hand
   const activePlayers = g.players.filter(p => p.chips > 0);
   if (activePlayers.length < 2) {
@@ -459,6 +522,7 @@ app.post('/api/poker/deal', (req, res) => {
     while (g.players[g.dealerIdx].chips <= 0 && tries < n);
   }
   g.handNum++;
+  g._dealtAt = Date.now();
   g.pot = 0; g.currentBet = 0; g.winner = null; g.winnerId = null; g.phase = 'preflop';
   g.players.forEach(p => { p.roundBet = 0; p.totalBet = 0; p.folded = p.chips <= 0; p.allIn = false; });
 
@@ -509,25 +573,14 @@ app.post('/api/poker/deal', (req, res) => {
     g._communityCards = [deck.pop(), deck.pop(), deck.pop(), deck.pop(), deck.pop()];
   }
 
-  // Domain Expansion: admin multi-override > player coin > random
-  g.domainExpansion = null;
-  g.domainExpansions = [];
-  if (pendingAdminDomains && pendingAdminDomains.length > 0) {
-    g.domainExpansions = pendingAdminDomains;
-    g.domainExpansion  = pendingAdminDomains[0];
-    pendingAdminDomains = null;
-  } else if (pendingDomainActivations.length > 0) {
-    const next = pendingDomainActivations.shift();
-    g.domainExpansion  = next.domain;
-    g.domainExpansions = [next.domain];
-  } else if (Math.random() < 0.20) {
-    const de = readDE();
-    const pool = (de.expansions || []).filter(e => e.enabled);
-    if (pool.length > 0) {
-      g.domainExpansion  = pool[Math.floor(Math.random() * pool.length)];
-      g.domainExpansions = [g.domainExpansion];
-    }
-  }
+  // Domain Expansion – feste Reihenfolge: Admin-Auswahl > Spieler-Münze > Zufall
+  const picked = pickDomainsForHand(readDE());
+  g.domainExpansions = picked.domains;
+  g.domainExpansion  = picked.domains[0] || null;
+  g.domainSource     = picked.source;
+  // Eindeutig pro Hand (auch über mehrere Spiele hinweg) – TV/Handy spielen
+  // die Animation genau einmal pro Trigger-ID ab.
+  g.domainTriggerId  = picked.domains.length ? `${g.gameId}-${g.handNum}` : null;
 
   // Cursed Spirit Bounty: configurable chance per hand when enabled
   g.cursedSpiritBounty = null;
@@ -544,7 +597,7 @@ app.get('/api/poker/state', (req, res) => {
   const g = pokerGame;
   const n = communityRevealCount(g.phase);
   const showHoleCards = (g.phase === 'showdown' || g.phase === 'ended') && g.cardsEnabled;
-  const pub = { ...g, _holeCards: undefined, _communityCards: undefined,
+  const pub = { ...g, _holeCards: undefined, _communityCards: undefined, _dealtAt: undefined,
     communityCards: g.cardsEnabled ? (g._communityCards || []).slice(0, n) : [],
     holeCards: showHoleCards ? (g._holeCards || {}) : undefined };
   res.json(pub);
@@ -644,7 +697,8 @@ app.post('/api/poker/winner', (req, res) => {
   // 7-2 Gewinn: alle aktivierten Domains nächste Hand
   if (req.body.sevenTwo) {
     const de = readDE();
-    pendingAdminDomains = (de.expansions || []).filter(e => e.enabled);
+    const all = de.enabled ? (de.expansions || []).filter(e => e.enabled) : [];
+    if (all.length > 0) pendingAdminDomains = all;
   }
 
   // Accumulate sip totals (1 sip per 25 chips lost vs hand start)
@@ -695,6 +749,15 @@ app.post('/api/poker/end', (req, res) => {
     }
   }
   pokerGame = null;
+  // Reservierte, aber nie ausgelöste Domains: Münze zurückgeben
+  if (pendingDomainActivations.length > 0) {
+    const pdata = readPlayers();
+    for (const activation of pendingDomainActivations) {
+      const player = pdata.players.find(p => p.id === activation.playerId);
+      if (player) player.domainCoins = (player.domainCoins ?? 0) + 1;
+    }
+    writePlayers(pdata);
+  }
   pendingDomainActivations = [];
   pendingAdminDomains = null;
   res.json({ success: true });
@@ -1036,8 +1099,11 @@ function communityRevealCount(phase) {
 const DE_FILE = path.join(__dirname, 'data', 'domain-expansions.json');
 
 function readDE() {
-  if (!fs.existsSync(DE_FILE)) return { enabled: false, chance: 20, expansions: [] };
-  return JSON.parse(fs.readFileSync(DE_FILE, 'utf-8'));
+  if (!fs.existsSync(DE_FILE)) return { enabled: false, chance: DEFAULT_DOMAIN_CHANCE, expansions: [] };
+  const data = JSON.parse(fs.readFileSync(DE_FILE, 'utf-8'));
+  if (!Array.isArray(data.expansions)) data.expansions = [];
+  data.chance = clampPercent(data.chance, DEFAULT_DOMAIN_CHANCE);
+  return data;
 }
 
 function writeDE(data) {
@@ -1051,8 +1117,9 @@ app.get('/api/domain-expansion', (req, res) => {
 app.post('/api/domain-expansion', (req, res) => {
   if (!checkAdminAuth(req.body)) return res.status(401).json({ error: 'Keine Berechtigung' });
   const current = readDE();
-  const { enabled, expansions } = req.body;
+  const { enabled, expansions, chance } = req.body;
   if (enabled !== undefined) current.enabled = !!enabled;
+  if (chance !== undefined) current.chance = clampPercent(chance, DEFAULT_DOMAIN_CHANCE);
   if (Array.isArray(expansions)) current.expansions = expansions;
   writeDE(current);
   res.json(current);
@@ -1096,8 +1163,13 @@ app.get('/api/domain-activation', (req, res) => {
 });
 
 app.post('/api/domain-activation', (req, res) => {
-  const { playerId, domain } = req.body;
-  if (!playerId || !domain) return res.status(400).json({ error: 'playerId und domain erforderlich' });
+  const { playerId } = req.body;
+  if (!playerId || !req.body.domain) return res.status(400).json({ error: 'playerId und domain erforderlich' });
+  const de = readDE();
+  if (!de.enabled) return res.status(409).json({ error: 'Domain Expansions sind gerade deaktiviert' });
+  const domain = resolveDomain(de, req.body.domain);
+  if (!domain) return res.status(400).json({ error: 'Unbekannte Domain' });
+  if (!domain.enabled) return res.status(409).json({ error: 'Diese Domain ist gerade deaktiviert' });
   if (pendingDomainActivations.some(a => a.playerId === parseInt(playerId)))
     return res.status(409).json({ error: 'Du hast bereits eine Domain in der Warteschlange' });
   const pdata = readPlayers();

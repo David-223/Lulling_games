@@ -2087,7 +2087,15 @@
     }
 
     let pokerActive = false;
-    let lastDEHandNum = -1;
+    // Zuletzt abgespielter Domain-Trigger. Bleibt über Verbindungsabbrüche und
+    // Neuladen der Seite erhalten, damit jede Domain genau einmal abgespielt wird.
+    const DE_SEEN_KEY = 'lalling-tv-last-domain-trigger';
+    let lastDETrigger = null;
+    try { lastDETrigger = sessionStorage.getItem(DE_SEEN_KEY); } catch {}
+    function markDomainSeen(id) {
+      lastDETrigger = id;
+      try { sessionStorage.setItem(DE_SEEN_KEY, id); } catch {}
+    }
     let _bgVideoAudio = true; // cached setting, updated each poll
 
     // Parse hex color → {r,g,b}
@@ -2269,7 +2277,9 @@
 
         const res = await fetch('/api/poker/state');
         if (!res.ok) {
-          setPokerView(false); return;
+          // 404 = kein Spiel. Andere Fehler (Server kurz weg) lassen die Ansicht stehen.
+          if (res.status === 404) setPokerView(false);
+          return;
         }
         const state = await res.json();
         const active = state && state.phase && state.phase !== 'setup';
@@ -2277,12 +2287,16 @@
         if (active) {
           renderPokerView(state);
           // Trigger domain expansion overlay on new hand
-          if (state.domainExpansions && state.domainExpansions.length > 1 && state.handNum !== lastDEHandNum) {
-            lastDEHandNum = state.handNum;
-            showMultiDomainExpansion(state.domainExpansions);
-          } else if (state.domainExpansion && state.handNum !== lastDEHandNum) {
-            lastDEHandNum = state.handNum;
-            showDomainExpansion(state.domainExpansion);
+          const triggerId = state.domainExpansion
+            ? String(state.domainTriggerId || ((state.gameId || 0) + '-' + state.handNum))
+            : null;
+          if (triggerId && triggerId !== lastDETrigger) {
+            markDomainSeen(triggerId);
+            if (state.domainExpansions && state.domainExpansions.length > 1) {
+              showMultiDomainExpansion(state.domainExpansions);
+            } else {
+              showDomainExpansion(state.domainExpansion);
+            }
           }
           // Cursed Spirit Bounty
           const bountyOverlay = document.getElementById('tv-bounty-overlay');
@@ -2296,7 +2310,7 @@
           }
         }
       } catch {
-        setPokerView(false);
+        // Verbindungsfehler: aktuellen Stand stehen lassen, nächster Poll versucht es erneut
       }
     }
 
@@ -2314,7 +2328,6 @@
       // Clear seat cache and reset domain guard when game ends
       if (!show) {
         seatNodeMap.clear();
-        lastDEHandNum = -1;
         document.getElementById('tv-bounty-overlay').classList.remove('visible');
         const bgVid = document.getElementById('bg-video');
         bgVid.style.display = 'none'; bgVid.pause();

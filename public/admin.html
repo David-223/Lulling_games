@@ -553,6 +553,20 @@
         </div>
 
         <div id="de-controls">
+          <div style="background:var(--bg-card2);border:1px solid var(--border-mid);border-radius:6px;padding:0.7rem 0.9rem;margin-bottom:1rem;">
+            <div style="display:flex;align-items:center;gap:0.6rem;">
+              <span style="font-family:var(--font-ui);font-size:0.68rem;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;white-space:nowrap;">Chance pro Hand</span>
+              <input id="de-global-chance" type="range" min="0" max="100" step="5" value="20"
+                style="flex:1;accent-color:var(--p-glow);"
+                oninput="document.getElementById('de-global-chance-lbl').textContent = this.value + '%'"
+                onchange="deGlobalChanceSave(this)" />
+              <span id="de-global-chance-lbl" style="font-family:var(--font-title);font-size:0.85rem;font-weight:700;color:var(--p-glow);min-width:2.8rem;text-align:right;">20%</span>
+            </div>
+            <div style="font-size:0.7rem;color:var(--text-dim);font-family:var(--font-ui);margin-top:0.35rem;">
+              So oft löst zufällig eine Domain aus, wenn weder Admin noch Spieler eine festgelegt haben.
+              Die Gewichte unten bestimmen, <em>welche</em> Domain es dann wird (0 = nie zufällig, nur manuell).
+            </div>
+          </div>
           <div style="font-family:var(--font-ui);font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.6rem;">Aktive Expansions</div>
           <div id="de-list" style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:1.2rem;"></div>
 
@@ -1786,6 +1800,14 @@
       controls.style.opacity      = deSettings.enabled ? '1' : '0.45';
       controls.style.pointerEvents = deSettings.enabled ? '' : 'none';
 
+      const globalChance = deSettings.chance ?? 20;
+      document.getElementById('de-global-chance').value = globalChance;
+      document.getElementById('de-global-chance-lbl').textContent = globalChance + '%';
+      // Tatsächliche Chance je Domain pro Hand = globale Chance × Anteil am Gesamtgewicht
+      const totalWeight = (deSettings.expansions || []).reduce((sum, e) => sum + (e.enabled ? (e.chance ?? 20) : 0), 0);
+      const effective = e => (!e.enabled || totalWeight <= 0) ? 0 : globalChance * (e.chance ?? 20) / totalWeight;
+      const fmtPct = v => (v >= 10 ? v.toFixed(0) : v.toFixed(1)).replace('.', ',') + '%';
+
       const list = document.getElementById('de-list');
       list.innerHTML = (deSettings.expansions || []).map((e, i) => `
         <div style="background:var(--bg-card2);border:1px solid var(--border-mid);border-radius:6px;padding:0.7rem 0.9rem;">
@@ -1809,18 +1831,27 @@
             </div>
           </div>
           <div style="display:flex;align-items:center;gap:0.6rem;margin-top:0.55rem;">
-            <span style="font-family:var(--font-ui);font-size:0.68rem;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;white-space:nowrap;">Chance</span>
-            <input type="range" min="0" max="100" step="5" value="${e.chance || 0}"
+            <span style="font-family:var(--font-ui);font-size:0.68rem;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;white-space:nowrap;">Gewicht</span>
+            <input type="range" min="0" max="100" step="5" value="${e.chance ?? 20}"
               style="flex:1;accent-color:var(--p-glow);"
               oninput="deChanceLabel(this, ${i})"
               onchange="deChanceSave(this, ${i})" />
-            <span id="de-chance-lbl-${i}" style="font-family:var(--font-title);font-size:0.85rem;font-weight:700;color:var(--p-glow);min-width:2.8rem;text-align:right;">${e.chance || 0}%</span>
+            <span id="de-chance-lbl-${i}" style="font-family:var(--font-title);font-size:0.85rem;font-weight:700;color:var(--p-glow);min-width:2.8rem;text-align:right;">${e.chance ?? 20}</span>
+          </div>
+          <div style="font-size:0.68rem;color:var(--text-dim);font-family:var(--font-ui);margin-top:0.2rem;text-align:right;">
+            ${e.enabled ? '≈ ' + fmtPct(effective(e)) + ' pro Hand' : 'deaktiviert – löst nie aus'}
           </div>
         </div>`).join('');
     }
 
     function deChanceLabel(slider, idx) {
-      document.getElementById('de-chance-lbl-' + idx).textContent = slider.value + '%';
+      document.getElementById('de-chance-lbl-' + idx).textContent = slider.value;
+    }
+
+    function deGlobalChanceSave(slider) {
+      if (!deSettings) return;
+      deSettings.chance = parseInt(slider.value);
+      deSaveSettings();
     }
 
     function deChanceSave(slider, idx) {
