@@ -849,6 +849,7 @@
         <button class="theme-btn" data-scheme="shuku" title="赫 – Sukuna Crimson"></button>
         <button class="theme-btn" data-scheme="yami"  title="闇 – Hollow Purple"></button>
         <button class="theme-btn" data-scheme="kin"   title="金 – Special Grade"></button>
+        <button class="theme-btn" data-scheme="sbr"   title="★ – Steel Ball Run"></button>
       </div>
       <div class="view-toggle" id="view-toggle">
         <button class="view-btn" data-view="table" title="Tischansicht">🎰</button>
@@ -1775,7 +1776,7 @@
     applyTableLock(); // apply lock + view on load
 
     // ── Theme ──
-    const THEMES = ['ao', 'shuku', 'yami', 'kin'];
+    const THEMES = ['ao', 'shuku', 'yami', 'kin', 'sbr'];
     function applyTheme(scheme) {
       if (!THEMES.includes(scheme)) scheme = 'ao';
       document.documentElement.setAttribute('data-theme', scheme);

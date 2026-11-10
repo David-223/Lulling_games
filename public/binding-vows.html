@@ -382,6 +382,7 @@
       <button class="theme-btn" data-scheme="shuku" title="赫 – Sukuna Crimson"></button>
       <button class="theme-btn" data-scheme="yami"  title="闇 – Hollow Purple"></button>
       <button class="theme-btn" data-scheme="kin"   title="金 – Special Grade"></button>
+      <button class="theme-btn" data-scheme="sbr"   title="★ – Steel Ball Run"></button>
     </div>
   </header>
 
@@ -582,7 +583,7 @@
     }
 
     // ── Theme ──
-    const THEMES = ['ao','shuku','yami','kin'];
+    const THEMES = ['ao','shuku','yami','kin', 'sbr'];
     function applyTheme(s) {
       if (!THEMES.includes(s)) s = 'ao';
       document.documentElement.setAttribute('data-theme', s);

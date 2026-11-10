@@ -1,6 +1,6 @@
 /* ===== LALLING GAMES – JUJUTSU KAISEN THEME ===== */
 
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Rajdhani:wght@400;600;700&family=Roboto+Slab:wght@700;900&display=swap');
 
 /* ──────────────────────────────────────────────
    ROOT – STATIC COLOURS
@@ -386,6 +386,7 @@ body > * { position: relative; z-index: 1; }
 .theme-btn[data-scheme="shuku"] { background: linear-gradient(135deg, #550808 0%, #bb1818 45%, #ff9933 100%); color: #ff3322; }
 .theme-btn[data-scheme="yami"]  { background: linear-gradient(135deg, #2e0a66 0%, #7a1edd 45%, #4477ff 100%); color: #bb55ff; }
 .theme-btn[data-scheme="kin"]   { background: linear-gradient(135deg, #3e2e08 0%, #a07e10 45%, #ff7733 100%); color: #e8c020; }
+.theme-btn[data-scheme="sbr"]   { background: linear-gradient(135deg, #c2267a 0%, #f6c531 50%, #12a08a 100%); color: #f6c531; }
 
 .theme-btn-label {
   font-size: 0.6rem;
@@ -1022,4 +1023,132 @@ main {
 @media (min-width: 621px) {
   .modal-overlay { align-items: center; }
   .modal { border-radius: 12px; margin: 1rem; max-height: 85vh; }
+}
+
+
+/* ══════════════════════════════════════════════
+   THEME: STEEL BALL RUN  (data-theme="sbr")
+   Western bei Nacht trifft Manga-Panel: Aubergine, Sonnengelb,
+   Magenta und Türkis, schräge Slab-Serif-Titel, harte Schatten,
+   Rasterpunkte.
+══════════════════════════════════════════════ */
+[data-theme="sbr"] {
+  --bg-dark:   #140c1c;
+  --bg-card:   #1f1430;
+  --bg-card2:  #2a1b40;
+  --border:      #2a1b40;
+  --border-mid:  #523872;
+  --border-gold: #5a4410;
+
+  --text:      #f6ecd4;
+  --text-mid:  #dccba8;
+  --text-dim:  #a9977c;
+
+  --accent:      #b3206a;
+  --accent-glow: #ff5fa8;
+  --accent-dim:  #5c1040;
+
+  --p:       #c2267a;
+  --p-glow:  #ff6bb0;
+  --p-dim:   #5c1040;
+  --p-bg:    rgba(194, 38, 122, 0.18);
+  --p-bg2:   rgba(194, 38, 122, 0.08);
+
+  --p2:      #12a08a;
+  --p2-glow: #3fe0c4;
+  --p2-dim:  #0a4a40;
+  --p2-bg:   rgba(18, 160, 138, 0.13);
+
+  --p-hover-glow: #f6c531;
+  --gold:        #f6c531;
+  --gold-dim:    #a8861c;
+  --gold-bright: #ffd95a;
+
+  --font-title: 'Roboto Slab', Rockwell, 'Bookman Old Style', Georgia, serif;
+  --sbr-ink: #08040c;
+}
+
+/* Rasterpunkte über dem Farbverlauf */
+[data-theme="sbr"] body::before {
+  background-image:
+    radial-gradient(rgba(246, 197, 49, 0.10) 1px, transparent 1.6px),
+    radial-gradient(ellipse 80% 60% at 10% 75%, var(--p-bg)  0%, transparent 70%),
+    radial-gradient(ellipse 70% 55% at 90% 20%, var(--p2-bg) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 40% at 55% 95%, var(--p2-bg) 0%, transparent 60%);
+  background-size: 10px 10px, auto, auto, auto;
+}
+
+[data-theme="sbr"] .site-header {
+  background: linear-gradient(180deg, #3a2357 0%, #241538 100%);
+  border-bottom: 3px solid var(--gold);
+  box-shadow: 0 4px 0 var(--sbr-ink);
+}
+
+[data-theme="sbr"] .site-header .logo-text {
+  color: var(--gold);
+  font-style: italic;
+  font-weight: 900;
+  text-shadow: 3px 3px 0 var(--p), 5px 5px 0 var(--sbr-ink);
+  background: none;
+  -webkit-text-fill-color: currentColor;
+}
+
+[data-theme="sbr"] .section-title {
+  font-style: italic;
+  color: var(--gold);
+}
+
+[data-theme="sbr"] .intro-card,
+[data-theme="sbr"] .rule-card,
+[data-theme="sbr"] .form-card,
+[data-theme="sbr"] .modal {
+  border-radius: 2px;
+  box-shadow: 5px 5px 0 var(--sbr-ink);
+}
+
+[data-theme="sbr"] .rule-title,
+[data-theme="sbr"] .rule-numeral {
+  font-style: italic;
+}
+
+[data-theme="sbr"] .btn {
+  border-radius: 0;
+  box-shadow: 3px 3px 0 var(--sbr-ink);
+  font-weight: 700;
+}
+
+[data-theme="sbr"] .btn:active {
+  transform: translate(3px, 3px);
+  box-shadow: none;
+}
+
+[data-theme="sbr"] .btn-primary {
+  background: var(--p);
+  color: #fff;
+  border-color: var(--sbr-ink);
+}
+
+[data-theme="sbr"] .btn-primary:hover {
+  background: var(--gold);
+  color: var(--sbr-ink);
+}
+
+[data-theme="sbr"] .nav-links a,
+[data-theme="sbr"] .nav-dropdown-btn {
+  border-radius: 0;
+  font-weight: 700;
+}
+
+[data-theme="sbr"] .nav-links a.active,
+[data-theme="sbr"] .nav-dropdown-btn.active {
+  background: var(--gold);
+  color: var(--sbr-ink);
+  border-color: var(--sbr-ink);
+  box-shadow: 2px 2px 0 var(--sbr-ink);
+  text-shadow: none;
+}
+
+[data-theme="sbr"] .site-header .logo-text * {
+  text-shadow: none;
+  font-style: normal;
 }
